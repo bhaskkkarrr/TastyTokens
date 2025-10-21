@@ -77,20 +77,6 @@ function AdminDashboard() {
           ""
         )}
 
-        {console.log(user._id)}
-        {user ? (
-          <a
-            href={user._id}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-emerald-600 underline mt-3"
-          >
-            View Live Menu →
-          </a>
-        ) : (
-          ""
-        )}
-
         <p className="text-gray-500">Scan this QR to view your menu</p>
         <div className="flex items-center">
           <MdRestaurantMenu className="text-emerald-600 w-8 h-8" />
