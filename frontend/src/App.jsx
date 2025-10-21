@@ -1,7 +1,10 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import CommonLayout from "./pages/CommonLayout";
 import { Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import { MenuProvider } from "./context/MenuContext";
+
+// ADMIN
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMenuItems from "./pages/admin/AdminMenuItems";
 import AdminQrCode from "./pages/admin/AdminQrCode";
@@ -10,26 +13,29 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminCustomers from "./pages/admin/AdminCustomers";
 import AdminNotification from "./pages/admin/AdminNotification";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLayout from "./pages/admin/AdminLayout";
+
+// PUBLIC
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
 import Page404 from "./pages/Page404";
-import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./guard/ProtectedRoute";
-import AdminLayout from "./pages/admin/AdminLayout";
+
+// CUSTOMER
 import CustomerLayout from "./pages/customer/CustomerLayout";
 import Dashboard from "./pages/customer/Dashboard";
 import RewardPoints from "./pages/customer/RewardPoints";
 import SuperAdminLayout from "./pages/super-admin/SuperAdminLayout";
 import SuperDashboard from "./pages/super-admin/SuperDashboard";
 import SuperAnalytics from "./pages/super-admin/SuperAnalytics";
-import { MenuProvider } from "./context/MenuContext";
+
 function App() {
   return (
     <AuthProvider>
       <MenuProvider>
         <Routes>
           <Route path="/signup" element={<SignUpPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<LoginPage />} />
 
           {/* Restaurant Admin Routes */}
           <Route
