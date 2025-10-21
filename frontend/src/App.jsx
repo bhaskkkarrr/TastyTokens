@@ -37,7 +37,7 @@ function App() {
           <Route
             path="/signup"
             element={
-              <ProtectedRoute allowedRoles={["admin"]}>
+              <ProtectedRoute allowedRoles={["superadmin"]}>
                 <SignUpPage />
               </ProtectedRoute>
             }
@@ -84,7 +84,7 @@ function App() {
             <Route path="dashboard" element={<SuperDashboard />} />
             <Route path="analytics" element={<SuperAnalytics />} />
           </Route>
-          
+
           <Route path="*" element={<Page404 />} />
         </Routes>
       </MenuProvider>
