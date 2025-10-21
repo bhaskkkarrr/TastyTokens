@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
       if (isTokenExpired(storedToken)) {
         console.alert("Token expired — logging out.");
         logout();
-        navigate("/login");
+        navigate("/");
       } else {
         setUser(JSON.parse(storedUser));
         setToken(storedToken);
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }) => {
 
       const res = await response.json();
       if (response.ok) {
-        navigate("/login");
+        navigate("/");
         return { success: true };
       } else {
         return { success: false, message: res.message || "Sign Up failed" };
@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
         if (isTokenExpired(token)) {
           console.warn("Session expired automatically.");
           logout();
-          navigate("/login");
+          navigate("/");
         }
       }, 60 * 1000); // check every 1 minute
       return () => clearInterval(interval);

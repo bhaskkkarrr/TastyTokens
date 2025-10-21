@@ -10,10 +10,10 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
     setChecked(true);
   }, []);
   if (checked && !authenticated) {
-    return <Navigate to={"/login"} replace />;
+    return <Navigate to={"/"} replace />;
   }
   if (checked && user && allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to={"/login"} replace />;
+    return <Navigate to={"/"} replace />;
   }
   return children;
 }

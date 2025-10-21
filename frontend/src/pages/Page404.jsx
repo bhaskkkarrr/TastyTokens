@@ -37,7 +37,7 @@ function Page404() {
           <button
             onClick={() => {
               logout();
-              navigate("/login");
+              navigate("/");
             }}
             className="px-6 py-3 me-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 inline-flex items-center"
           >

@@ -1,5 +1,5 @@
-import React, { useContext } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { Link } from "react-router-dom";
 import {
   FaUser,
   FaEnvelope,
@@ -9,7 +9,6 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-const BASE_API = import.meta.env.VITE_BASE_API;
 import { AuthContext } from "../context/AuthContext";
 import Loader from "../components/Loader";
 

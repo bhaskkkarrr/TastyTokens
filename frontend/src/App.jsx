@@ -34,7 +34,14 @@ function App() {
     <AuthProvider>
       <MenuProvider>
         <Routes>
-          <Route path="/signup" element={<SignUpPage />} />
+          <Route
+            path="/signup"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <SignUpPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/" element={<LoginPage />} />
 
           {/* Restaurant Admin Routes */}
@@ -77,6 +84,7 @@ function App() {
             <Route path="dashboard" element={<SuperDashboard />} />
             <Route path="analytics" element={<SuperAnalytics />} />
           </Route>
+          
           <Route path="*" element={<Page404 />} />
         </Routes>
       </MenuProvider>

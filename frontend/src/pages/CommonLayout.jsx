@@ -173,7 +173,7 @@ const CommonLayout = ({ menuItems }) => {
                 className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all group"
                 onClick={() => {
                   logout();
-                  navigate("/login");
+                  navigate("/");
                 }}
               >
                 <div className="p-2 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-all">
@@ -224,7 +224,7 @@ const CommonLayout = ({ menuItems }) => {
                     className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all group"
                     onClick={() => {
                       logout();
-                      navigate("/login");
+                      navigate("/");
                     }}
                   >
                     <div className="p-2 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-all">
