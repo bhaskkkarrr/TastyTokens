@@ -1,3 +1,3 @@
-const BASE_API = "http://localhost:5174";
+const BASE_API = "https://tastytokens.onrender.com";
 
 export default BASE_API;

@@ -14,13 +14,14 @@ const { authRoutes } = require("./routes/authRoutes");
 const { categoryRoutes } = require("./routes/foodCategoryRoutes");
 const { menuItemRoutes } = require("./routes/MenuItemRoutes");
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "tasty-tokens.vercel.app",
+//     credentials: true,
+//   })
+// );
 
+app.use(cors());
 // App Routes
 app.use(express.json());
 app.use("/api/auth", authRoutes);
