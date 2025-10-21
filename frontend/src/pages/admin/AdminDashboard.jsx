@@ -77,6 +77,7 @@ function AdminDashboard() {
           ""
         )}
 
+        {console.log(user.menuPageUrl)}
         {user ? (
           <a
             href={user.menuPageUrl}

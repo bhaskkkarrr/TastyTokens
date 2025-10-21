@@ -1,28 +1,33 @@
 const FoodCategory = require("../models/FoodCategoryModel");
 
+// Controller: Add Category
 exports.postAddCategory = async (req, res) => {
   try {
     const { name, isActive } = req.body;
-    const existingCat = await FoodCategory.findOne({ name });
+    const restaurantId = req.user.id; // comes from auth middleware
+
+    // Check if category already exists for this restaurant
+    const existingCat = await FoodCategory.findOne({ restaurantId, name });
     if (existingCat) {
-      res
+      return res
         .status(400)
         .json({ success: false, message: "Category already added" });
     }
+
     const newCategory = new FoodCategory({
-      restaurantId: req.user.id,
+      restaurantId,
       name,
-      isActive,
+      isActive: isActive || true, // default true if not provided
     });
 
     await newCategory.save();
-    res.status(200).json({ success: true, message: "Category Added" });
+    res.status(201).json({ success: true, message: "Category added", newCategory });
   } catch (error) {
-    res
-      .status(501)
-      .json({ success: false, message: "Server error in adding category" });
+    console.error("Error adding category:", error);
+    res.status(500).json({ success: false, message: "Server error", error: error.message });
   }
 };
+
 
 exports.getAllCategory = async (req, res) => {
   try {
