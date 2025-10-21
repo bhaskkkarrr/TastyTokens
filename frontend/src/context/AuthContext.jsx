@@ -1,6 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BASE_API from "../utils/baseUrl";
+
+const BASE_API = import.meta.env.VITE_BASE_API;
 
 export const AuthContext = createContext();
 

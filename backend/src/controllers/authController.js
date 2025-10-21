@@ -2,6 +2,7 @@ const Admin = require("../models/AdminModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
+require("dotenv").config();
 
 exports.postSignup = async (req, res) => {
   console.log("Signup data", req.body);
@@ -45,8 +46,8 @@ exports.postSignup = async (req, res) => {
     await newRestaurant.save();
 
     // ✅ Generate QR Code for the restaurant’s public menu
-    const BASE_URL = "tasty-tokens.vercel.app"; // <-- ✨ add your domain here
-    const menuPageUrl = `${BASE_URL}/${newRestaurant._id}`;
+
+    const menuPageUrl = `${process.env.BASE_URL}/${newRestaurant._id}`;
     const qrCodeUrl = await QRCode.toDataURL(menuPageUrl);
 
     // ✅ Save QR code and menu URL in DB

@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import BASE_API from "../utils/baseUrl";
+const BASE_API = import.meta.env.VITE_BASE_API;
 import { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 

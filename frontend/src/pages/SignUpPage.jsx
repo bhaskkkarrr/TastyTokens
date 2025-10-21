@@ -9,7 +9,7 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { useForm } from "react-hook-form";
-import BASE_API from "../utils/baseUrl";
+const BASE_API = import.meta.env.VITE_BASE_API;
 import { AuthContext } from "../context/AuthContext";
 import Loader from "../components/Loader";
 

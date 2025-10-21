@@ -28,7 +28,7 @@
 //   return (
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import BASE_API from "../../utils/baseUrl";
+const BASE_API = import.meta.env.VITE_BASE_API;
 
 export default function PublicMenu() {
   const { restaurantId } = useParams();
