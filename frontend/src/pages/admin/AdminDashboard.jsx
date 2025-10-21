@@ -77,10 +77,10 @@ function AdminDashboard() {
           ""
         )}
 
-        {console.log(user.menuPageUrl)}
+        {console.log(user._id)}
         {user ? (
           <a
-            href={user.menuPageUrl}
+            href={user._id}
             target="_blank"
             rel="noopener noreferrer"
             className="text-emerald-600 underline mt-3"
