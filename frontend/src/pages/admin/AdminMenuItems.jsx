@@ -1,0 +1,563 @@
+import { useContext, useEffect, useState } from "react";
+import { FaUpload, FaCheck } from "react-icons/fa";
+import { FaEdit, FaTrash, FaUtensils } from "react-icons/fa";
+import { MdRestaurantMenu } from "react-icons/md";
+import { NavLink } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { MenuContext } from "../../context/MenuContext";
+import Loader from "../../components/Loader";
+import { AuthContext } from "../../context/AuthContext";
+import SkeletonLoader from "../../components/SkeletonLoader";
+
+const AdminMenuItems = () => {
+  const { token } = useContext(AuthContext);
+  const {
+    addCategory,
+    getAllCategories,
+    categories,
+    isLoading,
+    addMenuItem,
+    getAllMenuItems,
+    menuItems,
+  } = useContext(MenuContext);
+
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showCatAddModal, setShowCatAddModel] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setError,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm();
+
+  // Image Upload
+  const watchImage = watch("image");
+  // Preview selected image
+  useEffect(() => {
+    if (watchImage && watchImage[0]) {
+      const file = watchImage[0];
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  }, [watchImage]);
+
+  const [imagePreview, setImagePreview] = useState(null);
+
+  const onSubmit = async (data) => {
+    const result = await addMenuItem(data);
+    if (result.success) {
+      reset();
+      setImagePreview(null);
+      setShowAddModal(false);
+      await getAllMenuItems();
+    }
+    if (!result.success) {
+      setError("root", { message: result.message });
+    }
+  };
+
+  const onCatSubmit = async (data) => {
+    const result = await addCategory(data);
+    if (result.success) {
+      reset();
+      setShowCatAddModel(false);
+    }
+    if (!result.success) {
+      setError("root", { message: result.message });
+    }
+    console.log(data);
+  };
+
+  useEffect(() => {
+    if (token) {
+      getAllMenuItems();
+      getAllCategories();
+    }
+  }, [token]);
+
+  return (
+    <div className="container-fluid py-6 bg-emerald-50">
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-3xl bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowAddModal(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              &times;
+            </button>
+
+            <h2 className="text-2xl font-semibold text-emerald-700 mb-6 text-center">
+              Add New Menu Item
+            </h2>
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {isLoading ? (
+                <Loader></Loader>
+              ) : (
+                <div>
+                  {errors.root && (
+                    <div className="mb-2 text-red-600 text-sm text-center bg-red-50 py-3 rounded-3 border-2 border-red-700">
+                      {errors.root.message}
+                    </div>
+                  )}
+                  {/* Name */}
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Item Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter dish name"
+                      {...register("name", {
+                        required: {
+                          value: true,
+                          message: "Name is required",
+                        },
+                      })}
+                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                        errors.name ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    {errors.name && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Price */}
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter price"
+                      {...register("price", {
+                        required: {
+                          value: true,
+                          message: "Price is required",
+                        },
+                      })}
+                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                        errors.price ? "border-red-500" : "border-gray-300"
+                      }`}
+                    />
+                    {errors.price && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.price.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <label className="block text-gray-700 font-medium mb-2">
+                      Category
+                    </label>
+                    <select
+                      {...register("category")}
+                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                        errors.category ? "border-red-500" : "border-gray-300"
+                      }`}
+                    >
+                      <option value="">Select Category</option>
+                      <option value="Main Course">Main Course</option>
+                      <option value="Starters">Starters</option>
+                      <option value="Desserts">Desserts</option>
+                      <option value="Beverages">Beverages</option>
+                      <option value="Burger">Burger</option>
+                      <option value="Rice & Biryani">Rice & Biryani</option>
+                      <option value="Pizzas">Pizzas</option>
+                    </select>
+                    {errors.category && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.category.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Veg / Non-Veg */}
+                  <div>
+                    <div className="flex gap-6">
+                      <label className="block text-gray-700 font-medium mb-2">
+                        Select type:
+                      </label>
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          value="veg"
+                          {...register("type", { required: "Select type" })}
+                          className="w-5 h-5 me-2 text-emerald-600 rounded-full"
+                        />
+                        <span className="text-gray-700 text-medium">
+                          Vegetarian
+                        </span>
+                      </label>
+
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          value="non-veg"
+                          {...register("type", { required: "Select type" })}
+                          className="w-5 h-5 me-2 text-red-500 rounded-full"
+                        />
+                        <span className="text-gray-700 text-medium">
+                          Non-Vegetarian
+                        </span>
+                      </label>
+                    </div>
+                    {/* Validation Error */}
+                    {errors.type && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.type.message}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Availability Toggle */}
+                  <div className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
+                    <label className="text-gray-700 font-medium">
+                      Available
+                    </label>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        defaultChecked
+                        {...register("isAvailable")}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-600 transition-all duration-300"></div>
+                      <span className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-5"></span>
+                    </label>
+                  </div>
+
+                  {/* Image Upload */}
+                  <div className="d-flex align-top ">
+                    <label className="block text-gray-700 font-medium mb-2 me-3">
+                      Upload Image
+                    </label>
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 p-6 rounded-xl cursor-pointer hover:border-emerald-500 transition-all duration-300">
+                      <FaUpload className="text-emerald-600 w-6 h-6 mb-2" />
+                      <span className="text-gray-500 text-sm mb-2">
+                        Click to upload or drag file
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        {...register("image")}
+                        className="hidden"
+                      />
+                      {imagePreview && (
+                        <img
+                          src={imagePreview}
+                          alt="preview"
+                          className="mt-3 w-32 h-32 object-cover rounded-xl border border-gray-200"
+                        />
+                      )}
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-3 transition-all duration-300 shadow-lg"
+                  >
+                    <FaCheck />
+                    {isSubmitting ? "Adding..." : "Add Menu Item"}
+                  </button>
+                </div>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showCatAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="relative w-full max-w-lg bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowCatAddModel(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
+            >
+              &times;
+            </button>
+
+            <h2 className="text-2xl font-semibold text-emerald-700 mb-6 text-center">
+              Add New Category
+            </h2>
+
+            <form
+              onSubmit={handleSubmit(onCatSubmit)}
+              className="space-y-5 text-gray-700"
+            >
+              {errors.root && (
+                <div className="mb-2 text-red-600 text-sm text-center bg-red-50 py-3 rounded-3 border-2 border-red-700">
+                  {errors.root.message}
+                </div>
+              )}
+              {/* Category Name */}
+              <div>
+                <label className="block font-medium mb-2">Category Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter category name"
+                  {...register("name", {
+                    required: {
+                      value: true,
+                      message: "Category name is required",
+                    },
+                  })}
+                  className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  }`}
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Status Toggle */}
+              <div className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
+                <label className="font-medium">Active</label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    {...register("isActive")}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-300 rounded-full peer peer-checked:bg-emerald-600 transition-all duration-300"></div>
+                  <span className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-5"></span>
+                </label>
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-3 transition-all duration-300 shadow-lg"
+              >
+                <FaCheck />
+                {isSubmitting ? "Adding..." : "Add Category"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 px-4 sm:px-0">
+        <div className="flex items-center">
+          <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
+          <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
+            Menu Items
+          </h2>
+        </div>
+        <button
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 sm:px-5 py-2 rounded-4 shadow-md transition-all duration-300"
+          onClick={() => setShowAddModal(true)}
+        >
+          <FaUtensils className="w-4 h-4" />
+          Add New Item
+        </button>
+      </div>
+
+      {/* Category List */}
+      <div className="mb-6 sm:px-0">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+              Food Categories
+            </h3>
+            <button
+              className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
+              onClick={() => setShowCatAddModel(true)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-4 h-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Category
+            </button>
+          </div>
+
+          <div className="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6">
+            <div className="flex space-x-3 min-w-max pb-2">
+              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-5 shadow-sm hover:shadow transition-all duration-300">
+                <div>All Items</div>
+              </button>
+              {isLoading ? (
+                <Loader />
+              ) : (
+                categories &&
+                categories.map((cat) => {
+                  return (
+                    <button
+                      key={cat._id}
+                      className={`me-2 p-4 sm:px-5  text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300  ${
+                        cat.isActive
+                          ? "bg-emerald-100 hover:bg-emerald-200"
+                          : "bg-red-100 hover:bg-red-200"
+                      }`}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })
+              )}
+
+              {/* <div>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Starters
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Noodles
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Chinese
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Rolls
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Burger
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Rice & Biryani
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Pizzas
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Cakes
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Desserts
+                </button>
+                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
+                  Beverages
+                </button>
+              </div> */}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu Cards */}
+      {isLoading ? (
+        <SkeletonLoader count={5} />
+      ) : menuItems.length > 0 ? (
+        <div className="row g-4">
+          {menuItems.map((item) => (
+            <div key={item._id} className="col-12 col-md-6 col-lg-4">
+              <NavLink className="card h-100 border-0 text-decoration-none bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                <div className="relative">
+                  <img
+                    src={item.imageUrl}
+                    className="card-img-top h-60 w-full object-cover"
+                    alt={item.name}
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
+                    <h5 className="text-xl font-semibold text-white mb-0">
+                      {item.name}
+                    </h5>
+                    <div className="flex gap-2 mt-2">
+                      {item.bestSeller && (
+                        <span className="badge bg-emerald-600 text-white px-3 py-1 rounded-full text-sm">
+                          Best Seller
+                        </span>
+                      )}
+                      <span
+                        className={`badge px-3 py-1 rounded-full text-sm ${
+                          item.foodType === "veg"
+                            ? "bg-green-500 text-white"
+                            : "bg-red-500 text-white"
+                        }`}
+                      >
+                        {item.foodType ? "Pure Veg" : "Non-Veg"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="card-body bg-white p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <div className="flex flex-wrap gap-2">
+                      {(Array.isArray(item.category)
+                        ? item.category
+                        : [item.category]
+                      ).map((c, i) => (
+                        <span
+                          key={i}
+                          className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-medium"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+
+                    <span className="text-xl font-bold text-emerald-600">
+                      ₹{item.price}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                    {/* ✅ Checkbox with state update */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={item.isAvailable}
+                        onChange={() => handleAvailabilityToggle(item.id)}
+                        className={`form-checkbox h-5 w-5 rounded cursor-pointer ${
+                          item.isAvailable
+                            ? "text-emerald-600 border-emerald-600"
+                            : "text-gray-400 border-gray-400"
+                        }`}
+                      />
+                      <span className="text-sm text-gray-600">
+                        {item.isAvailable ? "Available" : "Unavailable"}
+                      </span>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-3 transition-colors duration-200">
+                        <FaEdit className="w-4 h-4" />
+                      </button>
+                      <button className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-3 transition-colors duration-200">
+                        <FaTrash className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </NavLink>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-center text-gray-500">No menu items found.</p>
+      )}
+    </div>
+  );
+};
+
+export default AdminMenuItems;
