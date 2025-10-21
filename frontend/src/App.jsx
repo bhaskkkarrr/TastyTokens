@@ -33,7 +33,7 @@ function App() {
 
           {/* Restaurant Admin Routes */}
           <Route
-            path="admin"
+            path="/admin"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AdminLayout />
@@ -41,21 +41,21 @@ function App() {
             }
           >
             <Route index element={<AdminDashboard />} />
-            <Route path="dashboard" index element={<AdminDashboard />} />
-            <Route path="menu-items" element={<AdminMenuItems />} />
-            <Route path="qr-codes" element={<AdminQrCode />} />
-            <Route path="orders" index element={<AdminOrders />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="customers" element={<AdminCustomers />} />
-            <Route path="notifications" element={<AdminNotification />} />
-            <Route path="settings" element={<AdminSettings />} />
+            <Route path="/dashboard" index element={<AdminDashboard />} />
+            <Route path="/menu-items" element={<AdminMenuItems />} />
+            <Route path="/qr-codes" element={<AdminQrCode />} />
+            <Route path="/orders" index element={<AdminOrders />} />
+            <Route path="/analytics" element={<AdminAnalytics />} />
+            <Route path="/customers" element={<AdminCustomers />} />
+            <Route path="/notifications" element={<AdminNotification />} />
+            <Route path="/settings" element={<AdminSettings />} />
           </Route>
 
           {/* Customer Routes */}
           <Route path="/:restaurantId" element={<CustomerLayout />}>
             <Route index element={<Dashboard />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="reward-points" element={<RewardPoints />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/reward-points" element={<RewardPoints />} />
           </Route>
 
           {/* Super Admin Routes */}
