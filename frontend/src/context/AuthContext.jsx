@@ -34,7 +34,6 @@ export const AuthProvider = ({ children }) => {
 
     if (storedUser && storedToken) {
       if (isTokenExpired(storedToken)) {
-        console.alert("Token expired — logging out.");
         logout();
         navigate("/");
       } else {
