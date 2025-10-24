@@ -8,7 +8,7 @@ const BASE_API = import.meta.env.VITE_BASE_API;
 export default function CustomerMenu() {
   const { restaurantId, tableId } = useParams();
   const [data, setData] = useState(null);
-  // const [error, setError] = useState();
+  const [error, setError] = useState();
   const [isLoading, setIsLoading] = useState(true);
   // // const { addItem } = useContext(CartContext);
   // // const navigate = useNavigate();
@@ -38,34 +38,6 @@ export default function CustomerMenu() {
   useEffect(() => {
     getResMenu();
   }, [restaurantId]);
-  // useEffect(() => {
-  //   let mounted = true;
-  //   async function fetchData() {
-  //     try {
-  //       setLoading(true);
-  //       // Public endpoint returns restaurant, table, menu
-  //       const r = await fetch(`/api/public/r/${restaurantId}/t${tableId}`, {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       });
-  //       if (!res.ok) throw new Error("Invalid QR or server error");
-  //       const res = await r.json();
-  //       console.log(res);
-  //       if (!mounted) return;
-  //       setData(res);
-  //     } catch (err) {
-  //       setError(err.message || "Failed to load menu");
-  //     } finally {
-  //       if (mounted) setLoading(false);
-  //     }
-  //   }
-  //   fetchData();
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, [restaurantId, tableId]);
 
   if (isLoading)
     return (
@@ -73,20 +45,18 @@ export default function CustomerMenu() {
         <Loader></Loader>
       </div>
     );
-  // if (error) return <div className="text-red-600">{error}</div>;
+  if (error) return <div className="text-red-600">{error}</div>;
 
   const { restaurant, table, menu } = data;
 
   return (
-    <div>
-      {/* <div className="mb-4">
+    <div className="bg-emerald-50 p-4">
+      <div className="mb-4 flex justify-center">
         <h2 className="text-xl font-semibold">
-          {restaurant.name} — {table.name}
+          {restaurant.restaurantName} — {table.name}
         </h2>
-        <p className="text-sm text-gray-500">Table code: {table.code}</p>
-      </div> */}
-      {console.log(data)}
-      <div className="grid gap-4">
+      </div>
+      <div className="grid gap-4 p-2">
         {menu.map((category) => (
           <section key={category._id}>
             <h3 className="text-lg font-medium">{category.name}</h3>

@@ -7,9 +7,7 @@ exports.getPublicMenu = async (req, res) => {
     const { restaurantId } = req.params;
 
     // 1️⃣ Fetch restaurant
-    const restaurant = await Admin.findById(restaurantId).select(
-      "_id name slug"
-    );
+    const restaurant = await Admin.findById(restaurantId).select("-createdAt");
     if (!restaurant)
       return res
         .status(404)
