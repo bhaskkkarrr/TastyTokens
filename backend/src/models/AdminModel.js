@@ -12,8 +12,6 @@ const adminSchema = new mongoose.Schema({
   email: { type: String, required: true },
   password: { type: String, required: true },
   address: { type: String },
-  qrCodeUrl: String, // ✅ store generated QR code image URL
-  menuPageUrl: String, // ✅ link to dynamic menu route
   createdAt: { type: Date, default: Date.now },
 });
 

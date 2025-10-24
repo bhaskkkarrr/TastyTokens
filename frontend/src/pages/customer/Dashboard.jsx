@@ -35,19 +35,41 @@ export default function PublicMenu() {
   const [menuItems, setMenuItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const getAllMenuItems = async () => {
+    try {
+      setIsLoading(true);
+      const r = await fetch(
+        `${BASE_API}/api/menu/r/${restaurantId}/t/${tableCode}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const res = await r.json();
+      console.log(res);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   useEffect(() => {
-    setIsLoading(true);
-    fetch(`${BASE_API}/api/menu/public/${restaurantId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setMenuItems(data.menuItems || []);
-        setIsLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setIsLoading(false);
-      });
-  }, [restaurantId]);
+    getAllMenuItems();
+  }, []);
+  // useEffect(() => {
+  //   fetch(`${BASE_API}/api/menu/r/${restaurantId}/t/${tableCode}`)
+  //     .then((res) => res.json())
+  //     .then((data) => {
+  //       setMenuItems(data.menuItems || []);
+  //       setIsLoading(false);
+  //     })
+  //     .catch((err) => {
+  //       console.error(err);
+  //     });
+  // }, [restaurantId]);
 
   if (isLoading) return <p className="text-center mt-5">Loading menu...</p>;
 

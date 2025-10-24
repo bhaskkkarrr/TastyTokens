@@ -66,18 +66,6 @@ function AdminDashboard() {
   return (
     <div className="container-fluid py-6 bg-emerald-50 ">
       <div className="d-flex justify-content-between items-center mb-6">
-        {console.log(user)}
-        {user ? (
-          <img
-            src={user.qrCodeUrl}
-            alt="Restaurant QR Code"
-            className="w-48 h-48"
-          />
-        ) : (
-          ""
-        )}
-
-        <p className="text-gray-500">Scan this QR to view your menu</p>
         <div className="flex items-center">
           <MdRestaurantMenu className="text-emerald-600 w-8 h-8" />
           <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">

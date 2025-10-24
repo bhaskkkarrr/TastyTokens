@@ -43,8 +43,6 @@ exports.postSignup = async (req, res) => {
       role,
     });
 
-    await newRestaurant.save();
-
     // ✅ Generate QR Code for the restaurant’s public menu
     const BASE_URL = "tasty-tokens.vercel.app";
     const menuPageUrl = `${BASE_URL}/${newRestaurant._id}`;

@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 const { authRoutes } = require("./routes/authRoutes");
 const { categoryRoutes } = require("./routes/foodCategoryRoutes");
 const { menuItemRoutes } = require("./routes/MenuItemRoutes");
+const { tableRoutes } = require("./routes/TableRoutes");
 
 // app.use(
 //   cors({
@@ -22,11 +23,13 @@ const { menuItemRoutes } = require("./routes/MenuItemRoutes");
 // );
 
 app.use(cors());
+
 // App Routes
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/menu", menuItemRoutes);
+app.use("/api/table", tableRoutes);
 
 // Server Port
 app.listen(PORT, () => {

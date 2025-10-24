@@ -479,7 +479,8 @@ const AdminMenuItems = () => {
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
                     <h5 className="text-xl font-semibold text-white mb-0">
-                      {item.name}
+                      
+                      {item.name ? item.name : "NA"}
                     </h5>
                     <div className="flex gap-2 mt-2">
                       {item.bestSeller && (

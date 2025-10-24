@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { 
-  FaUsers, 
-  FaSearch, 
-  FaStar, 
-  FaShoppingBag, 
-  FaPhoneAlt, 
+import {
+  FaUsers,
+  FaSearch,
+  FaStar,
+  FaShoppingBag,
+  FaPhoneAlt,
   FaEnvelope,
   FaFilter,
-  FaSortAmountDown
+  FaSortAmountDown,
 } from "react-icons/fa";
 
 function AdminCustomers() {
@@ -24,20 +24,19 @@ function AdminCustomers() {
       lastOrder: "2025-10-09",
       avgRating: 4.8,
       status: "active",
-      image: "https://ui-avatars.com/api/?name=Rahul+Sharma&background=10B981&color=fff"
+      image:
+        "https://ui-avatars.com/api/?name=Rahul+Sharma&background=10B981&color=fff",
     },
     {
       id: 2,
       name: "Priya Patel",
-      email: "priya.p@example.com",
       phone: "+91 87654 32109",
       joinedDate: "2025-09-01",
       totalOrders: 18,
       totalSpent: 8900,
       lastOrder: "2025-10-10",
-      avgRating: 4.6,
-      status: "active",
-      image: "https://ui-avatars.com/api/?name=Priya+Patel&background=10B981&color=fff"
+      image:
+        "https://ui-avatars.com/api/?name=Priya+Patel&background=10B981&color=fff",
     },
     {
       id: 3,
@@ -50,8 +49,9 @@ function AdminCustomers() {
       lastOrder: "2025-10-08",
       avgRating: 4.9,
       status: "active",
-      image: "https://ui-avatars.com/api/?name=Amit+Kumar&background=10B981&color=fff"
-    }
+      image:
+        "https://ui-avatars.com/api/?name=Amit+Kumar&background=10B981&color=fff",
+    },
   ]);
 
   return (
@@ -64,10 +64,6 @@ function AdminCustomers() {
             Customer Management
           </h2>
         </div>
-        <button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-sm transition-all duration-300 text-sm">
-          <FaFilter />
-          Advanced Filters
-        </button>
       </div>
 
       {/* Stats Section */}
@@ -128,9 +124,9 @@ function AdminCustomers() {
           <div className="md:col-span-4">
             <div className="relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search customers..." 
+              <input
+                type="text"
+                placeholder="Search customers..."
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
               />
             </div>
@@ -156,29 +152,31 @@ function AdminCustomers() {
       {/* Customers List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {customers.map((customer) => (
-          <div key={customer.id} className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+          <div
+            key={customer.id}
+            className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
+          >
             <div className="p-4">
               <div className="flex items-start gap-4">
-                <img 
-                  src={customer.image} 
-                  alt={customer.name}
-                  className="w-16 h-16 rounded-full"
-                />
                 <div className="flex-1">
-                  <h5 className="text-lg font-semibold text-gray-800 mb-1">{customer.name}</h5>
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-                    <FaStar className="text-yellow-400" />
-                    <span>{customer.avgRating} Rating</span>
+                  <div className="flex justify-between">
+                    <h5 className="text-lg font-semibold text-gray-800 mb-1">
+                      {customer.name}
+                    </h5>
+                    <div className="flex flex-wrap gap-2 ">
+                      <div className="text-sm font-semibold text-emerald-500 hover:text-emerald-600 flex items-center gap-1">
+                        <FaPhoneAlt className="hidden sm:inline w-4 h-4" />
+                        <span className="">
+                          {customer.phone}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    <a href={`mailto:${customer.email}`} className="text-sm text-gray-500 hover:text-emerald-600 flex items-center gap-1">
-                      <FaEnvelope className="w-4 h-4" />
-                      <span className="hidden sm:inline">{customer.email}</span>
-                    </a>
-                    <a href={`tel:${customer.phone}`} className="text-sm text-gray-500 hover:text-emerald-600 flex items-center gap-1">
-                      <FaPhoneAlt className="w-4 h-4" />
-                      <span className="hidden sm:inline">{customer.phone}</span>
-                    </a>
+                  <div className="flex justify-between items-center mt-2">
+                    <span className="text-sm text-gray-500">Joined</span>
+                    <span className="text-sm font-medium text-emerald-600">
+                      {customer.joinedDate}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -186,32 +184,16 @@ function AdminCustomers() {
               <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-gray-100">
                 <div>
                   <p className="text-sm text-gray-500">Total Orders</p>
-                  <p className="text-lg font-semibold text-emerald-600">{customer.totalOrders}</p>
+                  <p className="text-lg font-semibold text-emerald-600">
+                    {customer.totalOrders}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Total Spent</p>
-                  <p className="text-lg font-semibold text-emerald-600">₹{customer.totalSpent}</p>
+                  <p className="text-lg font-semibold text-emerald-600">
+                    ₹{customer.totalSpent}
+                  </p>
                 </div>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">Last Order</span>
-                  <span className="text-sm font-medium text-emerald-600">{customer.lastOrder}</span>
-                </div>
-                <div className="flex justify-between items-center mt-2">
-                  <span className="text-sm text-gray-500">Joined</span>
-                  <span className="text-sm font-medium text-emerald-600">{customer.joinedDate}</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2 mt-4">
-                <button className="flex-1 px-4 py-2 text-sm font-medium text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg transition-colors duration-300">
-                  View Profile
-                </button>
-                <button className="flex-1 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors duration-300">
-                  Order History
-                </button>
               </div>
             </div>
           </div>
