@@ -18,5 +18,11 @@ menuItemRoutes.get(
   authorizeRoles("admin", "customer"),
   menuItemsController.getAllMenuItems
 );
+menuItemRoutes.delete(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  menuItemsController.deleteMenu
+);
 
 exports.menuItemRoutes = menuItemRoutes;

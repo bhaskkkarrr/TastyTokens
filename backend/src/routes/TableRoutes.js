@@ -22,7 +22,7 @@ tableRoutes.delete(
   "/:id",
   verifyToken,
   authorizeRoles("admin"),
-  TableController.deleteStudent
+  TableController.deleteTable
 );
 
 exports.tableRoutes = tableRoutes;

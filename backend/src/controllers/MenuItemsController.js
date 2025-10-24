@@ -81,4 +81,29 @@ exports.getAllMenuItems = async (req, res) => {
   }
 };
 
+exports.deleteMenu = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const menu = await MenuItem.findById(id);
+    if (!menu) {
+      res.status(401).json({ success: false, message: "No menu item founded" });
+    }
 
+    // Delete image from Cloudinary if exists
+    if (menu.imagePublicId) {
+      try {
+        await cloudinary.uploader.destroy(menu.imagePublicId);
+        console.log(`Deleted Cloudinary image: ${menu.imagePublicId}`);
+      } catch (cloudErr) {
+        console.error("Error deleting Cloudinary image:", cloudErr.message);
+      }
+    }
+
+    // Delete from MongoDB
+    await menu.deleteOne();
+
+    res.json({ success: true, message: "Menu item deleted successfully" });
+  } catch (error) {
+    res.status(501).json({ success: false, message: "Error deleting tables" });
+  }
+};

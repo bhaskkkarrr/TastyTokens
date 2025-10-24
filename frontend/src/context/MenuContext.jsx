@@ -141,7 +141,7 @@ export const MenuProvider = ({ children }) => {
         },
       });
       const data = await res.json();
-      console.log(data)
+      console.log(data);
       if (res.ok && data.success) {
         setMenuItems(data.menuItems); // assuming backend returns { success: true, menuItems: [...] }
       } else {
@@ -154,6 +154,30 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      setIsLoading(true);
+      const r = await fetch(`${BASE_API}/api/menu/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (r.ok) {
+        setMenuItems((prev) =>
+          prev.filter((t) => {
+            return t._id !== id;
+          })
+        );
+        return { success: true };
+      }
+    } catch (error) {
+      return { success: false, message: error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <MenuContext.Provider
       value={{
@@ -161,6 +185,7 @@ export const MenuProvider = ({ children }) => {
         getAllCategories,
         addMenuItem,
         getAllMenuItems,
+        handleDelete,
         isLoading,
         categories,
         menuItems,

@@ -18,6 +18,7 @@ const AdminMenuItems = () => {
     isLoading,
     addMenuItem,
     getAllMenuItems,
+    handleDelete,
     menuItems,
   } = useContext(MenuContext);
 
@@ -78,6 +79,17 @@ const AdminMenuItems = () => {
     }
   }, [token]);
 
+  const onDelete = async (id) => {
+    const result = await handleDelete(id);
+    if (!result.success) {
+      setError("root", { message: result.message });
+    }
+  };
+  const onEdit = async (item) => {
+    setShowAddModal(true);
+    reset(item);
+  };
+
   return (
     <div className="container-fluid py-6 bg-emerald-50">
       {showAddModal && (
@@ -85,7 +97,10 @@ const AdminMenuItems = () => {
           <div className="relative w-full max-w-3xl bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
             {/* Close Button */}
             <button
-              onClick={() => setShowAddModal(false)}
+              onClick={() => {
+                reset();
+                setShowAddModal(false);
+              }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
             >
               &times;
@@ -479,7 +494,6 @@ const AdminMenuItems = () => {
                   />
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
                     <h5 className="text-xl font-semibold text-white mb-0">
-                      
                       {item.name ? item.name : "NA"}
                     </h5>
                     <div className="flex gap-2 mt-2">
@@ -528,7 +542,7 @@ const AdminMenuItems = () => {
                       <input
                         type="checkbox"
                         checked={item.isAvailable}
-                        onChange={() => handleAvailabilityToggle(item.id)}
+                        onChange={() => handleAvailabilityToggle(item._id)}
                         className={`form-checkbox h-5 w-5 rounded cursor-pointer ${
                           item.isAvailable
                             ? "text-emerald-600 border-emerald-600"
@@ -542,10 +556,16 @@ const AdminMenuItems = () => {
 
                     <div className="flex gap-2">
                       <button className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-3 transition-colors duration-200">
-                        <FaEdit className="w-4 h-4" />
+                        <FaEdit
+                          className="w-4 h-4"
+                          onClick={() => onEdit(item)}
+                        />
                       </button>
                       <button className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-3 transition-colors duration-200">
-                        <FaTrash className="w-4 h-4" />
+                        <FaTrash
+                          className="w-4 h-4"
+                          onClick={() => onDelete(item._id)}
+                        />
                       </button>
                     </div>
                   </div>

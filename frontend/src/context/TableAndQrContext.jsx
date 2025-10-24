@@ -85,7 +85,6 @@ export const TableProvider = ({ children }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      const res = await r.json();
       if (r.ok) {
         setTables((prev) =>
           prev.filter((t) => {

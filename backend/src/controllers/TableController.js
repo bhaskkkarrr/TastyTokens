@@ -40,7 +40,7 @@ exports.getAllTables = async (req, res) => {
   }
 };
 
-exports.deleteStudent = async (req, res) => {
+exports.deleteTable = async (req, res) => {
   try {
     const { id } = req.params;
     const table = await Table.findById(id);
@@ -50,6 +50,6 @@ exports.deleteStudent = async (req, res) => {
     await table.deleteOne();
     res.status(201).json({ success: true, message: "Table deleted" });
   } catch (error) {
-    res.status(501).json({ message: "Error deleting tables" });
+    res.status(501).json({ success: false, message: "Error deleting tables" });
   }
 };

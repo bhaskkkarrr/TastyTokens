@@ -36,7 +36,10 @@ function AdminQrCode() {
   };
 
   const onDelete = async (qr) => {
-    await handleDelete(qr);
+    const result = await handleDelete(qr);
+    if (!result.success) {
+      setError("root", { message: result.message });
+    }
   };
 
   const onDownload = async (qr) => {

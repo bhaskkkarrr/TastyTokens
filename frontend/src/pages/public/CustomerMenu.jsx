@@ -1,6 +1,7 @@
 // pages/CustomerMenu.jsx
 import React, { useEffect, useState, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Loader from "../../components/Loader";
 const BASE_API = import.meta.env.VITE_BASE_API;
 // import { CartContext } from "../context/CartContext";
 
@@ -66,7 +67,12 @@ export default function CustomerMenu() {
   //   };
   // }, [restaurantId, tableId]);
 
-  if (isLoading) return <div>Loading menu…</div>;
+  if (isLoading)
+    return (
+      <div>
+        <Loader></Loader>
+      </div>
+    );
   // if (error) return <div className="text-red-600">{error}</div>;
 
   const { restaurant, table, menu } = data;
