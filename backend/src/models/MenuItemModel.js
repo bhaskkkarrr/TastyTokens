@@ -27,7 +27,10 @@ const menuItemSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-
+  isBestSeller: {
+    type: Boolean,
+    default: false,
+  },
   imageUrl: { type: String }, // cloudinary secure_url
 
   imagePublicId: { type: String }, // cloudinary public_id

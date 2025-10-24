@@ -107,3 +107,52 @@ exports.deleteMenu = async (req, res) => {
     res.status(501).json({ success: false, message: "Error deleting tables" });
   }
 };
+
+exports.updateMenuItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("req.body:", req.body);
+    console.log("req.file:", req.file);
+
+    const menuItem = await MenuItem.findById(id);
+    if (!menuItem) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Item not found" });
+    }
+
+    const { name, price, category, type, isAvailable, isBestSeller } = req.body;
+
+    if (name) menuItem.name = name;
+    if (price) menuItem.price = Number(price);
+    if (category) menuItem.category = category;
+    if (type) menuItem.foodType = type;
+    if (isAvailable !== undefined)
+      menuItem.isAvailable = isAvailable === "true" || isAvailable === true;
+    if (isBestSeller !== undefined)
+      menuItem.isBestSeller = isBestSeller === "true" || isBestSeller === true;
+
+    // if new image provided, upload and replace
+    if (req.file) {
+      if (menuItem.imagePublicId) {
+        await cloudinary.uploader.destroy(menuItem.imagePublicId);
+      }
+      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: "tastytokens/menuItems",
+      });
+      menuItem.imageUrl = uploadResult.secure_url;
+      menuItem.imagePublicId = uploadResult.public_id;
+    }
+
+    await menuItem.save();
+
+    res.json({ success: true, updatedItem: menuItem });
+  } catch (error) {
+    console.error("Update menu item error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update menu item",
+      error: error.message,
+    });
+  }
+};

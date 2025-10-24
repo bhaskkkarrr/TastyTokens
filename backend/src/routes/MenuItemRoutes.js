@@ -25,4 +25,12 @@ menuItemRoutes.delete(
   menuItemsController.deleteMenu
 );
 
+menuItemRoutes.put(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  upload.single("image"),
+  menuItemsController.updateMenuItem
+);
+
 exports.menuItemRoutes = menuItemRoutes;

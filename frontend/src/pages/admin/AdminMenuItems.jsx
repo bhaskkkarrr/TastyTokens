@@ -11,6 +11,7 @@ import SkeletonLoader from "../../components/SkeletonLoader";
 
 const AdminMenuItems = () => {
   const { token } = useContext(AuthContext);
+  const [editingItem, setEditingItem] = useState(null);
   const {
     addCategory,
     getAllCategories,
@@ -18,6 +19,7 @@ const AdminMenuItems = () => {
     isLoading,
     addMenuItem,
     getAllMenuItems,
+    updateMenuItem,
     handleDelete,
     menuItems,
   } = useContext(MenuContext);
@@ -48,15 +50,28 @@ const AdminMenuItems = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   const onSubmit = async (data) => {
-    const result = await addMenuItem(data);
-    if (result.success) {
-      reset();
-      setImagePreview(null);
-      setShowAddModal(false);
-      await getAllMenuItems();
-    }
-    if (!result.success) {
-      setError("root", { message: result.message });
+    if (editingItem) {
+      // Update existing - pass raw data, not FormData
+      const result = await updateMenuItem(editingItem._id, data);
+      if (result.success) {
+        reset();
+        setEditingItem(null);
+        setShowAddModal(false);
+        setImagePreview(null);
+      } else {
+        setError("root", { message: result.message });
+      }
+    } else {
+      const result = await addMenuItem(data);
+      if (result.success) {
+        reset();
+        setImagePreview(null);
+        setShowAddModal(false);
+        await getAllMenuItems();
+      }
+      if (!result.success) {
+        setError("root", { message: result.message });
+      }
     }
   };
 
@@ -86,8 +101,11 @@ const AdminMenuItems = () => {
     }
   };
   const onEdit = async (item) => {
+    console.log(item);
+    setEditingItem(item);
     setShowAddModal(true);
     reset(item);
+    setImagePreview(item.imageUrl);
   };
 
   return (
@@ -100,6 +118,8 @@ const AdminMenuItems = () => {
               onClick={() => {
                 reset();
                 setShowAddModal(false);
+                setEditingItem(null);
+                setImagePreview(null);
               }}
               className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
             >
@@ -107,7 +127,7 @@ const AdminMenuItems = () => {
             </button>
 
             <h2 className="text-2xl font-semibold text-emerald-700 mb-6 text-center">
-              Add New Menu Item
+              {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
             </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -207,7 +227,7 @@ const AdminMenuItems = () => {
                         <input
                           type="radio"
                           value="veg"
-                          {...register("type", { required: "Select type" })}
+                          {...register("foodType", { required: "Select type" })}
                           className="w-5 h-5 me-2 text-emerald-600 rounded-full"
                         />
                         <span className="text-gray-700 text-medium">
@@ -219,7 +239,7 @@ const AdminMenuItems = () => {
                         <input
                           type="radio"
                           value="non-veg"
-                          {...register("type", { required: "Select type" })}
+                          {...register("foodType", { required: "Select type" })}
                           className="w-5 h-5 me-2 text-red-500 rounded-full"
                         />
                         <span className="text-gray-700 text-medium">
@@ -284,8 +304,14 @@ const AdminMenuItems = () => {
                     disabled={isSubmitting}
                     className="w-full flex justify-center items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-3 transition-all duration-300 shadow-lg"
                   >
-                    <FaCheck />
-                    {isSubmitting ? "Adding..." : "Add Menu Item"}
+                    <FaCheck />{" "}
+                    {isSubmitting
+                      ? editingItem
+                        ? "Updating..."
+                        : "Adding..."
+                      : editingItem
+                      ? "Update Menu Item"
+                      : "Add Menu Item"}
                   </button>
                 </div>
               )}
@@ -440,39 +466,6 @@ const AdminMenuItems = () => {
                   );
                 })
               )}
-
-              {/* <div>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Starters
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Noodles
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Chinese
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Rolls
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Burger
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Rice & Biryani
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Pizzas
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Cakes
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Desserts
-                </button>
-                <button className="me-2 p-4 sm:px-5 bg-emerald-100 text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 hover:bg-emerald-200">
-                  Beverages
-                </button>
-              </div> */}
             </div>
           </div>
         </div>

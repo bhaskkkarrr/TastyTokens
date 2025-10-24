@@ -79,13 +79,16 @@ function App() {
             </Route>
 
             {/* Public Routes */}
-            <Route path="/r/:restaurantId" element={<PublicLayout />}>
-              <Route index element={<RestaurantHome />} />
-              <Route path="t/:tableId" element={<CustomerMenu />} />
-              {/* <Route path="cart" element={<CartPage />} />
+            {/* <Route path="/r/:restaurantId" element={<PublicLayout />}>
+              <Route index element={<RestaurantHome />} /> */}
+            <Route
+              path="/r/:restaurantId/t/:tableId"
+              element={<CustomerMenu />}
+            />
+            {/* <Route path="cart" element={<CartPage />} />
               <Route path="checkout" element={<Checkout />} /> */}
-              {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
-            </Route>
+            {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
+            {/* </Route> */}
 
             {/* Super Admin Routes */}
             <Route

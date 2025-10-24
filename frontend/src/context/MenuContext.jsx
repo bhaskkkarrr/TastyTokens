@@ -178,6 +178,48 @@ export const MenuProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
+
+  const updateMenuItem = async (id, data) => {
+    try {
+      setIsLoading(true);
+      const formData = new FormData();
+
+      Object.keys(data).forEach((key) => {
+        if (key === "image" && data[key] && data[key][0]) {
+          formData.append("image", data[key][0]);
+        } else if (Array.isArray(data[key])) {
+          data[key].forEach((item) => formData.append(key, item));
+        } else if (typeof data[key] === "boolean") {
+          formData.append(key, data[key] ? "true" : "false");
+        } else {
+          formData.append(key, data[key]);
+        }
+      });
+
+      const res = await fetch(`${BASE_API}/api/menu/${id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await res.json();
+      console.log("Update Result:", result);
+
+      if (result.success) {
+        await getAllMenuItems(); // refresh frontend
+      }
+
+      return result;
+    } catch (error) {
+      console.error("Error updating item:", error);
+      return { success: false, message: error.message };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <MenuContext.Provider
       value={{
@@ -186,6 +228,7 @@ export const MenuProvider = ({ children }) => {
         addMenuItem,
         getAllMenuItems,
         handleDelete,
+        updateMenuItem,
         isLoading,
         categories,
         menuItems,
