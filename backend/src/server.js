@@ -14,6 +14,7 @@ const { authRoutes } = require("./routes/authRoutes");
 const { categoryRoutes } = require("./routes/foodCategoryRoutes");
 const { menuItemRoutes } = require("./routes/MenuItemRoutes");
 const { tableRoutes } = require("./routes/TableRoutes");
+const { publicRoutes } = require("./routes/publicRoutes");
 
 // app.use(
 //   cors({
@@ -26,6 +27,7 @@ app.use(cors());
 
 // App Routes
 app.use(express.json());
+app.use("/api/public", publicRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/menu", menuItemRoutes);

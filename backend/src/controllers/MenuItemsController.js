@@ -81,17 +81,4 @@ exports.getAllMenuItems = async (req, res) => {
   }
 };
 
-exports.getPublicMenu = async (req, res) => {
-  try {
-    const { restaurantId } = req.params;
-    const menuItems = await MenuItem.find({ restaurantId, isAvailable: true });
-    console.log(menuItems);
-    return res.status(200).json({ success: true, menuItems });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Server error fetching public menu",
-      error: error.message,
-    });
-  }
-};
+

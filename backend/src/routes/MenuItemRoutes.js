@@ -18,6 +18,5 @@ menuItemRoutes.get(
   authorizeRoles("admin", "customer"),
   menuItemsController.getAllMenuItems
 );
-menuItemRoutes.get("/r/:restaurantId/t/:tableCode", menuItemsController.getPublicMenu);
 
 exports.menuItemRoutes = menuItemRoutes;

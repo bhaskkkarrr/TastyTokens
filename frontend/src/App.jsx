@@ -29,6 +29,11 @@ import SuperAdminLayout from "./pages/super-admin/SuperAdminLayout";
 import SuperDashboard from "./pages/super-admin/SuperDashboard";
 import SuperAnalytics from "./pages/super-admin/SuperAnalytics";
 import { TableProvider } from "./context/TableAndQrContext";
+import PublicLayout from "./pages/public/PublicLayout";
+import RestaurantHome from "./pages/public/RestaurantHome";
+import CustomerMenu from "./pages/public/CustomerMenu";
+import CartPage from "./pages/public/CartPage";
+import Checkout from "./pages/public/Checkout";
 
 function App() {
   return (
@@ -71,6 +76,15 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="reward-points" element={<RewardPoints />} />
+            </Route>
+
+            {/* Public Routes */}
+            <Route path="/r/:restaurantId" element={<PublicLayout />}>
+              <Route index element={<RestaurantHome />} />
+              <Route path="t/:tableId" element={<CustomerMenu />} />
+              {/* <Route path="cart" element={<CartPage />} />
+              <Route path="checkout" element={<Checkout />} /> */}
+              {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
             </Route>
 
             {/* Super Admin Routes */}
