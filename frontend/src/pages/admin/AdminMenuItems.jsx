@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { FaUpload, FaCheck } from "react-icons/fa";
-import { FaEdit, FaTrash, FaUtensils } from "react-icons/fa";
+import { FaUpload, FaCheck, FaEdit, FaTrash, FaUtensils } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
+
 import { MdRestaurantMenu } from "react-icons/md";
 import { NavLink } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -24,6 +25,7 @@ const AdminMenuItems = () => {
     updateMenuItem,
     handleDelete,
     menuItems,
+    handleDeleteCategory,
   } = useContext(MenuContext);
   const {
     register,
@@ -108,6 +110,12 @@ const AdminMenuItems = () => {
     setImagePreview(item.imageUrl);
   };
 
+  const handleCatDelete = async (id) => {
+    const result = await handleDeleteCategory(id);
+    if (!result.success) {
+      setError("root", { message: result.message });
+    }
+  };
   return (
     <div className="container-fluid py-6 bg-emerald-50">
       {showAddModal && (
@@ -421,15 +429,15 @@ const AdminMenuItems = () => {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6 px-4 sm:px-0">
-        <div className="flex items-center">
+      <div className="d-flex justify-content-md-between justify-content-center items-center mb-6 flex-wrap">
+        <div className="flex items-center mb-0 me-3 me-md-0">
           <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
-          <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
+          <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
             Menu Items
           </h2>
         </div>
         <button
-          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 sm:px-5 py-2 rounded-4 shadow-md transition-all duration-300"
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-4 shadow-md transition-all duration-300"
           onClick={() => setShowAddModal(true)}
         >
           <FaUtensils className="w-4 h-4" />
@@ -439,46 +447,32 @@ const AdminMenuItems = () => {
 
       {/* Category List */}
       <div className="mb-6 sm:px-0">
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg sm:text-xl font-semibold text-gray-800">
+        <div className="bg-white rounded-2xl p-3 shadow-sm">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="fs-4 font-semibold text-gray-800 mb-0">
               Food Categories
             </h3>
             <button
-              className="flex items-center gap-2 p-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 p-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={() => setShowCatAddModel(true)}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
+              <FaPlus className="fw-bold" />
               Add Category
             </button>
           </div>
 
-          <div className="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6">
+          <div className="overflow-x-auto scrollbar-hide">
             <div className="flex space-x-3 min-w-max pb-2">
-              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-3 shadow-sm hover:shadow transition-all duration-300">
+              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-5 shadow-sm hover:shadow transition-all duration-300">
                 All Items
               </button>
-
               {isLoading ? (
                 <Loader />
               ) : (
                 categories?.map((cat) => (
                   <div
                     key={cat._id}
-                    className={`group relative  p-4 me-2 sm:px-5 text-sm rounded-3 shadow-sm hover:shadow-md transition-all duration-300 ${
+                    className={`group relative  p-4 me-2 sm:px-5 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 ${
                       cat.isActive
                         ? "bg-emerald-100 hover:bg-emerald-200 text-gray-800"
                         : "bg-red-100 hover:bg-red-200 text-gray-700"
@@ -488,13 +482,13 @@ const AdminMenuItems = () => {
 
                     <button
                       onClick={() => handleDeleteCategory(cat._id)}
-                      className="absolute top-1 left-1 opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
+                      className="absolute top-1 left-1 opacity-100 transition-opacity duration-300 bg-emerald-500 hover:bg-emerald-600 text-white rounded-5 p-1 shadow-sm"
                       title="Delete category"
                     >
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDeleteCategory(cat._id)}
+                      onClick={() => handleCatDelete(cat._id)}
                       className="absolute top-1 right-1 opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
                       title="Delete category"
                     >

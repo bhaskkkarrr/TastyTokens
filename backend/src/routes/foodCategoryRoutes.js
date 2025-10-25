@@ -17,5 +17,10 @@ categoryRoutes.get(
   authorizeRoles("admin"),
   categoryController.getAllCategory
 );
-
+categoryRoutes.delete(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  categoryController.deleteCategory
+);
 exports.categoryRoutes = categoryRoutes ;

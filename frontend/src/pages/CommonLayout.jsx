@@ -45,7 +45,7 @@ const CommonLayout = ({ menuItems }) => {
       to={`/${item.path}`}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex text-decoration-none items-center space-x-3 px-md-4 py-md-3.5 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
+        `flex text-decoration-none items-center space-x-3 px-md-4 py-md-3.5 p-3 rounded-4 transition-all duration-300 group relative overflow-hidden ${
           isActive
             ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg shadow-emerald-500/30"
             : "text-white hover:bg-white/5 hover:text-white"
@@ -192,9 +192,9 @@ const CommonLayout = ({ menuItems }) => {
               className="lg:hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-40 top-20"
               onClick={() => setIsMobileSidebarOpen(false)}
             ></div>
-            <aside className="lg:hidden fixed left-0 top-20 bottom-0 w-72 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-50 transform transition-all duration-300 border-r border-emerald-900/30">
+            <aside className="lg:hidden fixed left-0 top-20 bottom-0 w-56 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-50 transform transition-all duration-300 border-r border-emerald-900/30">
               <div className="h-full flex flex-col">
-                <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
+                <nav className="flex-1 p-2 space-y-1.5 overflow-y-auto">
                   {menuItems.map((item, index) => (
                     <MenuItem
                       key={index}
@@ -205,12 +205,13 @@ const CommonLayout = ({ menuItems }) => {
                   ))}
                 </nav>
 
-                <div className="space-y-1.5 px-3 py-2 border-t border-slate-800">
+                <div className="space-y-1.5 p-2 border-t border-slate-800">
+                  {/* Setting */}
                   <NavLink
                     to={`/settings`}
                     onClick={() => setIsMobileSidebarOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center text-decoration-none text-white space-x-3 px-4 py-3 rounded-4 hover:bg-white/5 hover:text-white transition-all group ${
+                      `flex items-center text-decoration-none text-white space-x-3 px-md-4 py-md-3.5 p-3 rounded-4 hover:bg-white/5 hover:text-white transition-all group ${
                         isActive ? "bg-white/10" : ""
                       }`
                     }
@@ -221,8 +222,9 @@ const CommonLayout = ({ menuItems }) => {
                     <span className="font-medium text-[15px]">Settings</span>
                   </NavLink>
 
+                  {/* LogOut */}
                   <button
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-4 text-red-400 hover:bg-red-500/10 transition-all group"
+                    className="w-full flex items-center space-x-3 px-md-4 py-md-3.5 p-3 rounded-4 text-red-400 hover:bg-red-500/10 transition-all group"
                     onClick={() => {
                       logout();
                       navigate("/");

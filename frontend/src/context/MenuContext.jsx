@@ -16,6 +16,7 @@ export const MenuProvider = ({ children }) => {
   };
 
   const addCategory = async (data) => {
+    console.log(data);
     data.name = formatName(data.name);
     try {
       setIsLoading(true);
@@ -220,6 +221,27 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
+  const handleDeleteCategory = async (id) => {
+    try {
+      const r = await fetch(`${BASE_API}/api/category/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (r.ok) {
+        setCategories((prev) =>
+          prev.filter((t) => {
+            return t._id !== id;
+          })
+        );
+        return { success: true };
+      }
+    } catch (error) {
+      return { success: false, message: error };
+    }
+  };
   return (
     <MenuContext.Provider
       value={{
@@ -229,6 +251,7 @@ export const MenuProvider = ({ children }) => {
         getAllMenuItems,
         handleDelete,
         updateMenuItem,
+        handleDeleteCategory,
         isLoading,
         categories,
         menuItems,

@@ -17,21 +17,26 @@ exports.postAddCategory = async (req, res) => {
     const newCategory = new FoodCategory({
       restaurantId,
       name,
-      isActive: isActive || true, // default true if not provided
+      isActive,
     });
 
     await newCategory.save();
-    res.status(201).json({ success: true, message: "Category added", newCategory });
+    res
+      .status(201)
+      .json({ success: true, message: "Category added", newCategory });
   } catch (error) {
     console.error("Error adding category:", error);
-    res.status(500).json({ success: false, message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
   }
 };
 
-
 exports.getAllCategory = async (req, res) => {
   try {
-    const categories = await FoodCategory.find({ restaurantId: req.user.id }).select("-restaurantId ");
+    const categories = await FoodCategory.find({
+      restaurantId: req.user.id,
+    }).select("-restaurantId ");
     if (categories) {
       res
         .status(200)
@@ -46,3 +51,6 @@ exports.getAllCategory = async (req, res) => {
   }
 };
 
+exports.deleteCategory = async (req, res) => {
+  res.status(201).json({ success: true, message: "Category deleted" });
+};
