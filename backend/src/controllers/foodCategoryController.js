@@ -52,5 +52,6 @@ exports.getAllCategory = async (req, res) => {
 };
 
 exports.deleteCategory = async (req, res) => {
+  console.log(req.params, req.user, req.body);
   res.status(201).json({ success: true, message: "Category deleted" });
 };

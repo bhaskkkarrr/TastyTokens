@@ -78,6 +78,7 @@ const AdminMenuItems = () => {
 
   const onCatSubmit = async (data) => {
     const result = await addCategory(data);
+    console.log("Result", result);
     if (result.success) {
       reset();
       setShowCatAddModel(false);
@@ -117,7 +118,7 @@ const AdminMenuItems = () => {
     }
   };
   return (
-    <div className="container-fluid py-6 bg-emerald-50">
+    <div className="container-fluid py-2 md:py-6 px-0 md:px-2 bg-emerald-50">
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-3xl bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
@@ -429,7 +430,7 @@ const AdminMenuItems = () => {
       )}
 
       {/* Header */}
-      <div className="d-flex justify-content-md-between justify-content-center items-center mb-6 flex-wrap">
+      <div className="d-flex justify-content-md-between justify-content-center items-center mt-2 mb-3 flex-wrap">
         <div className="flex items-center mb-0 me-3 me-md-0">
           <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
           <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
@@ -447,53 +448,55 @@ const AdminMenuItems = () => {
 
       {/* Category List */}
       <div className="mb-6 sm:px-0">
-        <div className="bg-white rounded-2xl p-3 shadow-sm">
+        <div className="bg-white rounded-2xl p-2 p-sm-3 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="fs-4 font-semibold text-gray-800 mb-0">
+            <div className="text-xl sm:text-2xl font-semibold text-gray-800 mb-0">
               Food Categories
-            </h3>
+            </div>
             <button
-              className="flex items-center gap-2 p-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={() => setShowCatAddModel(true)}
             >
-              <FaPlus className="fw-bold" />
-              Add Category
+              <FaPlus className="font-extrabold text-sm sm:text-lg" />
+              <span className="text-sm sm:text-lg font-bold">Add Category</span>
             </button>
           </div>
 
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex space-x-3 min-w-max pb-2">
-              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-5 shadow-sm hover:shadow transition-all duration-300">
+              <div className="flex items-center justify-center px-4 py-2 me-2 md:text-lg bg-emerald-600 text-white text-sm rounded-4 shadow-sm hover:shadow transition-all duration-300">
                 All Items
-              </button>
+              </div>
               {isLoading ? (
                 <Loader />
               ) : (
                 categories?.map((cat) => (
                   <div
                     key={cat._id}
-                    className={`group relative  p-4 me-2 sm:px-5 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300 ${
+                    className={`flex flex-col justify-content-between group relative me-2 md:text-lg text-sm rounded-4 shadow-sm hover:shadow-md transition-all duration-300 ${
                       cat.isActive
                         ? "bg-emerald-100 hover:bg-emerald-200 text-gray-800"
                         : "bg-red-100 hover:bg-red-200 text-gray-700"
                     }`}
                   >
-                    <div>{cat.name}</div>
+                    <div className="flex justify-content-between px-2 pt-2">
+                      <button
+                        onClick={() => handleDeleteCategory(cat._id)}
+                        className="opacity-100 transition-opacity duration-300 bg-emerald-500 hover:bg-emerald-600 text-white rounded-5 p-1 shadow-sm"
+                        title="Delete category"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleCatDelete(cat._id)}
+                        className="opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
+                        title="Delete category"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
 
-                    <button
-                      onClick={() => handleDeleteCategory(cat._id)}
-                      className="absolute top-1 left-1 opacity-100 transition-opacity duration-300 bg-emerald-500 hover:bg-emerald-600 text-white rounded-5 p-1 shadow-sm"
-                      title="Delete category"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleCatDelete(cat._id)}
-                      className="absolute top-1 right-1 opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
-                      title="Delete category"
-                    >
-                      <FaTrash />
-                    </button>
+                    <div className="px-4 pb-2">{cat.name}</div>
                   </div>
                 ))
               )}
@@ -508,26 +511,25 @@ const AdminMenuItems = () => {
       ) : menuItems.length > 0 ? (
         <div className="row g-4">
           {menuItems.map((item) => (
-            <div key={item._id} className="col-12 col-md-6 col-lg-4">
+            <div key={item._id} className="col-12 col-sm-4 col-lg-4">
               <NavLink className="card h-100 border-0 text-decoration-none bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+
+                {/* Image */}
                 <div className="relative">
                   <img
                     src={item.imageUrl}
-                    className="card-img-top h-60 w-full object-cover"
+                    className="card-img-top h-48 h-md-60 w-full md:w-1/2 object-cover"
                     alt={item.name}
                   />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-4 pt-16">
-                    <h5 className="text-xl font-semibold text-white mb-0">
-                      {item.name ? item.name : "NA"}
-                    </h5>
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/35 to-transparent pb-3 ps-3 pt-3.5">
                     <div className="flex gap-2 mt-2">
-                      {item.bestSeller && (
+                      {item.isBestSeller && (
                         <span className="badge bg-emerald-600 text-white px-3 py-1 rounded-full text-sm">
                           Best Seller
                         </span>
                       )}
                       <span
-                        className={`badge px-3 py-1 rounded-full text-sm ${
+                        className={`badge px-2 py-1 rounded-full text-sm ${
                           item.foodType === "veg"
                             ? "bg-green-500 text-white"
                             : "bg-red-500 text-white"
@@ -539,9 +541,13 @@ const AdminMenuItems = () => {
                   </div>
                 </div>
 
-                <div className="card-body bg-white p-4">
-                  <div className="flex justify-between items-center mb-3">
-                    <div className="flex flex-wrap gap-2">
+                {/* Content */}
+                <div className="card-body bg-white p-2">
+                  <div className="flex justify-between items-center">
+                    <div className="flex flex-col flex-wrap gap-2">
+                      <h5 className="text-xl font-semibold text-black mb-0">
+                        {item.name ? item.name : "NA"}
+                      </h5>
                       {(Array.isArray(item.category)
                         ? item.category
                         : [item.category]
@@ -560,7 +566,7 @@ const AdminMenuItems = () => {
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center  mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex justify-between items-center flex-wrap sm:justify-center mt-3 pt-2 border-t border-gray-100">
                     {/* ✅ Checkbox with state update */}
                     <div className="flex items-center gap-2 cursor-pointer">
                       <div

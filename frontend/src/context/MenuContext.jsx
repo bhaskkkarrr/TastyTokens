@@ -34,12 +34,12 @@ export const MenuProvider = ({ children }) => {
       if (res.success) {
         await getAllCategories();
         return { success: true };
-      } else if (!res.success && res.status === 400) {
+      } else if (!res.success && r.status === 400) {
         return {
           success: false,
           message: res.message || "Category already added",
         };
-      } else if (!res.success && res.status === 501) {
+      } else if (!res.success && r.status === 501) {
         return {
           success: false,
           message: res.message || "Server error creating category",

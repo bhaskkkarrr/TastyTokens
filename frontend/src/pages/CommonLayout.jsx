@@ -45,7 +45,7 @@ const CommonLayout = ({ menuItems }) => {
       to={`/${item.path}`}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex text-decoration-none items-center space-x-3 px-md-4 py-md-3.5 p-3 rounded-4 transition-all duration-300 group relative overflow-hidden ${
+        `flex text-decoration-none items-center space-x-3 px-md-4 py-md-3.5 p-2.5 rounded-4 transition-all duration-300 group relative overflow-hidden ${
           isActive
             ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg shadow-emerald-500/30"
             : "text-white hover:bg-white/5 hover:text-white"
@@ -79,8 +79,8 @@ const CommonLayout = ({ menuItems }) => {
     <>
       <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-gray-50">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 h-20 bg-white backdrop-blur-xl shadow-2xl z-40 border-b border-emerald-900/30">
-          <div className="h-full px-6 flex items-center justify-between">
+        <header className="h-16 fixed top-0 left-0 right-0 bg-white backdrop-blur-xl shadow-2xl z-40 border-b border-emerald-900/30">
+          <div className="h-full px-6 py-2 py-sm-3 flex items-center justify-between">
             {/* Left Side - Mobile Menu + Logo */}
             <div className="flex items-center space-x-4">
               {/* Mobile Menu Toggle */}
@@ -189,10 +189,10 @@ const CommonLayout = ({ menuItems }) => {
         {isMobileSidebarOpen && (
           <>
             <div
-              className="lg:hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-40 top-20"
+              className="lg:hidden fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-40 top-16"
               onClick={() => setIsMobileSidebarOpen(false)}
             ></div>
-            <aside className="lg:hidden fixed left-0 top-20 bottom-0 w-56 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-50 transform transition-all duration-300 border-r border-emerald-900/30">
+            <aside className="lg:hidden fixed left-0 top-16 bottom-0 w-56 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-50 transform transition-all duration-300 border-r border-emerald-900/30">
               <div className="h-full flex flex-col">
                 <nav className="flex-1 p-2 space-y-1.5 overflow-y-auto">
                   {menuItems.map((item, index) => (
@@ -242,7 +242,7 @@ const CommonLayout = ({ menuItems }) => {
         )}
 
         {/* Main Content */}
-        <main className="pt-20 lg:pl-72 min-h-screen">
+        <main className="pt-16 lg:pl-72 min-h-screen">
           <div className="px-2 p-md-6">
             <Outlet />
           </div>
