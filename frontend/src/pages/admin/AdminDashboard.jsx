@@ -64,7 +64,7 @@ function AdminDashboard() {
   ]);
 
   return (
-    <div className="container-fluid py-6 bg-emerald-50 ">
+    <div className="container-fluid py-2 px-0 p-sm-3 ">
       <div className="d-flex justify-content-between items-center mb-6">
         <div className="flex items-center">
           <MdRestaurantMenu className="text-emerald-600 w-8 h-8" />

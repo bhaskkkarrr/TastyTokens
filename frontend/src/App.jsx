@@ -65,7 +65,7 @@ function App() {
               <Route path="menu-items" element={<AdminMenuItems />} />
               <Route path="qr-codes" element={<AdminQrCode />} />
               <Route path="orders" index element={<AdminOrders />} />
-              <Route path="analytics" element={<AdminAnalytics />} />
+              {/* <Route path="analytics" element={<AdminAnalytics />} /> */}
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="notifications" element={<AdminNotification />} />
               <Route path="settings" element={<AdminSettings />} />

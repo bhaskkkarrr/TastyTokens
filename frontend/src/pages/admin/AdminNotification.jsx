@@ -58,7 +58,7 @@ function AdminNotification() {
   ]);
 
   const getNotificationStyle = (type, isRead) => {
-    const baseClasses = "border-l-4 p-4 rounded-r-2xl transition-all duration-300";
+    const baseClasses = "border-l-4 p-sm-4 p-2 rounded-r-2xl transition-all duration-300";
     const readClass = isRead ? "bg-white" : "bg-emerald-50";
     
     switch(type) {
@@ -92,28 +92,25 @@ function AdminNotification() {
   };
 
   return (
-    <div className="container-fluid p-4 sm:p-6 bg-emerald-50 min-h-screen">
+    <div className="container-fluid py-2 px-0 p-sm-3">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-1 mt-2 mt-sm-3">
         <div className="flex items-center">
           <FaBell className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
           <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
             Notifications
           </h2>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+        <div className="flex items-center">
+          <button className="text-sm bg-emerald-600 text-white px-4 py-2 rounded-4 hover:bg-emerald-700 transition-colors duration-300 font-medium">
             Mark all as read
-          </button>
-          <button className="text-sm bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors duration-300">
-            Settings
           </button>
         </div>
       </div>
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">Unread</p>
@@ -124,7 +121,7 @@ function AdminNotification() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">High Priority</p>
@@ -135,7 +132,7 @@ function AdminNotification() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">Today's</p>
@@ -146,7 +143,7 @@ function AdminNotification() {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-500 mb-1">Total</p>
@@ -160,7 +157,7 @@ function AdminNotification() {
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+      <div className="bg-white rounded-2xl p-3 mb-6 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <select className="px-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
             <option value="">All Types</option>
@@ -196,7 +193,7 @@ function AdminNotification() {
             key={notification.id}
             className={getNotificationStyle(notification.type, notification.isRead)}
           >
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
                 {getNotificationIcon(notification.type)}
               </div>

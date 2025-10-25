@@ -46,13 +46,6 @@ function AdminLayout() {
       path: "admin/orders",
     },
     {
-      id: "analytics",
-      icon: BarChart3,
-      label: "Analytics",
-      badge: null,
-      path: "admin/analytics",
-    },
-    {
       id: "customers",
       icon: Users,
       label: "Customers",

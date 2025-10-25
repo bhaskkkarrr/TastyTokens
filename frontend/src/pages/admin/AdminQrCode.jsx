@@ -50,8 +50,8 @@ function AdminQrCode() {
   };
 
   return (
-    <div className="container-fluid py-6 bg-emerald-50 min-h-screen">
-      <div className="d-flex justify-content-md-between justify-content-center items-center mb-6 flex-wrap">
+    <div className="container-fluid py-2 px-0 p-sm-3">
+      <div className="d-flex justify-content-md-between justify-content-center items-center mt-3 mb-4 flex-wrap">
         <div className="flex items-center mb-3 mb-md-0">
           <MdQrCodeScanner className="text-emerald-600 w-8 h-8" />
           <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">

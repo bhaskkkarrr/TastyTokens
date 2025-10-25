@@ -1,9 +1,13 @@
 import { useContext, useEffect, useState } from "react";
 import { FaUpload, FaCheck, FaEdit, FaTrash, FaUtensils } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
-
-import { MdRestaurantMenu } from "react-icons/md";
-import { NavLink } from "react-router-dom";
+import { GiMeal } from "react-icons/gi";
+import { IoStar } from "react-icons/io5";
+import {
+  MdDeleteOutline,
+  MdOutlineEdit,
+  MdRestaurantMenu,
+} from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { MenuContext } from "../../context/MenuContext";
 import Loader from "../../components/Loader";
@@ -123,7 +127,7 @@ const AdminMenuItems = () => {
   };
   // bg-emerald-50
   return (
-    <div className="container-fluid py-2 md:py-6 px-0 md:px-2">
+    <div className="container-fluid py-2 px-0 p-sm-3">
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-3xl bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
@@ -435,38 +439,25 @@ const AdminMenuItems = () => {
       )}
 
       {/* Header */}
-      <div className="d-flex justify-content-md-between justify-content-center items-center mt-2 mb-3 flex-wrap">
+      <div className="d-flex justify-content-md-between justify-content-center items-center my-sm-4 my-3  flex-wrap">
         <div className="flex items-center mb-0 me-3 me-md-0">
-          <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
-          <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
-            Menu Items
+          <GiMeal className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
+          <h2 className="text-2xl font-semibold mb-sm-0 ms-2 text-gray-800 mb-1">
+            Food Categories
           </h2>
         </div>
         <button
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-4 shadow-md transition-all duration-300"
-          onClick={() => setShowAddModal(true)}
+          onClick={() => setShowCatAddModel(true)}
         >
-          <FaUtensils className="w-4 h-4" />
-          Add New Item
+          <FaPlus className="w-4 h-4" />
+          Add Category
         </button>
       </div>
 
       {/* Category List */}
-      <div className="mb-6 sm:px-0">
-        <div className="bg-white rounded-2xl p-2 p-sm-3 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-xl sm:text-2xl font-semibold text-gray-800 mb-0">
-              Food Categories
-            </div>
-            <button
-              className="flex items-center gap-2 p-2 bg-emerald-600 text-white rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
-              onClick={() => setShowCatAddModel(true)}
-            >
-              <FaPlus className="font-extrabold text-sm sm:text-lg" />
-              <span className="text-sm sm:text-lg font-bold">Add Category</span>
-            </button>
-          </div>
-
+      <div className="mt-4 mb-6 sm:px-0">
+        <div className="bg-white rounded-2xl p-3 p-sm-4 shadow-sm">
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex space-x-3 min-w-max pb-2">
               <div className="flex items-center justify-center px-4 py-2 me-2 md:text-lg bg-emerald-600 text-white text-sm rounded-4 shadow-sm hover:shadow transition-all duration-300">
@@ -487,17 +478,17 @@ const AdminMenuItems = () => {
                     <div className="flex justify-content-between px-2 pt-2">
                       <button
                         onClick={() => handleDeleteCategory(cat._id)}
-                        className="opacity-100 transition-opacity duration-300 bg-emerald-500 hover:bg-emerald-600 text-white rounded-5 p-1 shadow-sm"
+                        className="opacity-100 transition-opacity duration-300 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-5 p-1 shadow-sm"
                         title="Delete category"
                       >
-                        <FaEdit />
+                        <MdOutlineEdit />
                       </button>
                       <button
                         onClick={() => handleCatDelete(cat._id)}
-                        className="opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
+                        className="opacity-100 transition-opacity duration-300 bg-red-50 text-red-600 hover:bg-red-100 rounded-5 p-1 shadow-sm"
                         title="Delete category"
                       >
-                        <FaTrash />
+                        <MdDeleteOutline />
                       </button>
                     </div>
 
@@ -510,12 +501,28 @@ const AdminMenuItems = () => {
         </div>
       </div>
 
-      {/* Menu Cards */}
+      {/* Menu Item Header */}
+      <div className="d-flex justify-content-md-between justify-content-center items-center my-sm-4 my-3  flex-wrap">
+        <div className="flex items-center mb-0 me-3 me-md-0">
+          <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
+          <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 ">
+            Menu Items
+          </h2>
+        </div>
+        <button
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-4 shadow-md transition-all duration-300"
+          onClick={() => setShowAddModal(true)}
+        >
+          <FaUtensils className="w-4 h-4" />
+          Add New Item
+        </button>
+      </div>
+
       {/* Grouped Menu by Category */}
       {isMenuLoading ? (
         <SkeletonLoader count={5} />
       ) : menuItems.length > 0 ? (
-        <div className="space-y-10">
+        <div className="sm:space-y-4 space-y-2">
           {Object.entries(
             menuItems.reduce((acc, item) => {
               const categories = Array.isArray(item.category)
@@ -530,8 +537,7 @@ const AdminMenuItems = () => {
           ).map(([category, items]) => (
             <div key={category}>
               {/* Category Header */}
-              {/* Category Header */}
-              <div className="flex items-center mb-6">
+              <div className="flex items-center mb-2 mb-sm-3">
                 <div className="flex-grow h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
                 <h2 className="px-6 text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
                   {category}
@@ -556,12 +562,15 @@ const AdminMenuItems = () => {
                         alt={item.name}
                         className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 flex flex-wrap gap-2">
+                      <div className="absolute inset-x-0 top-0 p-2 flex flex-wrap gap-2">
                         {item.isBestSeller && (
-                          <span className="bg-emerald-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          <span className="flex bg-amber-500 text-white px-2 justify-center items-center py-1 rounded-full text-xs font-medium">
+                            <IoStar className="me-1" />
                             Best Seller
                           </span>
                         )}
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 flex flex-wrap gap-2">
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
                             item.foodType === "veg"
@@ -624,14 +633,14 @@ const AdminMenuItems = () => {
                         {/* Action Buttons */}
                         <div className="flex gap-2">
                           <button
-                            className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-full transition-all"
+                            className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-5 transition-all"
                             onClick={() => onEdit(item)}
                             title="Edit"
                           >
                             <FaEdit className="w-4 h-4" />
                           </button>
                           <button
-                            className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-full transition-all"
+                            className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-5 transition-all"
                             onClick={() => onDelete(item._id)}
                             title="Delete"
                           >

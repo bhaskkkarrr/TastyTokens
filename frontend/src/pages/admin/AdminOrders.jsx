@@ -72,9 +72,9 @@ function AdminOrders() {
   };
 
   return (
-    <div className="container-fluid p-4 sm:p-6 bg-emerald-50 min-h-screen">
+    <div className="container-fluid py-2 px-0 p-sm-3">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-3 mb-4 gap-2">
         <div className="flex items-center">
           <FaClipboardList className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
           <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
@@ -93,10 +93,11 @@ function AdminOrders() {
           </div>
         </div>
       </div>
-      {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+      {/* Stats Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+
+        <div className="bg-white rounded-2xl p-sm-4 px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-wrap justify-between items-center">
             <div>
               {/* Label + Icon Row */}
@@ -115,7 +116,7 @@ function AdminOrders() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl p-sm-4 px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-wrap justify-between items-center">
             <div>
               {/* Label + Icon Row */}
@@ -134,7 +135,7 @@ function AdminOrders() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl p-sm-4 px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-wrap justify-between items-center">
             <div>
               {/* Label + Icon Row */}
@@ -153,7 +154,7 @@ function AdminOrders() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white rounded-2xl p-sm-4 px-4 py-2  shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-wrap justify-between items-center">
             <div>
               {/* Label + Icon Row */}
@@ -174,8 +175,8 @@ function AdminOrders() {
       </div>
 
       {/* Search and Filter Section */}
-      <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="bg-white rounded-2xl p-sm-4 p-3  mb-6 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-4">
             <div className="relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm sm:text-base" />
@@ -209,7 +210,7 @@ function AdminOrders() {
         {orders.map((order) => (
           <div
             key={order.id}
-            className="bg-white rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300"
+            className="bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300"
           >
             <div className="row">
               <div className="col-12 col-md-3">

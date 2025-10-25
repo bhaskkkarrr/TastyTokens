@@ -55,9 +55,9 @@ function AdminCustomers() {
   ]);
 
   return (
-    <div className="container-fluid p-4 sm:p-6 bg-emerald-50 min-h-screen">
+    <div className="container-fluid py-2 px-0 p-sm-3">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 mt-3 ">
         <div className="flex items-center">
           <FaUsers className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
           <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
@@ -68,7 +68,7 @@ function AdminCustomers() {
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white px-3 py-2 p-sm-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-500 mb-1">Total Customers</p>
@@ -80,7 +80,7 @@ function AdminCustomers() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white px-3 py-2 p-sm-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-500 mb-1">Active Customers</p>
@@ -92,7 +92,7 @@ function AdminCustomers() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white px-3 py-2 p-sm-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-500 mb-1">Avg. Order Value</p>
@@ -104,7 +104,7 @@ function AdminCustomers() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
+        <div className="bg-white px-3 py-2 p-sm-4 rounded-2xl shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center">
             <div>
               <p className="text-sm text-gray-500 mb-1">Avg. Rating</p>
@@ -119,8 +119,8 @@ function AdminCustomers() {
       </div>
 
       {/* Search and Filter Section */}
-      <div className="bg-white p-4 rounded-2xl shadow-sm mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div className="bg-white p-3 rounded-2xl shadow-sm mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div className="md:col-span-4">
             <div className="relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -156,7 +156,7 @@ function AdminCustomers() {
             key={customer.id}
             className="bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300"
           >
-            <div className="p-4">
+            <div className="p-sm-4 p-3">
               <div className="flex items-start gap-4">
                 <div className="flex-1">
                   <div className="flex justify-between">
