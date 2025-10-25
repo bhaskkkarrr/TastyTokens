@@ -89,7 +89,7 @@ export const MenuProvider = ({ children }) => {
       formData.append("name", data.name);
       formData.append("price", data.price);
       formData.append("category", data.category || "");
-      formData.append("foodType", data.type || "non-veg");
+      formData.append("foodType", data.foodType || "non-veg");
       formData.append("isAvailable", data.isAvailable ? "true" : "false");
 
       // append image file (first item)

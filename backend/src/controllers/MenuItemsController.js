@@ -121,12 +121,12 @@ exports.updateMenuItem = async (req, res) => {
         .json({ success: false, message: "Item not found" });
     }
 
-    const { name, price, category, type, isAvailable, isBestSeller } = req.body;
+    const { name, price, category, foodType, isAvailable, isBestSeller } = req.body;
 
     if (name) menuItem.name = name;
     if (price) menuItem.price = Number(price);
     if (category) menuItem.category = category;
-    if (type) menuItem.foodType = type;
+    if (foodType) menuItem.foodType = foodType;
     if (isAvailable !== undefined)
       menuItem.isAvailable = isAvailable === "true" || isAvailable === true;
     if (isBestSeller !== undefined)

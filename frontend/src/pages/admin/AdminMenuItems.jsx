@@ -12,6 +12,8 @@ import SkeletonLoader from "../../components/SkeletonLoader";
 const AdminMenuItems = () => {
   const { token } = useContext(AuthContext);
   const [editingItem, setEditingItem] = useState(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showCatAddModal, setShowCatAddModel] = useState(false);
   const {
     addCategory,
     getAllCategories,
@@ -23,9 +25,6 @@ const AdminMenuItems = () => {
     handleDelete,
     menuItems,
   } = useContext(MenuContext);
-
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showCatAddModal, setShowCatAddModel] = useState(false);
   const {
     register,
     handleSubmit,
@@ -100,6 +99,7 @@ const AdminMenuItems = () => {
       setError("root", { message: result.message });
     }
   };
+
   const onEdit = async (item) => {
     console.log(item);
     setEditingItem(item);
@@ -116,12 +116,19 @@ const AdminMenuItems = () => {
             {/* Close Button */}
             <button
               onClick={() => {
-                reset();
+                reset({
+                  name: "",
+                  price: "",
+                  category: "",
+                  foodType: "",
+                  isAvailable: true,
+                  image: null,
+                });
                 setShowAddModal(false);
                 setEditingItem(null);
                 setImagePreview(null);
               }}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl font-bold"
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 fs-3 font-bold"
             >
               &times;
             </button>
@@ -154,7 +161,7 @@ const AdminMenuItems = () => {
                           message: "Name is required",
                         },
                       })}
-                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 mb-2 ${
                         errors.name ? "border-red-500" : "border-gray-300"
                       }`}
                     />
@@ -179,7 +186,7 @@ const AdminMenuItems = () => {
                           message: "Price is required",
                         },
                       })}
-                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      className={`mb-2 w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                         errors.price ? "border-red-500" : "border-gray-300"
                       }`}
                     />
@@ -197,7 +204,7 @@ const AdminMenuItems = () => {
                     </label>
                     <select
                       {...register("category")}
-                      className={`w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
+                      className={`mb-2 w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                         errors.category ? "border-red-500" : "border-gray-300"
                       }`}
                     >
@@ -228,7 +235,7 @@ const AdminMenuItems = () => {
                           type="radio"
                           value="veg"
                           {...register("foodType", { required: "Select type" })}
-                          className="w-5 h-5 me-2 text-emerald-600 rounded-full"
+                          className=" w-5 h-5 me-2 mb-2 text-emerald-600 rounded-full"
                         />
                         <span className="text-gray-700 text-medium">
                           Vegetarian
@@ -240,7 +247,7 @@ const AdminMenuItems = () => {
                           type="radio"
                           value="non-veg"
                           {...register("foodType", { required: "Select type" })}
-                          className="w-5 h-5 me-2 text-red-500 rounded-full"
+                          className="w-5 h-5 me-2  mb-2 text-red-500 rounded-full"
                         />
                         <span className="text-gray-700 text-medium">
                           Non-Vegetarian
@@ -248,15 +255,15 @@ const AdminMenuItems = () => {
                       </label>
                     </div>
                     {/* Validation Error */}
-                    {errors.type && (
+                    {errors.foodType && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors.type.message}
+                        {errors.foodType.message}
                       </p>
                     )}
                   </div>
 
                   {/* Availability Toggle */}
-                  <div className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3">
+                  <div className="flex items-center justify-between bg-gray-50 border rounded-xl px-4 py-3  mb-2">
                     <label className="text-gray-700 font-medium">
                       Available
                     </label>
@@ -265,15 +272,15 @@ const AdminMenuItems = () => {
                         type="checkbox"
                         defaultChecked
                         {...register("isAvailable")}
-                        className="sr-only peer"
+                        className="sr-only peer "
                       />
                       <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none rounded-full peer peer-checked:bg-emerald-600 transition-all duration-300"></div>
-                      <span className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-5"></span>
+                      <span className="absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-all duration-300 peer-checked:translate-x-5 "></span>
                     </label>
                   </div>
 
                   {/* Image Upload */}
-                  <div className="d-flex align-top ">
+                  <div className=" mb-2 d-flex align-top ">
                     <label className="block text-gray-700 font-medium mb-2 me-3">
                       Upload Image
                     </label>
@@ -285,7 +292,19 @@ const AdminMenuItems = () => {
                       <input
                         type="file"
                         accept="image/*"
-                        {...register("image")}
+                        {...register("image", {
+                          validate: (value) => {
+                            // If adding new, require an image
+                            if (
+                              !editingItem &&
+                              (!value || value.length === 0)
+                            ) {
+                              return "Image is required";
+                            }
+                            // If editing, image is optional
+                            return true;
+                          },
+                        })}
                         className="hidden"
                       />
                       {imagePreview && (
@@ -296,6 +315,11 @@ const AdminMenuItems = () => {
                         />
                       )}
                     </label>
+                    {errors.image && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.image.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* Submit Button */}
@@ -421,7 +445,7 @@ const AdminMenuItems = () => {
               Food Categories
             </h3>
             <button
-              className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
+              className="flex items-center gap-2 p-3 sm:px-4 py-1.5 sm:py-2 bg-emerald-600 text-white text-sm rounded-4 hover:bg-emerald-700 transition-all duration-300 shadow-sm hover:shadow-md"
               onClick={() => setShowCatAddModel(true)}
             >
               <svg
@@ -444,27 +468,40 @@ const AdminMenuItems = () => {
 
           <div className="overflow-x-auto scrollbar-hide -mx-4 sm:-mx-6 px-4 sm:px-6">
             <div className="flex space-x-3 min-w-max pb-2">
-              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-5 shadow-sm hover:shadow transition-all duration-300">
-                <div>All Items</div>
+              <button className="me-2 p-4 sm:px-5 bg-emerald-600 text-white text-sm rounded-3 shadow-sm hover:shadow transition-all duration-300">
+                All Items
               </button>
+
               {isLoading ? (
                 <Loader />
               ) : (
-                categories &&
-                categories.map((cat) => {
-                  return (
+                categories?.map((cat) => (
+                  <div
+                    key={cat._id}
+                    className={`group relative  p-4 me-2 sm:px-5 text-sm rounded-3 shadow-sm hover:shadow-md transition-all duration-300 ${
+                      cat.isActive
+                        ? "bg-emerald-100 hover:bg-emerald-200 text-gray-800"
+                        : "bg-red-100 hover:bg-red-200 text-gray-700"
+                    }`}
+                  >
+                    <div>{cat.name}</div>
+
                     <button
-                      key={cat._id}
-                      className={`me-2 p-4 sm:px-5  text-gray-700 text-sm rounded-5 shadow-sm hover:shadow-md transition-all duration-300  ${
-                        cat.isActive
-                          ? "bg-emerald-100 hover:bg-emerald-200"
-                          : "bg-red-100 hover:bg-red-200"
-                      }`}
+                      onClick={() => handleDeleteCategory(cat._id)}
+                      className="absolute top-1 left-1 opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
+                      title="Delete category"
                     >
-                      {cat.name}
+                      <FaEdit />
                     </button>
-                  );
-                })
+                    <button
+                      onClick={() => handleDeleteCategory(cat._id)}
+                      className="absolute top-1 right-1 opacity-100 transition-opacity duration-300 bg-red-500 hover:bg-red-600 text-white rounded-5 p-1 shadow-sm"
+                      title="Delete category"
+                    >
+                      <FaTrash />
+                    </button>
+                  </div>
+                ))
               )}
             </div>
           </div>
@@ -502,7 +539,7 @@ const AdminMenuItems = () => {
                             : "bg-red-500 text-white"
                         }`}
                       >
-                        {item.foodType ? "Pure Veg" : "Non-Veg"}
+                        {item.foodType === "veg" ? "Pure Veg" : "Non-Veg"}
                       </span>
                     </div>
                   </div>
@@ -529,20 +566,26 @@ const AdminMenuItems = () => {
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+                  <div className="flex justify-between items-center  mt-4 pt-4 border-t border-gray-100">
                     {/* ✅ Checkbox with state update */}
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={item.isAvailable}
-                        onChange={() => handleAvailabilityToggle(item._id)}
-                        className={`form-checkbox h-5 w-5 rounded cursor-pointer ${
-                          item.isAvailable
-                            ? "text-emerald-600 border-emerald-600"
-                            : "text-gray-400 border-gray-400"
+                    <div className="flex items-center gap-2 cursor-pointer">
+                      <div
+                        onClick={() =>
+                          updateMenuItem(item._id, {
+                            isAvailable: !item.isAvailable,
+                          })
+                        }
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer transition ${
+                          item.isAvailable ? "bg-emerald-600" : "bg-gray-300"
                         }`}
-                      />
-                      <span className="text-sm text-gray-600">
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
+                            item.isAvailable ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </div>
+                      <span className="ml-2 text-sm text-gray-600">
                         {item.isAvailable ? "Available" : "Unavailable"}
                       </span>
                     </div>

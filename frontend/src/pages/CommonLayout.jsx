@@ -45,7 +45,7 @@ const CommonLayout = ({ menuItems }) => {
       to={`/${item.path}`}
       onClick={onClick}
       className={({ isActive }) =>
-        `flex text-decoration-none items-center space-x-3 px-4 py-3.5 rounded-xl transition-all duration-300 group relative overflow-hidden ${
+        `flex text-decoration-none items-center space-x-3 px-md-4 py-md-3.5 p-3 rounded-xl transition-all duration-300 group relative overflow-hidden ${
           isActive
             ? "bg-gradient-to-r from-emerald-600 to-green-600 text-white shadow-lg shadow-emerald-500/30"
             : "text-white hover:bg-white/5 hover:text-white"
@@ -93,7 +93,7 @@ const CommonLayout = ({ menuItems }) => {
               {/* Logo */}
               <div className="flex items-center ">
                 <div className="hidden sm:block ">
-                  <h1 className="text-xl font-bold ">
+                  <h1 className="text-xl mb-0 me-3 font-bold ">
                     <span className="text-emerald-700">
                       {user
                         ? user.role === "superadmin"
@@ -109,13 +109,13 @@ const CommonLayout = ({ menuItems }) => {
             </div>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-2xl mx-6 ">
+            <div className="flex-1 max-w-2xl me-3 ">
               <div className="relative group">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 group-hover:text-emerald-400 transition-colors z-10" />
                 <input
                   type="text"
                   placeholder="Search menus..."
-                  className="w-full pl-12 pr-4 py-3.5 bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200 border-2 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 transition-all text-emerald-600 placeholder-gray-500 "
+                  className="w-full pl-12 pr-4 py-2 bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200 border-2 rounded-xl focus:outline-none focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 transition-all text-emerald-600 placeholder-gray-500 "
                 />
               </div>
             </div>
@@ -194,7 +194,7 @@ const CommonLayout = ({ menuItems }) => {
             ></div>
             <aside className="lg:hidden fixed left-0 top-20 bottom-0 w-72 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-50 transform transition-all duration-300 border-r border-emerald-900/30">
               <div className="h-full flex flex-col">
-                <nav className="flex-1 px-4 py-3 space-y-1.5 overflow-y-auto">
+                <nav className="flex-1 px-3 py-2 space-y-1.5 overflow-y-auto">
                   {menuItems.map((item, index) => (
                     <MenuItem
                       key={index}
@@ -205,23 +205,24 @@ const CommonLayout = ({ menuItems }) => {
                   ))}
                 </nav>
 
-                <div className="p-2 space-y-1.5 border-t border-slate-800">
+                <div className="space-y-1.5 px-3 py-2 border-t border-slate-800">
                   <NavLink
                     to={`/settings`}
                     onClick={() => setIsMobileSidebarOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center text-decoration-none text-white space-x-3 px-4 py-3 rounded-xl hover:bg-white/5 hover:text-white transition-all group ${
+                      `flex items-center text-decoration-none text-white space-x-3 px-4 py-3 rounded-4 hover:bg-white/5 hover:text-white transition-all group ${
                         isActive ? "bg-white/10" : ""
                       }`
                     }
                   >
-                    <div className="p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-all">
+                    <div className="p-2 rounded-4 bg-white/5 group-hover:bg-white/10 transition-all">
                       <Settings className="w-5 h-5 text-gray-400 group-hover:text-emerald-400 group-hover:rotate-90 transition-all duration-300" />
                     </div>
                     <span className="font-medium text-[15px]">Settings</span>
                   </NavLink>
+
                   <button
-                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-all group"
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-4 text-red-400 hover:bg-red-500/10 transition-all group"
                     onClick={() => {
                       logout();
                       navigate("/");
@@ -240,7 +241,7 @@ const CommonLayout = ({ menuItems }) => {
 
         {/* Main Content */}
         <main className="pt-20 lg:pl-72 min-h-screen">
-          <div className="p-6">
+          <div className="px-2 p-md-6">
             <Outlet />
           </div>
         </main>
