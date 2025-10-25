@@ -32,10 +32,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <div className="min-h-screen px-3 bg-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo placeholder */}
-        <div className="w-20 h-20 mx-auto mb-4 bg-emerald-600 rounded-full flex items-center justify-center">
+        <div className="w-20 h-20 mx-auto mb-2 bg-emerald-600 rounded-full flex items-center justify-center">
           <span className="text-3xl text-white font-bold">DT</span>
         </div>
 
@@ -47,8 +47,8 @@ const LoginPage = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-4 shadow-md sm:rounded-2xl sm:px-10">
+      <div className="mt-sm-8 mt-3 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white px-4 py-3 py-sm-8 px-sm-4 shadow rounded-2xl sm:px-10">
           {/* Loader */}
           {isLoading ? (
             <Loader />
