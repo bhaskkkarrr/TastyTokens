@@ -16,15 +16,19 @@ const AdminMenuItems = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCatAddModal, setShowCatAddModel] = useState(false);
   const {
-    addCategory,
-    getAllCategories,
-    categories,
-    isLoading,
+    isMenuLoading,
     addMenuItem,
     getAllMenuItems,
     updateMenuItem,
     handleDelete,
     menuItems,
+  } = useContext(MenuContext);
+
+  const {
+    addCategory,
+    getAllCategories,
+    isCatLoading,
+    categories,
     handleDeleteCategory,
   } = useContext(MenuContext);
   const {
@@ -117,8 +121,9 @@ const AdminMenuItems = () => {
       setError("root", { message: result.message });
     }
   };
+  // bg-emerald-50
   return (
-    <div className="container-fluid py-2 md:py-6 px-0 md:px-2 bg-emerald-50">
+    <div className="container-fluid py-2 md:py-6 px-0 md:px-2">
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="relative w-full max-w-3xl bg-white p-6 rounded-3xl shadow-lg overflow-y-auto max-h-[90vh]">
@@ -147,7 +152,7 @@ const AdminMenuItems = () => {
             </h2>
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              {isLoading ? (
+              {isMenuLoading ? (
                 <Loader></Loader>
               ) : (
                 <div>
@@ -467,7 +472,7 @@ const AdminMenuItems = () => {
               <div className="flex items-center justify-center px-4 py-2 me-2 md:text-lg bg-emerald-600 text-white text-sm rounded-4 shadow-sm hover:shadow transition-all duration-300">
                 All Items
               </div>
-              {isLoading ? (
+              {isCatLoading ? (
                 <Loader />
               ) : (
                 categories?.map((cat) => (
@@ -506,112 +511,143 @@ const AdminMenuItems = () => {
       </div>
 
       {/* Menu Cards */}
-      {isLoading ? (
+      {/* Grouped Menu by Category */}
+      {isMenuLoading ? (
         <SkeletonLoader count={5} />
       ) : menuItems.length > 0 ? (
-        <div className="row g-4">
-          {menuItems.map((item) => (
-            <div key={item._id} className="col-12 col-sm-4 col-lg-4">
-              <NavLink className="card h-100 border-0 text-decoration-none bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+        <div className="space-y-10">
+          {Object.entries(
+            menuItems.reduce((acc, item) => {
+              const categories = Array.isArray(item.category)
+                ? item.category
+                : [item.category];
+              categories.forEach((cat) => {
+                if (!acc[cat]) acc[cat] = [];
+                acc[cat].push(item);
+              });
+              return acc;
+            }, {})
+          ).map(([category, items]) => (
+            <div key={category}>
+              {/* Category Header */}
+              {/* Category Header */}
+              <div className="flex items-center mb-6">
+                <div className="flex-grow h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+                <h2 className="px-6 text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
+                  {category}
+                </h2>
+                <span className="text-gray-400 text-sm">
+                  ({items.length} {items.length > 1 ? "items" : "item"})
+                </span>
+                <div className="flex-grow h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
+              </div>
 
-                {/* Image */}
-                <div className="relative">
-                  <img
-                    src={item.imageUrl}
-                    className="card-img-top h-48 h-md-60 w-full md:w-1/2 object-cover"
-                    alt={item.name}
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/35 to-transparent pb-3 ps-3 pt-3.5">
-                    <div className="flex gap-2 mt-2">
-                      {item.isBestSeller && (
-                        <span className="badge bg-emerald-600 text-white px-3 py-1 rounded-full text-sm">
-                          Best Seller
-                        </span>
-                      )}
-                      <span
-                        className={`badge px-2 py-1 rounded-full text-sm ${
-                          item.foodType === "veg"
-                            ? "bg-green-500 text-white"
-                            : "bg-red-500 text-white"
-                        }`}
-                      >
-                        {item.foodType === "veg" ? "Pure Veg" : "Non-Veg"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="card-body bg-white p-2">
-                  <div className="flex justify-between items-center">
-                    <div className="flex flex-col flex-wrap gap-2">
-                      <h5 className="text-xl font-semibold text-black mb-0">
-                        {item.name ? item.name : "NA"}
-                      </h5>
-                      {(Array.isArray(item.category)
-                        ? item.category
-                        : [item.category]
-                      ).map((c, i) => (
+              {/* Menu Cards Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-6">
+                {items.map((item) => (
+                  <div
+                    key={item._id}
+                    className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 border border-gray-100"
+                  >
+                    {/* Image Section */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 flex flex-wrap gap-2">
+                        {item.isBestSeller && (
+                          <span className="bg-emerald-600 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            Best Seller
+                          </span>
+                        )}
                         <span
-                          key={i}
-                          className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-medium"
-                        >
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-
-                    <span className="text-xl font-bold text-emerald-600">
-                      ₹{item.price}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between items-center flex-wrap sm:justify-center mt-3 pt-2 border-t border-gray-100">
-                    {/* ✅ Checkbox with state update */}
-                    <div className="flex items-center gap-2 cursor-pointer">
-                      <div
-                        onClick={() =>
-                          updateMenuItem(item._id, {
-                            isAvailable: !item.isAvailable,
-                          })
-                        }
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer transition ${
-                          item.isAvailable ? "bg-emerald-600" : "bg-gray-300"
-                        }`}
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition ${
-                            item.isAvailable ? "translate-x-6" : "translate-x-1"
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            item.foodType === "veg"
+                              ? "bg-green-600 text-white"
+                              : "bg-red-600 text-white"
                           }`}
-                        />
+                        >
+                          {item.foodType === "veg" ? "Pure Veg" : "Non-Veg"}
+                        </span>
                       </div>
-                      <span className="ml-2 text-sm text-gray-600">
-                        {item.isAvailable ? "Available" : "Unavailable"}
-                      </span>
                     </div>
 
-                    <div className="flex gap-2">
-                      <button className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-3 transition-colors duration-200">
-                        <FaEdit
-                          className="w-4 h-4"
-                          onClick={() => onEdit(item)}
-                        />
-                      </button>
-                      <button className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-3 transition-colors duration-200">
-                        <FaTrash
-                          className="w-4 h-4"
-                          onClick={() => onDelete(item._id)}
-                        />
-                      </button>
+                    {/* Content Section */}
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <h5 className="text-lg font-semibold text-gray-900">
+                          {item.name || "NA"}
+                        </h5>
+                        <span className="text-lg font-bold text-emerald-600">
+                          ₹{item.price}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-wrap  justify-content-center items-center mt-4 border-t border-gray-100 pt-3">
+                        {/* Availability Toggle */}
+                        <div
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() =>
+                            updateMenuItem(item._id, {
+                              isAvailable: !item.isAvailable,
+                            })
+                          }
+                        >
+                          <div
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300 ${
+                              item.isAvailable
+                                ? "bg-emerald-600"
+                                : "bg-gray-300"
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                item.isAvailable
+                                  ? "translate-x-6"
+                                  : "translate-x-1"
+                              }`}
+                            />
+                          </div>
+                          <span
+                            className={`text-sm font-medium ${
+                              item.isAvailable
+                                ? "text-emerald-600"
+                                : "text-gray-400"
+                            }`}
+                          >
+                            {item.isAvailable ? "Available" : "Unavailable"}
+                          </span>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <button
+                            className="p-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-full transition-all"
+                            onClick={() => onEdit(item)}
+                            title="Edit"
+                          >
+                            <FaEdit className="w-4 h-4" />
+                          </button>
+                          <button
+                            className="p-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-full transition-all"
+                            onClick={() => onDelete(item._id)}
+                            title="Delete"
+                          >
+                            <FaTrash className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </NavLink>
+                ))}
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500">No menu items found.</p>
+        <p className="text-center text-gray-500 mt-10">No menu items found.</p>
       )}
     </div>
   );

@@ -5,7 +5,8 @@ import { AuthContext } from "./AuthContext";
 
 export const MenuContext = createContext();
 export const MenuProvider = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isMenuLoading, setIsMenuLoading] = useState(false);
+  const [isCatLoading, setIsCatLoading] = useState(false);
   const { token } = useContext(AuthContext);
   const [categories, setCategories] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
@@ -19,7 +20,7 @@ export const MenuProvider = ({ children }) => {
     console.log(data);
     data.name = formatName(data.name);
     try {
-      setIsLoading(true);
+      setIsCatLoading(true);
       const r = await fetch(`${BASE_API}/api/category/add`, {
         method: "POST",
         body: JSON.stringify(data),
@@ -52,13 +53,13 @@ export const MenuProvider = ({ children }) => {
         message: res.message || "Category creation failed",
       };
     } finally {
-      setIsLoading(false);
+      setIsCatLoading(false);
     }
   };
 
   const getAllCategories = async () => {
     try {
-      setIsLoading(true);
+      setIsCatLoading(true);
       const r = await fetch(`${BASE_API}/api/category/categories`, {
         method: "GET",
         headers: {
@@ -78,14 +79,14 @@ export const MenuProvider = ({ children }) => {
         message: res.message || "Getting categories failed",
       };
     } finally {
-      setIsLoading(false);
+      setIsCatLoading(false);
     }
   };
 
   const addMenuItem = async (data) => {
     data.name = formatName(data.name);
     try {
-      setIsLoading(true);
+      setIsMenuLoading(true);
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("price", data.price);
@@ -127,13 +128,13 @@ export const MenuProvider = ({ children }) => {
         message: res.message || "Adding menu item failed",
       };
     } finally {
-      setIsLoading(false);
+      setIsMenuLoading(false);
     }
   };
 
   const getAllMenuItems = async () => {
     try {
-      setIsLoading(true);
+      setIsMenuLoading(true);
       const res = await fetch(`${BASE_API}/api/menu/items`, {
         method: "GET",
         headers: {
@@ -151,13 +152,13 @@ export const MenuProvider = ({ children }) => {
     } catch (err) {
       console.error("Error fetching menu items:", err);
     } finally {
-      setIsLoading(false);
+      setIsMenuLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      setIsLoading(true);
+      setIsMenuLoading(true);
       const r = await fetch(`${BASE_API}/api/menu/${id}`, {
         method: "DELETE",
         headers: {
@@ -176,13 +177,13 @@ export const MenuProvider = ({ children }) => {
     } catch (error) {
       return { success: false, message: error.message };
     } finally {
-      setIsLoading(false);
+      setIsMenuLoading(false);
     }
   };
 
   const updateMenuItem = async (id, data) => {
     try {
-      setIsLoading(true);
+      setIsMenuLoading(true);
       const formData = new FormData();
 
       Object.keys(data).forEach((key) => {
@@ -217,12 +218,13 @@ export const MenuProvider = ({ children }) => {
       console.error("Error updating item:", error);
       return { success: false, message: error.message };
     } finally {
-      setIsLoading(false);
+      setIsMenuLoading(false);
     }
   };
 
   const handleDeleteCategory = async (id) => {
     try {
+      setIsCatLoading(false);
       const r = await fetch(`${BASE_API}/api/category/${id}`, {
         method: "DELETE",
         headers: {
@@ -240,6 +242,8 @@ export const MenuProvider = ({ children }) => {
       }
     } catch (error) {
       return { success: false, message: error };
+    } finally {
+      setIsCatLoading(true);
     }
   };
   return (
@@ -252,7 +256,8 @@ export const MenuProvider = ({ children }) => {
         handleDelete,
         updateMenuItem,
         handleDeleteCategory,
-        isLoading,
+        isCatLoading,
+        isMenuLoading,
         categories,
         menuItems,
       }}

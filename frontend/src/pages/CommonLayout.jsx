@@ -147,7 +147,7 @@ const CommonLayout = ({ menuItems }) => {
         </header>
 
         {/* Sidebar - Desktop & Tablet */}
-        <aside className="hidden lg:block fixed left-0 top-20 bottom-0 w-72 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-30 border-r border-emerald-900/30">
+        <aside className="hidden lg:block fixed left-0 top-16 bottom-0 w-72 bg-gradient-to-b from-emerald-900 via-emerald-800 to-teal-800 shadow-2xl z-30 border-r border-emerald-900/30">
           <div className="h-full flex flex-col">
             <nav className="flex-1 px-4 py-3 space-y-1.5">
               {menuItems.map((item, index) => (
@@ -242,8 +242,8 @@ const CommonLayout = ({ menuItems }) => {
         )}
 
         {/* Main Content */}
-        <main className="pt-16 lg:pl-72 min-h-screen">
-          <div className="px-2 p-md-6">
+        <main className="pt-16 lg:pl-72 min-h-screen bg-emerald-50">
+          <div className="px-3 px-sm-4">
             <Outlet />
           </div>
         </main>
