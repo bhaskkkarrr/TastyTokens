@@ -34,6 +34,7 @@ import RestaurantHome from "./pages/public/RestaurantHome";
 import CustomerMenu from "./pages/public/CustomerMenu";
 import CartPage from "./pages/public/CartPage";
 import Checkout from "./pages/public/Checkout";
+import { PublicProvider } from "./context/PublicContext";
 
 function App() {
   return (
@@ -83,12 +84,16 @@ function App() {
               <Route index element={<RestaurantHome />} /> */}
             <Route
               path="/r/:restaurantId/t/:tableId"
-              element={<CustomerMenu />}
-            />
-            {/* <Route path="cart" element={<CartPage />} />
-              <Route path="checkout" element={<Checkout />} /> */}
-            {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
-            {/* </Route> */}
+              element={
+                <PublicProvider>
+                  <CustomerMenu />
+                </PublicProvider>
+              }
+            >
+              <Route path="cart" element={<CartPage />} />
+              <Route path="checkout" element={<Checkout />} />
+              {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
+            </Route>
 
             {/* Super Admin Routes */}
             <Route
