@@ -595,6 +595,7 @@ const AdminMenuItems = () => {
                       </div>
 
                       <div className="flex flex-wrap  justify-content-center items-center mt-4 border-t border-gray-100 pt-3">
+                        
                         {/* Availability Toggle */}
                         <div
                           className="flex items-center gap-2 cursor-pointer"

@@ -33,6 +33,7 @@ exports.getPublicMenu = async (req, res) => {
         _id: item._id,
         name: item.name,
         price: item.price,
+        isBestSeller: item.isBestSeller,
         foodType: item.foodType,
         imageUrl: item.imageUrl,
       };
