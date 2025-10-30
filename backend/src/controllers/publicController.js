@@ -5,6 +5,7 @@ const MenuItem = require("../models/MenuItemModel");
 exports.getPublicMenu = async (req, res) => {
   try {
     const { restaurantId } = req.params;
+    const { tableCode } = req.params;
 
     // 1️⃣ Fetch restaurant
     const restaurant = await Admin.findById(restaurantId).select("-createdAt");
@@ -14,7 +15,7 @@ exports.getPublicMenu = async (req, res) => {
         .json({ success: false, message: "Restaurant not found" });
 
     // 2️⃣ Fetch table (you can use code or _id depending on QR logic)
-    const table = await Table.findOne({ restaurantId }).select("_id name code");
+    const table = await Table.findOne({ code:tableCode }).select("_id name code");
     if (!table)
       return res
         .status(404)

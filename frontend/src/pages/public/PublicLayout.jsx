@@ -1,35 +1,16 @@
-import { Home, QrCode, ShoppingBag } from "lucide-react";
-import CommonLayout from "../CommonLayout";
+import React from "react";
+import { Outlet, useParams } from "react-router-dom";
+import { PublicProvider } from "../../context/PublicContext";
+import { CartProvider } from "../../context/CartContext";
 
-function PublicLayout() {
-  const menuItems = [
-    {
-      id: "dashboard",
-      icon: Home,
-      label: "Dashboard",
-      badge: null,
-      path: "dashboard",
-    },
-    {
-      id: "reward-points",
-      icon: QrCode,
-      label: "Reward Points",
-      badge: null,
-      path: "reward-points",
-    },
-    {
-      id: "orders",
-      icon: ShoppingBag,
-      label: "Orders",
-      badge: "12",
-      path: "orders",
-    },
-  ];
+export default function PublicLayout() {
+  const { restaurantId, tableId } = useParams();
+
   return (
-    <div>
-      <CommonLayout menuItems={menuItems}></CommonLayout>
-    </div>
+    <PublicProvider restaurantId={restaurantId} tableId={tableId}>
+      <CartProvider>
+        <Outlet />
+      </CartProvider>
+    </PublicProvider>
   );
 }
-
-export default PublicLayout;

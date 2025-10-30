@@ -80,16 +80,12 @@ function App() {
             </Route>
 
             {/* Public Routes */}
-            {/* <Route path="/r/:restaurantId" element={<PublicLayout />}>
-              <Route index element={<RestaurantHome />} /> */}
+            {/* 🌍 Public Routes for restaurant customers */}
             <Route
               path="/r/:restaurantId/t/:tableId"
-              element={
-                <PublicProvider>
-                  <CustomerMenu />
-                </PublicProvider>
-              }
+              element={<PublicLayout />}
             >
+              <Route index element={<CustomerMenu />} />
               <Route path="cart" element={<CartPage />} />
               <Route path="checkout" element={<Checkout />} />
               {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}

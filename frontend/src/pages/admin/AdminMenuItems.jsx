@@ -121,6 +121,9 @@ const AdminMenuItems = () => {
 
   const handleCatDelete = async (id) => {
     const result = await handleDeleteCategory(id);
+    if (result.success) {
+      console.log(result.message);
+    }
     if (!result.success) {
       setError("root", { message: result.message });
     }
@@ -221,19 +224,28 @@ const AdminMenuItems = () => {
                       Category
                     </label>
                     <select
-                      {...register("category")}
+                      {...register("category", {
+                        required: {
+                          value: true,
+                          message: "Please select a category",
+                        },
+                      })}
                       className={`mb-2 w-full p-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                         errors.category ? "border-red-500" : "border-gray-300"
                       }`}
                     >
                       <option value="">Select Category</option>
-                      <option value="Main Course">Main Course</option>
-                      <option value="Starters">Starters</option>
-                      <option value="Desserts">Desserts</option>
-                      <option value="Beverages">Beverages</option>
-                      <option value="Burger">Burger</option>
-                      <option value="Rice & Biryani">Rice & Biryani</option>
-                      <option value="Pizzas">Pizzas</option>
+                      {categories && categories.length > 0 ? (
+                        categories
+                          .filter((cat) => cat.isActive) // only show active categories
+                          .map((cat) => (
+                            <option key={cat._id} value={cat.name}>
+                              {cat.name}
+                            </option>
+                          ))
+                      ) : (
+                        <option disabled>No categories found</option>
+                      )}
                     </select>
                     {errors.category && (
                       <p className="text-red-500 text-sm mt-1">
@@ -595,7 +607,6 @@ const AdminMenuItems = () => {
                       </div>
 
                       <div className="flex flex-wrap  justify-content-center items-center mt-4 border-t border-gray-100 pt-3">
-                        
                         {/* Availability Toggle */}
                         <div
                           className="flex items-center gap-2 cursor-pointer"

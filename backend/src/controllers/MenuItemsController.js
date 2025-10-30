@@ -1,4 +1,5 @@
 const MenuItem = require("../models/MenuItemModel");
+const Category = require("../models/FoodCategoryModel");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinaryConfig");
 const path = require("path");
@@ -12,6 +13,19 @@ exports.postAddMenuItems = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Name and price are required" });
+    }
+    
+    // ✅ Validate category (check if it exists in DB and belongs to same restaurant)
+    const validCategory = await Category.findOne({
+      name: category,
+      restaurantId: req.user.id,
+    });
+
+    if (!validCategory) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid category: ${category}. Please create it first.`,
+      });
     }
 
     if (!req.file) {
@@ -121,7 +135,8 @@ exports.updateMenuItem = async (req, res) => {
         .json({ success: false, message: "Item not found" });
     }
 
-    const { name, price, category, foodType, isAvailable, isBestSeller } = req.body;
+    const { name, price, category, foodType, isAvailable, isBestSeller } =
+      req.body;
 
     if (name) menuItem.name = name;
     if (price) menuItem.price = Number(price);

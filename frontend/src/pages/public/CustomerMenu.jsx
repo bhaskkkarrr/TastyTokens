@@ -8,19 +8,19 @@ import { MdOutlineAddShoppingCart } from "react-icons/md";
 import { Triangle } from "lucide-react";
 import "../../index.css";
 import FoodFilterToggles from "../../components/FoodFilterToggles";
+import AddToCartModal from "../../components/AddToCartModal";
 
 export default function CustomerMenu() {
   const [filter, setFilter] = useState(null); // "veg" | "nonveg" | "bestseller" | null
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false);
   const { isLoading, data, error } = useContext(PublicContext);
-  // const { addItem } = useContext(CartContext);
-  // const navigate = useNavigate();
 
   // Safeguard: always define data defaults to avoid destructuring errors
   const { restaurant = {}, table = {}, menu = [] } = data || {};
-
+  console.log(table);
   // ✅ Hooks must always run
   const filteredMenu = useMemo(() => {
     return menu
@@ -39,13 +39,25 @@ export default function CustomerMenu() {
           const matchesSearch = item.name
             .toLowerCase()
             .includes(searchQuery.toLowerCase());
-
           return matchesFilter && matchesSearch;
         }),
       }))
       .filter((category) => category.items.length > 0);
   }, [menu, categoryFilter, filter, searchQuery]);
 
+  const beverages = useMemo(() => {
+    const beverageCategory = menu.find(
+      (cat) => cat.name?.toLowerCase() === "beverages"
+    );
+    return beverageCategory ? beverageCategory.items : [];
+  }, [menu]);
+  
+  const desserts = useMemo(() => {
+    const dessertsCategory = menu.find(
+      (des) => des.name?.toLowerCase() === "desserts"
+    );
+    return dessertsCategory ? dessertsCategory.items : [];
+  }, [menu]);
   // 🧭 Return JSX below — not before hooks
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-50 to-white pb-24">
@@ -230,9 +242,10 @@ export default function CustomerMenu() {
                             </div>
                             <div className="flex items-center justify-center">
                               <div
-                                onClick={() =>
-                                  console.log("Add to cart:", item.name)
-                                }
+                                onClick={() => {
+                                  setSelectedItem(item);
+                                  setShowAddToCartModal(true);
+                                }}
                                 className="flex justify-center items-center bg-emerald-600 hover:bg-emerald-700 text-white text-base font-medium p-2 rounded-3 transition-all duration-200 cursor-pointer"
                               >
                                 <MdOutlineAddShoppingCart />
@@ -259,6 +272,18 @@ export default function CustomerMenu() {
               View Cart
             </button>
           </div>
+
+          <AddToCartModal
+            item={selectedItem}
+            drinks={beverages}
+            desserts={desserts}
+            show={showAddToCartModal}
+            onClose={() => setShowAddToCartModal(false)}
+            onAddToCart={(cartData) => {
+              console.log("Added to cart:", cartData);
+              // You can call addItem(cartData) from CartContext here later
+            }}
+          />
         </>
       )}
     </div>

@@ -20,8 +20,8 @@ const menuItemSchema = new mongoose.Schema({
   },
   foodType: {
     type: String,
-    enum: ["veg", "non-veg", "egg"],
-    default: "non-veg",
+    enum: ["veg", "non-veg"],
+    default: "veg",
   },
   isAvailable: {
     type: Boolean,

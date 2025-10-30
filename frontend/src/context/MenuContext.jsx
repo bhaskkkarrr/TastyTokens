@@ -224,7 +224,7 @@ export const MenuProvider = ({ children }) => {
 
   const handleDeleteCategory = async (id) => {
     try {
-      setIsCatLoading(false);
+      setIsCatLoading(true);
       const r = await fetch(`${BASE_API}/api/category/${id}`, {
         method: "DELETE",
         headers: {
@@ -238,12 +238,12 @@ export const MenuProvider = ({ children }) => {
             return t._id !== id;
           })
         );
-        return { success: true };
+        return { success: true, message: "Deleted" };
       }
     } catch (error) {
       return { success: false, message: error };
     } finally {
-      setIsCatLoading(true);
+      setIsCatLoading(false);
     }
   };
   return (
