@@ -35,78 +35,81 @@ import CustomerMenu from "./pages/public/CustomerMenu";
 import CartPage from "./pages/public/CartPage";
 import Checkout from "./pages/public/Checkout";
 import { PublicProvider } from "./context/PublicContext";
+import { OrderProvider } from "./context/OrderContext";
 
 function App() {
   return (
     <AuthProvider>
       <MenuProvider>
         <TableProvider>
-          <Routes>
-            <Route
-              path="/signup"
-              element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
-                  <SignUpPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="/" element={<LoginPage />} />
+          <OrderProvider>
+            <Routes>
+              <Route
+                path="/signup"
+                element={
+                  <ProtectedRoute allowedRoles={["superadmin"]}>
+                    <SignUpPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/" element={<LoginPage />} />
 
-            {/* Restaurant Admin Routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<AdminDashboard />} />
-              <Route path="dashboard" index element={<AdminDashboard />} />
-              <Route path="menu-items" element={<AdminMenuItems />} />
-              <Route path="qr-codes" element={<AdminQrCode />} />
-              <Route path="orders" index element={<AdminOrders />} />
-              {/* <Route path="analytics" element={<AdminAnalytics />} /> */}
-              <Route path="customers" element={<AdminCustomers />} />
-              <Route path="notifications" element={<AdminNotification />} />
-              <Route path="settings" element={<AdminSettings />} />
-            </Route>
+              {/* Restaurant Admin Routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute allowedRoles={["admin"]}>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<AdminDashboard />} />
+                <Route path="dashboard" index element={<AdminDashboard />} />
+                <Route path="menu-items" element={<AdminMenuItems />} />
+                <Route path="qr-codes" element={<AdminQrCode />} />
+                <Route path="orders" index element={<AdminOrders />} />
+                {/* <Route path="analytics" element={<AdminAnalytics />} /> */}
+                <Route path="customers" element={<AdminCustomers />} />
+                <Route path="notifications" element={<AdminNotification />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
 
-            {/* Customer Routes */}
-            <Route path="/:restaurantId" element={<CustomerLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="reward-points" element={<RewardPoints />} />
-            </Route>
+              {/* Customer Routes */}
+              <Route path="/:restaurantId" element={<CustomerLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="reward-points" element={<RewardPoints />} />
+              </Route>
 
-            {/* Public Routes */}
-            {/* 🌍 Public Routes for restaurant customers */}
-            <Route
-              path="/r/:restaurantId/t/:tableId"
-              element={<PublicLayout />}
-            >
-              <Route index element={<CustomerMenu />} />
-              <Route path="cart" element={<CartPage />} />
-              <Route path="checkout" element={<Checkout />} />
-              {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
-            </Route>
+              {/* Public Routes */}
+              {/* 🌍 Public Routes for restaurant customers */}
+              <Route
+                path="/r/:restaurantId/t/:tableId"
+                element={<PublicLayout />}
+              >
+                <Route index element={<CustomerMenu />} />
+                <Route path="cart" element={<CartPage />} />
+                <Route path="checkout" element={<Checkout />} />
+                {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
+              </Route>
 
-            {/* Super Admin Routes */}
-            <Route
-              path="super-admin"
-              element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
-                  <SuperAdminLayout></SuperAdminLayout>
-                </ProtectedRoute>
-              }
-            >
-              <Route index element={<SuperDashboard />} />
-              <Route path="dashboard" element={<SuperDashboard />} />
-              <Route path="analytics" element={<SuperAnalytics />} />
-            </Route>
+              {/* Super Admin Routes */}
+              <Route
+                path="super-admin"
+                element={
+                  <ProtectedRoute allowedRoles={["superadmin"]}>
+                    <SuperAdminLayout></SuperAdminLayout>
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<SuperDashboard />} />
+                <Route path="dashboard" element={<SuperDashboard />} />
+                <Route path="analytics" element={<SuperAnalytics />} />
+              </Route>
 
-            <Route path="*" element={<Page404 />} />
-          </Routes>
+              <Route path="*" element={<Page404 />} />
+            </Routes>
+          </OrderProvider>
         </TableProvider>
       </MenuProvider>
     </AuthProvider>

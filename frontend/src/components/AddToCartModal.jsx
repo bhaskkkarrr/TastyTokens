@@ -267,14 +267,43 @@ export default function AddToCartModal({
 
               <button
                 onClick={() => {
-                  onAddToCart({
+                  // 1️⃣ Add the main food item
+                  const mainItem = {
                     ...item,
                     quantity,
                     portion,
-                    beverages: selectedBeverages,
-                    desserts: selectedDesserts,
-                    totalPrice,
+                    totalPrice:
+                      (portion === "half" ? item.price / 2 : item.price) *
+                      quantity,
+                  };
+                  onAddToCart(mainItem);
+
+                  // 2️⃣ Add selected beverages (each as new item)
+                  selectedBeverages.forEach((bevName) => {
+                    const bev = drinks.find((b) => b.name === bevName);
+                    if (bev) {
+                      onAddToCart({
+                        ...bev,
+                        quantity: 1,
+                        portion: "full",
+                        totalPrice: Number(bev.price),
+                      });
+                    }
                   });
+
+                  // 3️⃣ Add selected desserts (each as new item)
+                  selectedDesserts.forEach((desName) => {
+                    const des = desserts.find((d) => d.name === desName);
+                    if (des) {
+                      onAddToCart({
+                        ...des,
+                        quantity: 1,
+                        portion: "full",
+                        totalPrice: Number(des.price),
+                      });
+                    }
+                  });
+
                   onClose();
                 }}
                 className="px-4 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold text-lg shadow"

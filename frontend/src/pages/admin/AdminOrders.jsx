@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   FaClipboardList,
   FaSearch,
@@ -9,53 +9,55 @@ import {
   FaUtensils,
   FaMoneyBillWave,
 } from "react-icons/fa";
+import { OrderContext } from "../../context/OrderContext";
 
 function AdminOrders() {
+  const { getOrders, orders } = useContext(OrderContext);
   // Sample orders data
-  const [orders, setOrders] = useState([
-    {
-      id: "ORD001",
-      tableName: "Table 5",
-      items: [
-        { name: "Paneer Butter Masala", quantity: 2, price: 299 },
-        { name: "Butter Naan", quantity: 3, price: 40 },
-      ],
-      total: 718,
-      status: "preparing",
-      time: "10:30 AM",
-      customerName: "Rahul Sharma",
-      paymentStatus: "paid",
-      orderType: "dine-in",
-    },
-    {
-      id: "ORD002",
-      tableName: "Table 8",
-      items: [
-        { name: "Dal Makhani", quantity: 1, price: 249 },
-        { name: "Jeera Rice", quantity: 1, price: 149 },
-      ],
-      total: 398,
-      status: "completed",
-      time: "10:15 AM",
-      customerName: "Priya Patel",
-      paymentStatus: "paid",
-      orderType: "dine-in",
-    },
-    {
-      id: "ORD003",
-      tableName: "Table 2",
-      items: [
-        { name: "Kadai Paneer", quantity: 1, price: 279 },
-        { name: "Garlic Naan", quantity: 2, price: 50 },
-      ],
-      total: 379,
-      status: "new",
-      time: "10:45 AM",
-      customerName: "Amit Kumar",
-      paymentStatus: "pending",
-      orderType: "dine-in",
-    },
-  ]);
+  // const [orders, setOrders] = useState([
+  //   {
+  //     id: "ORD001",
+  //     tableName: "Table 5",
+  //     items: [
+  //       { name: "Paneer Butter Masala", quantity: 2, price: 299 },
+  //       { name: "Butter Naan", quantity: 3, price: 40 },
+  //     ],
+  //     total: 718,
+  //     status: "preparing",
+  //     time: "10:30 AM",
+  //     customerName: "Rahul Sharma",
+  //     paymentStatus: "paid",
+  //     orderType: "dine-in",
+  //   },
+  //   {
+  //     id: "ORD002",
+  //     tableName: "Table 8",
+  //     items: [
+  //       { name: "Dal Makhani", quantity: 1, price: 249 },
+  //       { name: "Jeera Rice", quantity: 1, price: 149 },
+  //     ],
+  //     total: 398,
+  //     status: "completed",
+  //     time: "10:15 AM",
+  //     customerName: "Priya Patel",
+  //     paymentStatus: "paid",
+  //     orderType: "dine-in",
+  //   },
+  //   {
+  //     id: "ORD003",
+  //     tableName: "Table 2",
+  //     items: [
+  //       { name: "Kadai Paneer", quantity: 1, price: 279 },
+  //       { name: "Garlic Naan", quantity: 2, price: 50 },
+  //     ],
+  //     total: 379,
+  //     status: "new",
+  //     time: "10:45 AM",
+  //     customerName: "Amit Kumar",
+  //     paymentStatus: "pending",
+  //     orderType: "dine-in",
+  //   },
+  // ]);
 
   // Status badge styles
   const getStatusBadgeClass = (status) => {
@@ -96,7 +98,6 @@ function AdminOrders() {
 
       {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-
         <div className="bg-white rounded-2xl p-sm-4 px-4 py-2 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex flex-wrap justify-between items-center">
             <div>
@@ -209,7 +210,7 @@ function AdminOrders() {
       <div className="space-y-4">
         {orders.map((order) => (
           <div
-            key={order.id}
+            key={order._id}
             className="bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300"
           >
             <div className="row">

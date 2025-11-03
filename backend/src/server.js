@@ -15,6 +15,7 @@ const { categoryRoutes } = require("./routes/foodCategoryRoutes");
 const { menuItemRoutes } = require("./routes/MenuItemRoutes");
 const { tableRoutes } = require("./routes/TableRoutes");
 const { publicRoutes } = require("./routes/publicRoutes");
+const { orderRoutes } = require("./routes/OrderRoutes");
 
 // app.use(
 //   cors({
@@ -32,6 +33,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/menu", menuItemRoutes);
 app.use("/api/table", tableRoutes);
+app.use("/api/order", orderRoutes);
 
 // Server Port
 app.listen(PORT, () => {

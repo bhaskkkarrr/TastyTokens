@@ -1,55 +1,109 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
 
 export const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
-  const [cart, setCart] = useState(() => {
-    // ✅ Load from localStorage if available
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [cartItems, setCartItems] = useState([]);
 
-  // ✅ Persist cart to localStorage
+  // Load cart from localStorage on mount
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    const storedCart = localStorage.getItem("cart");
+    if (storedCart) setCartItems(JSON.parse(storedCart));
+  }, []);
 
-  // 🧠 Add Item
-  const addItem = (item) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i._id === item._id);
-      if (existing) {
-        return prev.map((i) =>
-          i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
-        );
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // ✅ Add item to cart
+  const addItem = (newItem) => {
+    setCartItems((prev) => {
+      const existingIndex = prev.findIndex(
+        (i) =>
+          i._id === newItem._id &&
+          i.portion === newItem.portion &&
+          JSON.stringify(i.beverages) === JSON.stringify(newItem.beverages) &&
+          JSON.stringify(i.desserts) === JSON.stringify(newItem.desserts)
+      );
+
+      if (existingIndex !== -1) {
+        // ✅ Item already exists → increase quantity instead of duplicating
+        const updated = [...prev];
+        const existing = updated[existingIndex];
+        const unitPrice = existing.totalPrice / existing.quantity;
+
+        updated[existingIndex] = {
+          ...existing,
+          quantity: existing.quantity + newItem.quantity,
+          totalPrice: unitPrice * (existing.quantity + newItem.quantity),
+        };
+        return updated;
       }
-      return [...prev, { ...item, quantity: 1 }];
+
+      // ✅ New item → add to cart
+      return [...prev, newItem];
     });
   };
 
-  // ➖ Decrease quantity
-  const decreaseItem = (id) => {
-    setCart((prev) =>
-      prev
-        .map((i) => (i._id === id ? { ...i, quantity: i.quantity - 1 } : i))
-        .filter((i) => i.quantity > 0)
+  // ✅ Remove item by index
+  const removeItem = (index) =>
+    setCartItems((prev) => prev.filter((_, i) => i !== index));
+
+  // ✅ Clear entire cart
+  const clearCart = () => setCartItems([]);
+
+  // ✅ Increase quantity
+  const increaseQuantity = (index) => {
+    setCartItems((prev) =>
+      prev.map((item, i) =>
+        i === index
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+              totalPrice:
+                (item.totalPrice / item.quantity) * (item.quantity + 1),
+            }
+          : item
+      )
     );
   };
 
-  // ❌ Remove item entirely
-  const removeItem = (id) => {
-    setCart((prev) => prev.filter((i) => i._id !== id));
+  // ✅ Decrease quantity — if it reaches 1 → remove from cart
+  const decreaseQuantity = (index) => {
+    setCartItems((prev) => {
+      const updated = [...prev];
+      const item = updated[index];
+
+      if (item.quantity > 1) {
+        const unitPrice = item.totalPrice / item.quantity;
+        updated[index] = {
+          ...item,
+          quantity: item.quantity - 1,
+          totalPrice: unitPrice * (item.quantity - 1),
+        };
+        return updated;
+      }
+
+      // If quantity is 1, remove it entirely
+      return updated.filter((_, i) => i !== index);
+    });
   };
 
-  // 🧮 Total Price
-  const totalPrice = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  // ✅ Calculate total dynamically
+  const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
 
   return (
     <CartContext.Provider
-      value={{ cart, addItem, decreaseItem, removeItem, totalPrice }}
+      value={{
+        cartItems,
+        addItem,
+        increaseQuantity,
+        decreaseQuantity,
+        removeItem,
+        clearCart,
+        total,
+      }}
     >
       {children}
     </CartContext.Provider>
