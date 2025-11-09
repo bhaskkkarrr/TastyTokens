@@ -14,7 +14,7 @@ tableRoutes.post(
 tableRoutes.get(
   "/tables",
   verifyToken,
-  authorizeRoles("admin"),
+  authorizeRoles("admin", "superadmin"),
   TableController.getAllTables
 );
 

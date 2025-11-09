@@ -14,7 +14,17 @@ exports.postCreateOrder = async (req, res) => {
       total,
     });
 
-    res.status(201).json({ success: true, order: newOrder });
+    // ✅ Get socket.io instance from app
+    const io = req.app.get("io");
+
+    // ✅ Emit real-time event
+    io.to(restaurantId).emit("newOrder", newOrder);
+
+    res.status(201).json({
+      success: true,
+      message: "Order placed successfully",
+      order: newOrder,
+    });
   } catch (err) {
     console.error("Order creation error:", err.message);
     res.status(500).json({ message: "Server error" });
@@ -32,5 +42,28 @@ exports.getOrdersByRestaurant = async (req, res) => {
     res.json({ success: true, orders: orders });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const updated = await Order.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    const io = req.app.get("io");
+
+    // ✅ Emit to restaurant room
+    io.to(updated.restaurantId).emit("orderStatusUpdated", updated);
+
+    res.json({ success: true, updated });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error updating order" });
   }
 };

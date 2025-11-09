@@ -24,6 +24,7 @@ export default function Checkout() {
       console.log(data);
       if (data.success) {
         clearCart();
+        navigate(-2);
         console.log("order-success");
       } else {
         console.log("Order failed!");
@@ -43,6 +44,7 @@ export default function Checkout() {
       >
         Place Order
       </button>
+      <button onClick={() => navigate(-1)}> Back</button>
     </div>
   );
 }

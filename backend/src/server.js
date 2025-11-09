@@ -9,6 +9,37 @@ dbConnect();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Socket
+// ✅ Create HTTP server
+const http = require("http");
+const server = http.createServer(app);
+
+// ✅ Setup socket.io
+const { Server } = require("socket.io");
+const io = new Server(server, {
+  cors: {
+    origin: "*", // in production, put your domain
+    methods: ["GET", "POST"],
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("✅ Socket Connected:", socket.id);
+
+  // ✅ Admin joins restaurant room
+  socket.on("joinRestaurantRoom", (restaurantId) => {
+    socket.join(restaurantId);
+    console.log(`✅ Admin joined room: ${restaurantId}`);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ Disconnected:", socket.id);
+  });
+});
+
+// ✅ Make io available to all controllers
+app.set("io", io);
+
 // Routes Import
 const { authRoutes } = require("./routes/authRoutes");
 const { categoryRoutes } = require("./routes/foodCategoryRoutes");
@@ -36,6 +67,6 @@ app.use("/api/table", tableRoutes);
 app.use("/api/order", orderRoutes);
 
 // Server Port
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);
 });

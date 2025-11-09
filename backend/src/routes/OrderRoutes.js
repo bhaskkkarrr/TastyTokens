@@ -10,4 +10,10 @@ orderRoutes.get(
   authorizeRoles("admin"),
   orderController.getOrdersByRestaurant
 );
+orderRoutes.put(
+  "/update-status/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  orderController.updateOrderStatus
+);
 exports.orderRoutes = orderRoutes;

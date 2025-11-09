@@ -12,53 +12,10 @@ import {
 import { OrderContext } from "../../context/OrderContext";
 
 function AdminOrders() {
-  const { getOrders, orders } = useContext(OrderContext);
-  // Sample orders data
-  // const [orders, setOrders] = useState([
-  //   {
-  //     id: "ORD001",
-  //     tableName: "Table 5",
-  //     items: [
-  //       { name: "Paneer Butter Masala", quantity: 2, price: 299 },
-  //       { name: "Butter Naan", quantity: 3, price: 40 },
-  //     ],
-  //     total: 718,
-  //     status: "preparing",
-  //     time: "10:30 AM",
-  //     customerName: "Rahul Sharma",
-  //     paymentStatus: "paid",
-  //     orderType: "dine-in",
-  //   },
-  //   {
-  //     id: "ORD002",
-  //     tableName: "Table 8",
-  //     items: [
-  //       { name: "Dal Makhani", quantity: 1, price: 249 },
-  //       { name: "Jeera Rice", quantity: 1, price: 149 },
-  //     ],
-  //     total: 398,
-  //     status: "completed",
-  //     time: "10:15 AM",
-  //     customerName: "Priya Patel",
-  //     paymentStatus: "paid",
-  //     orderType: "dine-in",
-  //   },
-  //   {
-  //     id: "ORD003",
-  //     tableName: "Table 2",
-  //     items: [
-  //       { name: "Kadai Paneer", quantity: 1, price: 279 },
-  //       { name: "Garlic Naan", quantity: 2, price: 50 },
-  //     ],
-  //     total: 379,
-  //     status: "new",
-  //     time: "10:45 AM",
-  //     customerName: "Amit Kumar",
-  //     paymentStatus: "pending",
-  //     orderType: "dine-in",
-  //   },
-  // ]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
 
+  const { getOrders, orders, updateStatus } = useContext(OrderContext);
   // Status badge styles
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -72,6 +29,47 @@ function AdminOrders() {
         return "bg-gray-100 text-gray-600";
     }
   };
+
+  const handleUpdateStatus = async (id, status) => {
+    const result = await updateStatus(id, status);
+    console.log(result);
+  };
+
+  // 1) Filter orders
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.tableName || "")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      order.items.some((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    const matchesStatus = filterStatus === "" || order.status === filterStatus;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // 2) Sort filtered orders (completed last)
+  const sortedFilteredOrders = [...filteredOrders].sort((a, b) => {
+    const statusOrder = {
+      new: 1,
+      pending: 1,
+      preparing: 2,
+      completed: 3,
+    };
+    return statusOrder[a.status] - statusOrder[b.status];
+  });
+
+  // ✅ Calculate real-time stats from orders state
+  const newOrders = orders.filter(
+    (o) => o.status === "new" || o.status === "pending"
+  ).length;
+  const preparingOrders = orders.filter((o) => o.status === "preparing").length;
+  const completedOrders = orders.filter((o) => o.status === "completed").length;
+
+  const totalRevenue = orders.reduce((sum, o) => sum + o.total, 0);
 
   return (
     <div className="container-fluid py-2 px-0 p-sm-3">
@@ -111,7 +109,7 @@ function AdminOrders() {
                 </div>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-600">
-                5
+                {newOrders}
               </h3>
             </div>
           </div>
@@ -130,7 +128,7 @@ function AdminOrders() {
                 </div>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-yellow-600">
-                3
+                {preparingOrders}
               </h3>
             </div>
           </div>
@@ -149,7 +147,7 @@ function AdminOrders() {
                 </div>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-600">
-                12
+                {completedOrders}
               </h3>
             </div>
           </div>
@@ -168,7 +166,7 @@ function AdminOrders() {
                 </div>
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-600">
-                ₹15,420
+                ₹{totalRevenue}
               </h3>
             </div>
           </div>
@@ -184,22 +182,24 @@ function AdminOrders() {
               <input
                 type="text"
                 placeholder="Search orders..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 text-sm sm:text-base rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
               />
             </div>
           </div>
+
           <div className="md:col-span-8">
             <div className="flex flex-col sm:flex-row gap-3">
-              <select className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none"
+              >
                 <option value="">Filter by Status</option>
-                <option value="new">New</option>
+                <option value="pending">New</option>
                 <option value="preparing">Preparing</option>
                 <option value="completed">Completed</option>
-              </select>
-              <select className="w-full sm:w-auto px-4 py-2 text-sm sm:text-base rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none">
-                <option value="">Payment Status</option>
-                <option value="paid">Paid</option>
-                <option value="pending">Pending</option>
               </select>
             </div>
           </div>
@@ -208,7 +208,7 @@ function AdminOrders() {
 
       {/* Orders List */}
       <div className="space-y-4">
-        {orders.map((order) => (
+        {sortedFilteredOrders.map((order) => (
           <div
             key={order._id}
             className="bg-white rounded-2xl p-3 shadow-sm hover:shadow-md transition-shadow duration-300"
@@ -260,18 +260,21 @@ function AdminOrders() {
               <div className="col-12 col-md-4">
                 <div className="flex flex-wrap gap-2 justify-end mt-3 mt-md-0">
                   <button
+                    onClick={() => handleUpdateStatus(order._id, "preparing")}
                     className={`px-4 py-2 rounded-lg text-sm font-medium 
                     ${
-                      order.status === "new"
+                      order.status === "pending"
                         ? "bg-emerald-600 text-white hover:bg-emerald-700"
                         : "bg-gray-100 text-gray-400"
                     }`}
-                    disabled={order.status !== "new"}
+                    disabled={order.status !== "pending"}
                   >
                     Accept Order
                   </button>
                   <button
+                    onClick={() => handleUpdateStatus(order._id, "completed")}
                     className={`px-4 py-2 rounded-lg text-sm font-medium 
+                      
                     ${
                       order.status === "preparing"
                         ? "bg-green-600 text-white hover:bg-green-700"
