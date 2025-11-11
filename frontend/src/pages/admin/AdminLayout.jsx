@@ -46,13 +46,6 @@ function AdminLayout() {
       path: "admin/orders",
     },
     {
-      id: "customers",
-      icon: Users,
-      label: "Customers",
-      badge: null,
-      path: "admin/customers",
-    },
-    {
       id: "notifications",
       icon: Bell,
       label: "Notifications",
@@ -62,7 +55,7 @@ function AdminLayout() {
   ];
   return (
     <div>
-      <CommonLayout menuItems={menuItems}></CommonLayout>
+      <CommonLayout menuItems={menuItems} role={"admin"}></CommonLayout>
     </div>
   );
 }

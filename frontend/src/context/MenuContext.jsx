@@ -1,151 +1,73 @@
-import { createContext, useEffect, useState } from "react";
-const BASE_API = import.meta.env.VITE_BASE_API;
-import { useContext } from "react";
+import { createContext, useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
 
+const BASE_API = import.meta.env.VITE_BASE_API;
 export const MenuContext = createContext();
+
 export const MenuProvider = ({ children }) => {
-  const [isMenuLoading, setIsMenuLoading] = useState(false);
-  const [isCatLoading, setIsCatLoading] = useState(false);
   const { token } = useContext(AuthContext);
-  const [categories, setCategories] = useState(null);
+
+  const [isMenuLoading, setIsMenuLoading] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
 
-  const formatName = (name) => {
-    if (!name) return "";
-    return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-  };
+  // ✅ Capitalize first letter
+  const formatName = (name) =>
+    name ? name.charAt(0).toUpperCase() + name.slice(1).toLowerCase() : "";
 
-  const addCategory = async (data) => {
-    console.log(data);
-    data.name = formatName(data.name);
-    try {
-      setIsCatLoading(true);
-      const r = await fetch(`${BASE_API}/api/category/add`, {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const res = await r.json();
-      console.log("Category Response", res);
-      if (res.success) {
-        await getAllCategories();
-        return { success: true };
-      } else if (!res.success && r.status === 400) {
-        return {
-          success: false,
-          message: res.message || "Category already added",
-        };
-      } else if (!res.success && r.status === 501) {
-        return {
-          success: false,
-          message: res.message || "Server error creating category",
-        };
-      }
-    } catch (error) {
-      console.log("Error in adding category", error);
-      return {
-        success: false,
-        message: res.message || "Category creation failed",
-      };
-    } finally {
-      setIsCatLoading(false);
-    }
-  };
-
-  const getAllCategories = async () => {
-    try {
-      setIsCatLoading(true);
-      const r = await fetch(`${BASE_API}/api/category/categories`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const res = await r.json();
-      console.log("Category responsing", res);
-      if (r.ok) {
-        setCategories(res.categories);
-      }
-    } catch (error) {
-      return {
-        success: false,
-        message: res.message || "Getting categories failed",
-      };
-    } finally {
-      setIsCatLoading(false);
-    }
-  };
-
+  // ----------------------------------------------------------------------
+  // ✅ ADD MENU ITEM
+  // ----------------------------------------------------------------------
   const addMenuItem = async (data) => {
-    data.name = formatName(data.name);
     try {
       setIsMenuLoading(true);
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("price", data.price);
-      formData.append("category", data.category || "");
-      formData.append("foodType", data.foodType || "non-veg");
-      formData.append("isAvailable", data.isAvailable ? "true" : "false");
 
-      // append image file (first item)
-      if (data.image && data.image[0]) {
-        formData.append("image", data.image[0]);
-      }
+      data.name = formatName(data.name);
 
       const res = await fetch(`${BASE_API}/api/menu/add`, {
         method: "POST",
-        body: formData,
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        body: data, // ✅ Already FormData from component
       });
 
       const result = await res.json();
+
       if (result.success) {
-        // success
         console.log("Uploaded menu item", result.menuItem);
-        return {
-          success: true,
-          result,
-        };
-      } else if (!result.success) {
-        return {
-          success: false,
-          message: res.message,
-        };
+        return { success: true, result };
       }
-    } catch (err) {
-      console.error(err);
+
       return {
         success: false,
-        message: res.message || "Adding menu item failed",
+        message: result.message || "Failed to add menu item",
       };
+    } catch (err) {
+      console.error("Add menu item error:", err);
+      return { success: false, message: err.message };
     } finally {
       setIsMenuLoading(false);
     }
   };
 
+  // ----------------------------------------------------------------------
+  // ✅ GET ALL MENU ITEMS
+  // ----------------------------------------------------------------------
   const getAllMenuItems = async () => {
     try {
       setIsMenuLoading(true);
+
       const res = await fetch(`${BASE_API}/api/menu/items`, {
-        method: "GET",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
+
       const data = await res.json();
-      console.log(data);
-      if (res.ok && data.success) {
-        setMenuItems(data.menuItems); // assuming backend returns { success: true, menuItems: [...] }
+      console.log("Menu Items:", data);
+
+      if (data.success) {
+        setMenuItems(data.menuItems);
       } else {
         console.error("Failed to fetch menu items", data.message);
       }
@@ -156,24 +78,28 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
+  // ----------------------------------------------------------------------
+  // ✅ DELETE MENU ITEM
+  // ----------------------------------------------------------------------
   const handleDelete = async (id) => {
     try {
       setIsMenuLoading(true);
+
       const r = await fetch(`${BASE_API}/api/menu/${id}`, {
         method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      if (r.ok) {
-        setMenuItems((prev) =>
-          prev.filter((t) => {
-            return t._id !== id;
-          })
-        );
+
+      const res = await r.json();
+
+      if (res.success) {
+        setMenuItems((prev) => prev.filter((item) => item._id !== id));
         return { success: true };
       }
+
+      return { success: false, message: res.message };
     } catch (error) {
       return { success: false, message: error.message };
     } finally {
@@ -181,22 +107,12 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
-  const updateMenuItem = async (id, data) => {
+  // ----------------------------------------------------------------------
+  // ✅ UPDATE MENU ITEM
+  // ----------------------------------------------------------------------
+  const updateMenuItem = async (id, formData) => {
     try {
       setIsMenuLoading(true);
-      const formData = new FormData();
-
-      Object.keys(data).forEach((key) => {
-        if (key === "image" && data[key] && data[key][0]) {
-          formData.append("image", data[key][0]);
-        } else if (Array.isArray(data[key])) {
-          data[key].forEach((item) => formData.append(key, item));
-        } else if (typeof data[key] === "boolean") {
-          formData.append(key, data[key] ? "true" : "false");
-        } else {
-          formData.append(key, data[key]);
-        }
-      });
 
       const res = await fetch(`${BASE_API}/api/menu/${id}`, {
         method: "PUT",
@@ -210,7 +126,7 @@ export const MenuProvider = ({ children }) => {
       console.log("Update Result:", result);
 
       if (result.success) {
-        await getAllMenuItems(); // refresh frontend
+        await getAllMenuItems();
       }
 
       return result;
@@ -222,43 +138,17 @@ export const MenuProvider = ({ children }) => {
     }
   };
 
-  const handleDeleteCategory = async (id) => {
-    try {
-      setIsCatLoading(true);
-      const r = await fetch(`${BASE_API}/api/category/${id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (r.ok) {
-        setCategories((prev) =>
-          prev.filter((t) => {
-            return t._id !== id;
-          })
-        );
-        return { success: true, message: "Deleted" };
-      }
-    } catch (error) {
-      return { success: false, message: error };
-    } finally {
-      setIsCatLoading(false);
-    }
-  };
   return (
     <MenuContext.Provider
       value={{
-        addCategory,
-        getAllCategories,
+        // menu items
         addMenuItem,
         getAllMenuItems,
-        handleDelete,
         updateMenuItem,
-        handleDeleteCategory,
-        isCatLoading,
+        handleDelete,
+
+        // states
         isMenuLoading,
-        categories,
         menuItems,
       }}
     >

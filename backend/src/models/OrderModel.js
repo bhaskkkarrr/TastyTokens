@@ -1,18 +1,102 @@
 const mongoose = require("mongoose");
 
-const orderSchema = new mongoose.Schema({
-  restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
-  tableNumber: String,
-  items: [
+const OrderItemSchema = new mongoose.Schema({
+  itemId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "MenuItem",
+    required: true,
+  },
+  name: String,
+  quantity: { type: Number, required: true, min: 1 },
+  price: { type: Number, required: true }, // price locked at order time
+  total: { type: Number, required: true },
+  selectedVariant: { type: Object, default: {} }, // e.g., {size: "M"}
+  addons: [
     {
+      addonId: String,
       name: String,
-      quantity: Number,   
       price: Number,
     },
   ],
-  total: Number,
-  status: { type: String, default: "pending" },
+  notes: String,
+});
+
+const OrderSchema = new mongoose.Schema({
+  restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
+  table: { type: String, default: null }, // table name or null
+  orderId: { type: String, unique: true, index: true },
+  items: [OrderItemSchema],
+  pricing: {
+    subtotal: { type: Number, required: true, default: 0 },
+    tax: { type: Number, default: 0 },
+    serviceCharge: { type: Number, default: 0 },
+    discount: { type: Number, default: 0 },
+    deliveryCharge: { type: Number, default: 0 },
+    grandTotal: { type: Number, required: true, default: 0 },
+  },
+  customer: {
+    name: String,
+    phone: String,
+  },
+  orderType: {
+    type: String,
+    enum: ["DINE_IN", "TAKEAWAY"],
+    default: "DINE_IN",
+  },
+  status: {
+    type: String,
+    enum: ["PENDING", "ACCEPTED", "PREPARING", "COMPLETED", "CANCELLED"],
+    default: "PENDING",
+  },
+  sessionId: { type: String }, // socket session id if realtime needed
+
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Order", orderSchema);
+// ✅ Auto-generate unique orderId before saving
+OrderSchema.pre("save", async function (next) {
+  if (this.orderId) return next(); // prevent regenerating
+
+  // ✅ Count previous orders for restaurant
+  const count = await mongoose.model("Order").countDocuments({
+    restaurantId: this.restaurantId,
+  });
+
+  // ✅ Format: ORD-00001, ORD-00002, etc.
+  this.orderId = `ORD-${String(count + 1).padStart(5, "0")}`;
+
+  next();
+});
+// pre-save hook to calculate totals if not set
+OrderSchema.pre("validate", function (next) {
+  // compute each item total as quantity*price + addons
+  this.items = this.items.map((i) => {
+    const addonsTotal = (i.addons || []).reduce(
+      (s, a) => s + (a.price || 0),
+      0
+    );
+    const total = (i.price || 0) * (i.quantity || 1) + addonsTotal;
+    return { ...(i.toObject ? i.toObject() : i), total };
+  });
+
+  const subtotal = this.items.reduce((s, it) => s + (it.total || 0), 0);
+  this.pricing.subtotal = subtotal;
+  this.pricing.tax = this.pricing.tax || 0;
+  this.pricing.serviceCharge = this.pricing.serviceCharge || 0;
+  this.pricing.deliveryCharge = this.pricing.deliveryCharge || 0;
+  this.pricing.discount = this.pricing.discount || 0;
+  this.pricing.grandTotal =
+    subtotal +
+    this.pricing.tax +
+    this.pricing.serviceCharge +
+    this.pricing.deliveryCharge -
+    this.pricing.discount;
+
+  next();
+});
+
+// ✅ Useful indexes
+OrderSchema.index({ restaurantId: 1, createdAt: -1 });
+OrderSchema.index({ restaurantId: 1, orderId: 1 }, { unique: true });
+
+module.exports = mongoose.model("Order", OrderSchema);

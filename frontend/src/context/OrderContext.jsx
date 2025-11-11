@@ -89,13 +89,37 @@ export const OrderProvider = ({ children }) => {
 
     const res = await r.json();
     if (res.success) {
-      getOrders();
+      const updatedOrder = res.updated;
+
+      // ✅ Update local UI instantly without fetching again
+      setOrders((prev) =>
+        prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
+      );
     }
+
     return { success: true, message: "Updated", res };
   };
 
+  const deleteOrder = async (id) => {
+    const r = await fetch(`${BASE_API}/api/order/delete/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const res = await r.json();
+    if (res.success) {
+      setOrders((prev) => prev.filter((order) => order._id !== id));
+    }
+    return { res };
+  };
+
   return (
-    <OrderContext.Provider value={{ getOrders, orders, updateStatus }}>
+    <OrderContext.Provider
+      value={{ getOrders, orders, updateStatus, deleteOrder }}
+    >
       {children}
     </OrderContext.Provider>
   );

@@ -15,7 +15,8 @@ function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  const { getOrders, orders, updateStatus } = useContext(OrderContext);
+  const { getOrders, orders, updateStatus, deleteOrder } =
+    useContext(OrderContext);
   // Status badge styles
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -35,6 +36,10 @@ function AdminOrders() {
     console.log(result);
   };
 
+  const handleDeleteOrder = async (id) => {
+    const r = await deleteOrder(id);
+    console.log(r);
+  };
   // 1) Filter orders
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
@@ -218,7 +223,7 @@ function AdminOrders() {
                 <div className="mb-3 mb-md-0">
                   <div className="flex justify-between md:block">
                     <h5 className="text-lg font-semibold text-gray-800 mb-1">
-                      {order.id}
+                      {order.orderId}
                     </h5>
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-sm ${getStatusBadgeClass(
@@ -284,8 +289,11 @@ function AdminOrders() {
                   >
                     Mark Complete
                   </button>
-                  <button className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200">
-                    View Details
+                  <button
+                    className="px-4 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    onClick={() => handleDeleteOrder(order._id)}
+                  >
+                    Delete Order
                   </button>
                 </div>
               </div>

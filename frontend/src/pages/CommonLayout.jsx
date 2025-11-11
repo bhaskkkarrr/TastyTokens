@@ -34,7 +34,7 @@ const MenuIcon = () => (
   </svg>
 );
 
-const CommonLayout = ({ menuItems }) => {
+const CommonLayout = ({ menuItems, role }) => {
   const { logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -90,6 +90,7 @@ const CommonLayout = ({ menuItems }) => {
               >
                 {isMobileSidebarOpen ? <X className="w-5 h-5" /> : <MenuIcon />}
               </button>
+
               {/* Logo */}
               <div className="flex items-center ">
                 <div className="hidden sm:block ">
@@ -157,7 +158,7 @@ const CommonLayout = ({ menuItems }) => {
 
             <div className="p-2 border-t border-slate-800">
               <NavLink
-                to={`/settings`}
+                to={`/${role}/settings`}
                 className={({ isActive }) =>
                   `flex items-center text-decoration-none space-x-3 px-4 py-3 rounded-xl text-white hover:bg-white/5 hover:text-white transition-all group ${
                     isActive ? "bg-white/10" : ""
@@ -208,7 +209,7 @@ const CommonLayout = ({ menuItems }) => {
                 <div className="space-y-1.5 p-2 border-t border-slate-800">
                   {/* Setting */}
                   <NavLink
-                    to={`/settings`}
+                    to={`/${role}/settings`}
                     onClick={() => setIsMobileSidebarOpen(false)}
                     className={({ isActive }) =>
                       `flex items-center text-decoration-none text-white space-x-3 px-md-4 py-md-3.5 p-3 rounded-4 hover:bg-white/5 hover:text-white transition-all group ${

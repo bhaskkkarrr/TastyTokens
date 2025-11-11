@@ -5,11 +5,17 @@ const foodCategorySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Admin", // Reference to the restaurant/admin
     required: true,
+    index: true,
   },
   name: {
     type: String,
     required: true,
     trim: true,
+  },
+  slug: {
+    type: String,
+    trim: true,
+    lowercase: true,
   },
   isActive: {
     type: Boolean,
@@ -21,4 +27,5 @@ const foodCategorySchema = new mongoose.Schema({
   },
 });
 
+foodCategorySchema.index({ restaurantId: 1, name: 1 }, { unique: true });
 module.exports = mongoose.model("FoodCategory", foodCategorySchema);

@@ -2,95 +2,148 @@ const MenuItem = require("../models/MenuItemModel");
 const Category = require("../models/FoodCategoryModel");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinaryConfig");
-const path = require("path");
+const generateInitialsImage = require("../utils/generateInitialsImage");
+
+// ✅ Helper: Get initials
+function getInitials(name = "") {
+  return name
+    .split(" ")
+    .map((w) => w[0]?.toUpperCase())
+    .join("")
+    .slice(0, 2);
+}
 
 exports.postAddMenuItems = async (req, res) => {
-  // multer will put the file in req.file
+  console.log(req.body);
   try {
-    const { name, price, category, foodType, isAvailable } = req.body;
+    let {
+      name,
+      description,
+      basePrice,
+      discountedPrice,
+      category,
+      variants,
+      isVeg,
+      isAvailable,
+      isBestSeller,
+    } = req.body;
 
-    if (!name || !price) {
+    if (!name) {
       return res
         .status(400)
-        .json({ success: false, message: "Name and price are required" });
+        .json({ success: false, message: "Name is required" });
     }
-    
-    // ✅ Validate category (check if it exists in DB and belongs to same restaurant)
+
+    // ✅ Validate category belongs to this restaurant
     const validCategory = await Category.findOne({
-      name: category,
+      _id: category,
       restaurantId: req.user.id,
     });
 
     if (!validCategory) {
       return res.status(400).json({
         success: false,
-        message: `Invalid category: ${category}. Please create it first.`,
+        message: "Invalid category. Create the category first.",
       });
     }
 
-    if (!req.file) {
-      // you might want to allow items with no image
-      return res
-        .status(400)
-        .json({ success: false, message: "Image is required" });
+    // ✅ Parse variants JSON
+    if (variants && typeof variants === "string") {
+      try {
+        variants = JSON.parse(variants);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid JSON format for variants",
+        });
+      }
     }
 
-    // Upload local file to Cloudinary
-    const localPath = req.file.path;
+    if (!Array.isArray(variants)) variants = [];
 
-    // Optionally use folder per restaurant: `uploads/${req.user.id}`
-    const uploadOptions = {
-      folder: `digithali/${req.user?.id || "public"}`,
-      use_filename: true,
-      unique_filename: true,
-      resource_type: "image",
-    };
+    let imageUrl = null;
+    let imagePublicId = null;
 
-    const result = await cloudinary.uploader.upload(localPath, uploadOptions);
+    // ✅ A. If image is uploaded → upload to Cloudinary
+    if (req.file) {
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: `digithali/${req.user.id}/menu`,
+      });
 
-    // Delete local file
-    fs.unlink(localPath, (err) => {
-      if (err) console.warn("Failed to delete local file:", err);
-    });
+      imageUrl = upload.secure_url;
+      imagePublicId = upload.public_id;
 
-    // Save to DB
-    const menuItem = new MenuItem({
+      fs.unlink(req.file.path, () => {});
+    } else {
+      // generate initials
+      const initials = name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase();
+
+      // create avatar
+      const localPath = generateInitialsImage(initials);
+
+      // upload to Cloudinary
+      const upload = await cloudinary.uploader.upload(localPath, {
+        folder: `digithali/${req.user.id}/menu`,
+      });
+
+      imageUrl = upload.secure_url;
+      imagePublicId = upload.public_id;
+
+      fs.unlink(localPath, () => {});
+    }
+
+    // ✅ Create menu item
+    const newItem = await MenuItem.create({
+      restaurantId: req.user.id,
       name,
-      price,
+      description: description || "",
+      basePrice: basePrice ? Number(basePrice) : null,
+      discountedPrice: discountedPrice ? Number(discountedPrice) : null,
       category,
-      foodType,
-      isAvailable: isAvailable === "true" || isAvailable === true,
-      imageUrl: result.secure_url,
-      imagePublicId: result.public_id,
-      restaurantId: req.user?.id ?? null,
+      variants,
+      isVeg: isVeg === "false" ? false : true,
+      isAvailable: isAvailable === "false" ? false : true,
+      isBestSeller: isBestSeller === "true" || false,
+      imageUrl,
+      imagePublicId,
     });
 
-    await menuItem.save();
-
-    return res.status(201).json({ success: true, menuItem });
+    return res.status(201).json({
+      success: true,
+      menuItem: newItem,
+    });
   } catch (err) {
     console.error("Add menu item error:", err);
-    return res
-      .status(500)
-      .json({ success: false, message: "Server error", error: err.message });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: err.message,
+    });
   }
 };
 
+// ✅ No changes required below — update & delete will continue to work normally
 exports.getAllMenuItems = async (req, res) => {
   try {
-    // Fetch all menu items for this restaurant
-    const menuItems = await MenuItem.find({ restaurantId: req.user.id });
+    const items = await MenuItem.find({ restaurantId: req.user.id })
+      .populate("category")
+      .sort({ createdAt: -1 });
 
     return res.status(200).json({
       success: true,
-      menuItems,
+      menuItems: items,
     });
-  } catch (error) {
-    console.error("Error fetching menu items:", error);
+  } catch (err) {
+    console.error("Fetch Menu Error:", err);
     return res.status(500).json({
       success: false,
-      message: "Server error in fetching menu items",
-      error: error.message,
+      message: "Server error",
+      error: err.message,
     });
   }
 };
@@ -98,76 +151,106 @@ exports.getAllMenuItems = async (req, res) => {
 exports.deleteMenu = async (req, res) => {
   try {
     const { id } = req.params;
-    const menu = await MenuItem.findById(id);
-    if (!menu) {
-      res.status(401).json({ success: false, message: "No menu item founded" });
+
+    const item = await MenuItem.findOne({
+      _id: id,
+      restaurantId: req.user.id,
+    });
+
+    if (!item)
+      return res
+        .status(404)
+        .json({ success: false, message: "Menu item not found" });
+
+    // ✅ Delete Cloudinary image ONLY if uploaded (not initials)
+    if (item.imagePublicId) {
+      await cloudinary.uploader.destroy(item.imagePublicId);
     }
 
-    // Delete image from Cloudinary if exists
-    if (menu.imagePublicId) {
-      try {
-        await cloudinary.uploader.destroy(menu.imagePublicId);
-        console.log(`Deleted Cloudinary image: ${menu.imagePublicId}`);
-      } catch (cloudErr) {
-        console.error("Error deleting Cloudinary image:", cloudErr.message);
-      }
-    }
-
-    // Delete from MongoDB
-    await menu.deleteOne();
+    await item.deleteOne();
 
     res.json({ success: true, message: "Menu item deleted successfully" });
-  } catch (error) {
-    res.status(501).json({ success: false, message: "Error deleting tables" });
+  } catch (err) {
+    console.error("Delete Menu Error:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
 exports.updateMenuItem = async (req, res) => {
+  console.log(req.body);
   try {
     const { id } = req.params;
-    console.log("req.body:", req.body);
-    console.log("req.file:", req.file);
 
-    const menuItem = await MenuItem.findById(id);
-    if (!menuItem) {
+    let item = await MenuItem.findOne({
+      _id: id,
+      restaurantId: req.user.id,
+    });
+
+    if (!item)
       return res
         .status(404)
-        .json({ success: false, message: "Item not found" });
-    }
+        .json({ success: false, message: "Menu item not found" });
 
-    const { name, price, category, foodType, isAvailable, isBestSeller } =
-      req.body;
+    let {
+      name,
+      description,
+      basePrice,
+      discountedPrice,
+      category,
+      variants,
+      isVeg,
+      isAvailable,
+      isBestSeller,
+    } = req.body;
 
-    if (name) menuItem.name = name;
-    if (price) menuItem.price = Number(price);
-    if (category) menuItem.category = category;
-    if (foodType) menuItem.foodType = foodType;
-    if (isAvailable !== undefined)
-      menuItem.isAvailable = isAvailable === "true" || isAvailable === true;
-    if (isBestSeller !== undefined)
-      menuItem.isBestSeller = isBestSeller === "true" || isBestSeller === true;
-
-    // if new image provided, upload and replace
-    if (req.file) {
-      if (menuItem.imagePublicId) {
-        await cloudinary.uploader.destroy(menuItem.imagePublicId);
+    // ✅ Parse variants JSON
+    if (variants && typeof variants === "string") {
+      try {
+        variants = JSON.parse(variants);
+      } catch {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid JSON in variants",
+        });
       }
-      const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-        folder: "tastytokens/menuItems",
-      });
-      menuItem.imageUrl = uploadResult.secure_url;
-      menuItem.imagePublicId = uploadResult.public_id;
     }
 
-    await menuItem.save();
+    if (name) item.name = name;
+    if (description) item.description = description;
+    if (basePrice) item.basePrice = Number(basePrice);
+    if (discountedPrice) item.discountedPrice = Number(discountedPrice);
+    if (variants) item.variants = variants;
+    if (category) item.category = category;
 
-    res.json({ success: true, updatedItem: menuItem });
-  } catch (error) {
-    console.error("Update menu item error:", error);
+    if (isVeg !== undefined) item.isVeg = isVeg === "true";
+    if (isAvailable !== undefined) item.isAvailable = isAvailable === "true";
+    if (isBestSeller !== undefined) item.isBestSeller = isBestSeller === "true";
+
+    // ✅ New uploaded image → replace Cloudinary image
+    if (req.file) {
+      if (item.imagePublicId) {
+        await cloudinary.uploader.destroy(item.imagePublicId);
+      }
+
+      const upload = await cloudinary.uploader.upload(req.file.path, {
+        folder: `digithali/${req.user.id}/menu`,
+      });
+
+      item.imageUrl = upload.secure_url;
+      item.imagePublicId = upload.public_id;
+
+      fs.unlink(req.file.path, () => {});
+    }
+
+    await item.save();
+
+    res.json({ success: true, updatedItem: item });
+  } catch (err) {
+    console.error("Update Menu Error:", err);
     res.status(500).json({
       success: false,
-      message: "Failed to update menu item",
-      error: error.message,
+      message: "Server error",
+      error: err.message,
     });
   }
 };

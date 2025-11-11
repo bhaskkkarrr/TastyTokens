@@ -1,61 +1,80 @@
 const Admin = require("../models/AdminModel");
 const Table = require("../models/TableModel");
 const MenuItem = require("../models/MenuItemModel");
+const FoodCategory = require("../models/FoodCategoryModel");
 
 exports.getPublicMenu = async (req, res) => {
+  console.log(req.params);
   try {
-    const { restaurantId } = req.params;
-    const { tableCode } = req.params;
+    const { restaurantId, tableCode } = req.params;
 
-    // 1️⃣ Fetch restaurant
-    const restaurant = await Admin.findById(restaurantId).select("-createdAt");
-    if (!restaurant)
+    // ✅ 1. Validate restaurant
+    const restaurant = await Admin.findById(restaurantId).select("-password");
+    if (!restaurant) {
       return res
         .status(404)
         .json({ success: false, message: "Restaurant not found" });
+    }
 
-    // 2️⃣ Fetch table (you can use code or _id depending on QR logic)
-    const table = await Table.findOne({ code:tableCode }).select("_id name code");
-    if (!table)
+    // ✅ 2. Validate table using code + restaurant
+    const table = await Table.findOne({ restaurantId, code: tableCode }).select(
+      "_id name code"
+    );
+
+    if (!table) {
       return res
         .status(404)
         .json({ success: false, message: "Table not found" });
+    }
 
-    // 3️⃣ Fetch available menu items
+    // ✅ 3. Fetch all active categories
+    const categories = await FoodCategory.find({
+      restaurantId,
+      isActive: true,
+    }).lean();
+
+    // ✅ 4. Fetch all available menu items
     const menuItems = await MenuItem.find({
       restaurantId,
       isAvailable: true,
-    }).lean();
+    })
+      .populate("category", "name slug")
+      .lean();
 
-    // 4️⃣ Group menu items by category
-    const groupedMenu = menuItems.reduce((acc, item) => {
-      const existingCategory = acc.find((cat) => cat.name === item.category);
-      const formattedItem = {
-        _id: item._id,
-        name: item.name,
-        price: item.price,
-        isBestSeller: item.isBestSeller,
-        foodType: item.foodType,
-        imageUrl: item.imageUrl,
+    // ✅ 5. Group menu items by category
+    const groupedMenu = categories.map((category) => {
+      const itemsInCategory = menuItems
+        .filter(
+          (item) => item.category?._id?.toString() === category._id.toString()
+        )
+        .map((item) => ({
+          _id: item._id,
+          name: item.name,
+          basePrice: item.basePrice,
+          discountedPrice: item.discountedPrice,
+          variants: item.variants, // ✅ important: list of Half/Full options
+          isBestSeller: item.isBestSeller,
+          isVeg: item.isVeg,
+          imageUrl: item.imageUrl,
+        }));
+
+      return {
+        _id: category._id,
+        name: category.name,
+        slug: category.slug,
+        items: itemsInCategory,
       };
+    });
 
-      if (existingCategory) {
-        existingCategory.items.push(formattedItem);
-      } else {
-        acc.push({
-          _id: item.category.toLowerCase().replace(/\s+/g, "-"),
-          name: item.category,
-          items: [formattedItem],
-        });
-      }
-      return acc;
-    }, []);
+    // ✅ Remove categories with zero items
+    const filteredMenu = groupedMenu.filter((cat) => cat.items.length > 0);
 
-    // 5️⃣ Send structured response
+    // ✅ 6. FINAL API response
     return res.status(200).json({
+      success: true,
       restaurant,
       table,
-      menu: groupedMenu,
+      menu: filteredMenu,
     });
   } catch (error) {
     console.error("Error fetching public menu:", error);

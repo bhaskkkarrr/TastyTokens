@@ -1,69 +1,170 @@
 const Order = require("../models/OrderModel");
+const MenuItem = require("../models/MenuItemModel");
 
-exports.postCreateOrder = async (req, res) => {
+// ✅ Create New Order
+exports.createOrder = async (req, res) => {
   try {
-    const { restaurantId, tableId, items, total } = req.body;
+    const { restaurantId, table, items, customer, orderType, pricing } =
+      req.body;
+    // console.log(req.body);
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: "Order items are required" });
+    }
 
-    if (!restaurantId || !tableId || !items?.length)
-      return res.status(400).json({ message: "Missing fields" });
+    // ✅ Fetch actual menu item details to prevent manipulation
+    const itemIds = items.map((i) => i.itemId);
+    const menuItems = await MenuItem.find({ _id: { $in: itemIds } });
+    if (menuItems.length !== items.length) {
+      return res.status(400).json({ message: "One or more items invalid" });
+    }
 
-    const newOrder = await Order.create({
-      restaurantId,
-      tableNumber: tableId,
-      items,
-      total,
+    // ✅ Lock item name, price, variants, addons
+    const formattedItems = items.map((cartItem) => {
+      const dbItem = menuItems.find(
+        (i) => i._id.toString() === cartItem.itemId
+      );
+
+      const variantPrice =
+        cartItem.selectedVariant?.price || dbItem.basePrice || 0;
+
+      const addonTotal = (cartItem.addons || []).reduce(
+        (sum, a) => sum + (a.price || 0),
+        0
+      );
+
+      const finalPrice = variantPrice + addonTotal;
+
+      return {
+        itemId: dbItem._id,
+        name: dbItem.name,
+        quantity: cartItem.quantity,
+        price: finalPrice,
+        selectedVariant: cartItem.selectedVariant || {},
+        addons: cartItem.addons || [],
+        notes: cartItem.notes || "",
+        total: finalPrice * cartItem.quantity,
+      };
     });
 
-    // ✅ Get socket.io instance from app
-    const io = req.app.get("io");
+    // ✅ Build Order
+    const order = new Order({
+      restaurantId,
+      table,
+      items: formattedItems,
+      customer,
+      orderType,
+      pricing,
+    });
 
-    // ✅ Emit real-time event
-    io.to(restaurantId).emit("newOrder", newOrder);
+    await order.validate(); // triggers subtotal + grandTotal
+
+    const savedOrder = await order.save();
+
+    // ✅ Emit to restaurant panel (if using socket.io)
+    if (req.io) {
+      req.io.to(restaurantId.toString()).emit("newOrder", savedOrder);
+    }
 
     res.status(201).json({
       success: true,
-      message: "Order placed successfully",
-      order: newOrder,
+      order: savedOrder,
     });
   } catch (err) {
-    console.error("Order creation error:", err.message);
-    res.status(500).json({ message: "Server error" });
+    console.log(err);
+    res
+      .status(500)
+      .json({ message: "Error creating order", error: err.message });
   }
 };
 
-exports.getOrdersByRestaurant = async (req, res) => {
-  try {
-    const restaurantId = req.user.id; // assuming this comes from JWT
-    console.log("Restaurant ID:", restaurantId);
-
-    // ✅ Find all orders where restaurantId matches, sorted by creation time
-    const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
-
-    res.json({ success: true, orders: orders });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
+// ✅ Update Order Status (ACCEPTED → PREPARING → COMPLETED → CANCELLED)
 exports.updateOrderStatus = async (req, res) => {
   try {
-    const { id } = req.params;
     const { status } = req.body;
+    const orderId = req.params.orderId;
 
-    const updated = await Order.findByIdAndUpdate(
-      id,
-      { status },
-      { new: true }
-    );
+    const valid = [
+      "PENDING",
+      "ACCEPTED",
+      "PREPARING",
+      "COMPLETED",
+      "CANCELLED",
+    ];
+    if (!valid.includes(status)) {
+      return res.status(400).json({ message: "Invalid order status" });
+    }
 
-    const io = req.app.get("io");
+    const order = await Order.findOne({ orderId });
 
-    // ✅ Emit to restaurant room
-    io.to(updated.restaurantId).emit("orderStatusUpdated", updated);
+    if (!order) return res.status(404).json({ message: "Order not found" });
 
-    res.json({ success: true, updated });
+    order.status = status;
+    await order.save();
+
+    // ✅ Emit live updates
+    if (req.io) {
+      req.io.to(order.restaurantId.toString()).emit("orderUpdated", order);
+    }
+
+    res.json({ success: true, order });
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Error updating order" });
+    res
+      .status(500)
+      .json({ message: "Error updating order", error: err.message });
   }
 };
+
+// ✅ Get All Orders of a Restaurant
+exports.getOrdersForRestaurant = async (req, res) => {
+  try {
+    const restaurantId = req.params.restaurantId;
+
+    const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
+
+    res.json({ success: true, orders });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching orders", error: err.message });
+  }
+};
+
+// ✅ Get Single Order by orderId
+exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findOne({ orderId: req.params.orderId });
+
+    if (!order) return res.status(404).json({ message: "Order not found" });
+
+    res.json({ success: true, order });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ message: "Error fetching order", error: err.message });
+  }
+};
+
+// ✅ Cancel Order
+// exports.cancelOrder = async (req, res) => {
+//   try {
+//     const { reason } = req.body;
+
+//     const order = await Order.findOne({ orderId: req.params.orderId });
+//     if (!order) return res.status(404).json({ message: "Order not found" });
+
+//     order.status = "CANCELLED";
+//     if (reason) order.cancelReason = reason;
+
+//     await order.save();
+
+//     if (req.io) {
+//       req.io.to(order.restaurantId.toString()).emit("orderCancelled", order);
+//     }
+
+//     res.json({ success: true, order });
+//   } catch (err) {
+//     res
+//       .status(500)
+//       .json({ message: "Error cancelling order", error: err.message });
+//   }
+// };

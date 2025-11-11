@@ -23,4 +23,11 @@ categoryRoutes.delete(
   authorizeRoles("admin"),
   categoryController.deleteCategory
 );
-exports.categoryRoutes = categoryRoutes ;
+
+categoryRoutes.put(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  categoryController.updateCategory
+);
+exports.categoryRoutes = categoryRoutes;
