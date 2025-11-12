@@ -10,12 +10,11 @@ export const OrderProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const socketRef = useRef(null);
 
-  // ✅ Fetch old orders on page load
+  // ✅ Fetch all orders
   const getOrders = async () => {
     if (!token) return;
 
     const r = await fetch(`${BASE_API}/api/order/orders`, {
-      method: "GET",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -27,45 +26,39 @@ export const OrderProvider = ({ children }) => {
     setOrders(res.orders || []);
   };
 
-  // ✅ Initialize socket ONCE
+  // ✅ Initialize socket once
   useEffect(() => {
-    socketRef.current = io(BASE_API, {
-      transports: ["websocket"],
-    });
+    socketRef.current = io(BASE_API, { transports: ["websocket"] });
 
     return () => {
       socketRef.current.disconnect();
     };
   }, []);
 
-  // ✅ Join restaurant room + fetch orders immediately
+  // ✅ Join restaurant room & load orders
   useEffect(() => {
     if (token && socketRef.current) {
       const payload = JSON.parse(atob(token.split(".")[1]));
       const restaurantId = payload.id;
 
-      // ✅ join room
       socketRef.current.emit("joinRestaurantRoom", restaurantId);
-
-      // ✅ fetch ALL old orders right when admin opens page
       getOrders();
     }
   }, [token]);
 
-  // ✅ Listen for NEW ORDER live updates
+  // ✅ Listen for live socket events
   useEffect(() => {
     if (!socketRef.current) return;
 
-    // ✅ When new order is placed
+    // 🔹 New order created
     socketRef.current.on("newOrder", (order) => {
-      console.log("🔥 NEW order received:", order);
+      console.log("🔥 New order received:", order);
       setOrders((prev) => [order, ...prev]);
     });
 
-    // ✅ ✅ When order status is updated (STEP 5)
-    socketRef.current.on("orderStatusUpdated", (updatedOrder) => {
-      console.log("🔥 Status updated:", updatedOrder);
-
+    // 🔹 Order status updated
+    socketRef.current.on("orderUpdated", (updatedOrder) => {
+      console.log("🔥 Order updated via socket:", updatedOrder);
       setOrders((prev) =>
         prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
       );
@@ -73,33 +66,48 @@ export const OrderProvider = ({ children }) => {
 
     return () => {
       socketRef.current.off("newOrder");
-      socketRef.current.off("orderStatusUpdated");
+      socketRef.current.off("orderUpdated");
     };
   }, []);
 
+  // ✅ Update order status manually (with optimistic UI)
   const updateStatus = async (id, status) => {
-    const r = await fetch(`${BASE_API}/api/order/update-status/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ status }),
-    });
-
-    const res = await r.json();
-    if (res.success) {
-      const updatedOrder = res.updated;
-
-      // ✅ Update local UI instantly without fetching again
+    try {
+      // Optimistically update local state
       setOrders((prev) =>
-        prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
+        prev.map((o) =>
+          o._id === id ? { ...o, status: status, updating: true } : o
+        )
       );
-    }
 
-    return { success: true, message: "Updated", res };
+      const r = await fetch(`${BASE_API}/api/order/update-status/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      const res = await r.json();
+      console.log("✅ Status update response:", res);
+
+      if (res.success && res.order) {
+        setOrders((prev) =>
+          prev.map((o) => (o._id === res.order._id ? res.order : o))
+        );
+      } else {
+        console.warn("⚠️ Failed to update order status");
+      }
+
+      return { success: true, message: "Updated", res };
+    } catch (err) {
+      console.error("❌ Error updating status:", err);
+      return { success: false, message: "Failed", error: err };
+    }
   };
 
+  // ✅ Delete order
   const deleteOrder = async (id) => {
     const r = await fetch(`${BASE_API}/api/order/delete/${id}`, {
       method: "DELETE",
@@ -111,14 +119,14 @@ export const OrderProvider = ({ children }) => {
 
     const res = await r.json();
     if (res.success) {
-      setOrders((prev) => prev.filter((order) => order._id !== id));
+      setOrders((prev) => prev.filter((o) => o._id !== id));
     }
     return { res };
   };
 
   return (
     <OrderContext.Provider
-      value={{ getOrders, orders, updateStatus, deleteOrder }}
+      value={{ orders, getOrders, updateStatus, deleteOrder }}
     >
       {children}
     </OrderContext.Provider>

@@ -13,7 +13,7 @@ export const TableProvider = ({ children }) => {
   };
 
   const createTableAndQr = async (data) => {
-    data.tableName = formatName(data.tableName);
+    data.name = formatName(data.name);
     try {
       setIsLoading(true);
       const res = await fetch(`${BASE_API}/api/table/create`, {
@@ -57,6 +57,7 @@ export const TableProvider = ({ children }) => {
         },
       });
       const res = await r.json();
+      console.log("Tables fetched:", res);
       setTables(res.tables);
     } catch (error) {
       console.log("Error", error);
@@ -78,22 +79,28 @@ export const TableProvider = ({ children }) => {
   const handleDelete = async (id) => {
     try {
       setIsLoading(true);
-      let r = await fetch(`${BASE_API}/api/table/${id}`, {
+
+      const r = await fetch(`${BASE_API}/api/table/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      if (r.ok) {
-        setTables((prev) =>
-          prev.filter((t) => {
-            return t._id !== id;
-          })
-        );
+
+      const res = await r.json();
+
+      if (r.ok && res.success) {
+        setTables((prev) => prev.filter((t) => t._id !== id));
+        return { success: true, message: "Table deleted successfully" };
+      } else {
+        return {
+          success: false,
+          message: res.message || "Failed to delete table",
+        };
       }
     } catch (error) {
-      return { success: false, message: error };
+      return { success: false, message: error.message || "Unexpected error" };
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +124,7 @@ export const TableProvider = ({ children }) => {
       return { success: false, message: error };
     }
   };
+
   return (
     <TableContext.Provider
       value={{

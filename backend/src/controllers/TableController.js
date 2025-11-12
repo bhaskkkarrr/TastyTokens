@@ -10,6 +10,7 @@ const BASE_URL = "https://tasty-tokens.vercel.app";
 // ✅ CREATE TABLE (POST)
 // ===================================================================
 exports.postAddTable = async (req, res) => {
+  console.log("Create Table Request Body:", req.body);
   try {
     const restaurantId = req.user.id;
     const { name } = req.body;

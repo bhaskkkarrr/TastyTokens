@@ -18,10 +18,10 @@ orderRoutes.put(
   orderController.updateOrderStatus
 );
 
-// orderRoutes.delete(
-//   '/delete/:id',
-//   verifyToken,
-//   authorizeRoles("admin"),
-//   orderController.deleteOrder
-// )
+orderRoutes.delete(
+  "/delete/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  orderController.deleteOrder
+);
 exports.orderRoutes = orderRoutes;

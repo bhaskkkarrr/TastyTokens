@@ -79,10 +79,11 @@ exports.createOrder = async (req, res) => {
 
 // ✅ Update Order Status (ACCEPTED → PREPARING → COMPLETED → CANCELLED)
 exports.updateOrderStatus = async (req, res) => {
+  console.log("Params:", req.params);
   try {
     const { status } = req.body;
-    const orderId = req.params.orderId;
-
+    const orderId = req.params.id;
+    console.log("Updating order", orderId, "to status", status);
     const valid = [
       "PENDING",
       "ACCEPTED",
@@ -91,10 +92,12 @@ exports.updateOrderStatus = async (req, res) => {
       "CANCELLED",
     ];
     if (!valid.includes(status)) {
-      return res.status(400).json({ message: "Invalid order status" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid order status" });
     }
 
-    const order = await Order.findOne({ orderId });
+    const order = await Order.findById(orderId);
 
     if (!order) return res.status(404).json({ message: "Order not found" });
 
@@ -117,8 +120,8 @@ exports.updateOrderStatus = async (req, res) => {
 // ✅ Get All Orders of a Restaurant
 exports.getOrdersForRestaurant = async (req, res) => {
   try {
-    const restaurantId = req.params.restaurantId;
-
+    const restaurantId = req.user.id;
+    console.log("Fetching orders for restaurant:", restaurantId);
     const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
 
     res.json({ success: true, orders });
@@ -168,3 +171,39 @@ exports.getOrderById = async (req, res) => {
 //       .json({ message: "Error cancelling order", error: err.message });
 //   }
 // };
+
+// ✅ Delete Order (Admin use only)
+exports.deleteOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const restaurantId = req.user.id; // from token
+
+    const order = await Order.findOne({ _id: orderId, restaurantId });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found or not authorized" });
+    }
+
+    await Order.deleteOne({ _id: orderId });
+
+    // ✅ Emit delete event to all admin panels for live sync
+    if (req.io) {
+      req.io.to(restaurantId.toString()).emit("orderDeleted", { _id: orderId });
+    }
+
+    res.json({
+      success: true,
+      message: "Order deleted successfully",
+      deletedId: orderId,
+    });
+  } catch (err) {
+    console.error("❌ Error deleting order:", err);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting order",
+      error: err.message,
+    });
+  }
+};

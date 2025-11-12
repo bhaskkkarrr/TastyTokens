@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { FaQrcode, FaDownload, FaPrint, FaTrash } from "react-icons/fa";
+import React, { useContext, useState } from "react";
+import { FaQrcode, FaDownload, FaTrash } from "react-icons/fa";
 import { MdQrCodeScanner } from "react-icons/md";
 import { useForm } from "react-hook-form";
 import { TableContext } from "../../context/TableAndQrContext";
@@ -7,7 +7,10 @@ import Loader from "../../components/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader";
 
 function AdminQrCode() {
-  const [showAddModel, setShowAddModal] = useState(false);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [selectedQr, setSelectedQr] = useState(null);
+
   const {
     register,
     handleSubmit,
@@ -15,33 +18,31 @@ function AdminQrCode() {
     setError,
     formState: { errors, isSubmitting },
   } = useForm();
-  const {
-    createTableAndQr,
-    getAllTables,
-    handleDownload,
-    handleDelete,
-    tables,
-    isLoading,
-  } = useContext(TableContext);
 
+  const { createTableAndQr, handleDownload, handleDelete, tables, isLoading } =
+    useContext(TableContext);
+
+  // ✅ Create QR
   const onSubmit = async (data) => {
     const result = await createTableAndQr(data);
     if (result.success) {
       setShowAddModal(false);
       reset();
-    }
-    if (!result.success) {
+    } else {
       setError("root", { message: result.message });
     }
   };
 
+  // ✅ Delete QR
   const onDelete = async (qr) => {
-    const result = await handleDelete(qr);
+    if (!qr?._id) return;
+    const result = await handleDelete(qr._id);
     if (!result.success) {
       setError("root", { message: result.message });
     }
   };
 
+  // ✅ Download QR
   const onDownload = async (qr) => {
     const result = await handleDownload(qr);
     if (!result.success) {
@@ -51,6 +52,7 @@ function AdminQrCode() {
 
   return (
     <div className="container-fluid py-2 px-0 p-sm-3">
+      {/* Header */}
       <div className="d-flex justify-content-md-between justify-content-center items-center mt-3 mb-4 flex-wrap">
         <div className="flex items-center mb-3 mb-md-0">
           <MdQrCodeScanner className="text-emerald-600 w-8 h-8" />
@@ -67,13 +69,13 @@ function AdminQrCode() {
         </button>
       </div>
 
-      {showAddModel && (
+      {/* Add Modal */}
+      {showAddModal && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-8 flex flex-col gap-5 animate-fadeIn"
           >
-            {/* Close Button */}
             <button
               type="button"
               onClick={() => setShowAddModal(false)}
@@ -82,25 +84,22 @@ function AdminQrCode() {
               &times;
             </button>
 
-            {/* Title */}
             <h2 className="text-2xl font-semibold text-center text-emerald-700 font-poppins">
               Generate New Table QR Code
             </h2>
 
-            {/* Error Message */}
             {errors.root && (
               <div className="text-red-700 bg-red-50 border border-red-400 px-4 py-2 rounded-lg text-sm text-center">
                 {errors.root.message}
               </div>
             )}
 
-            {/* Input Field */}
-            <div className="w-full">
+            <div className="w-full ">
               <label className="block text-gray-700 font-medium mb-1">
                 Table Name
               </label>
               <input
-                {...register("tableName", {
+                {...register("name", {
                   required: {
                     value: true,
                     message: "Table name is required",
@@ -117,7 +116,6 @@ function AdminQrCode() {
               )}
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -128,7 +126,8 @@ function AdminQrCode() {
           </form>
         </div>
       )}
-      {/* Stats Section */}
+
+      {/* Stats */}
       <div className="row mb-6">
         <div className="col-12 col-md-4">
           <div className="bg-white rounded-2xl p-4 shadow-sm">
@@ -147,7 +146,7 @@ function AdminQrCode() {
         </div>
       </div>
 
-      {/* QR Codes Grid */}
+      {/* QR Grid */}
       {isLoading ? (
         <SkeletonLoader count={4} />
       ) : tables.length > 0 ? (
@@ -155,12 +154,6 @@ function AdminQrCode() {
           {tables.map((qr) => (
             <div key={qr._id} className="col-12 col-md-6 col-lg-4">
               <div className="card h-100 border-0 bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                {/* Error Message */}
-                {errors.root && (
-                  <div className="text-red-700 bg-red-50 border border-red-400 px-4 py-2 rounded-lg text-sm text-center">
-                    {errors.root.message}
-                  </div>
-                )}
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-4">
                     <h5 className="text-lg font-semibold text-gray-800">
@@ -184,6 +177,7 @@ function AdminQrCode() {
                       />
                     </div>
                   </div>
+
                   <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                     <div className="flex gap-2 flex-wrap">
                       <button
@@ -196,7 +190,10 @@ function AdminQrCode() {
                     </div>
                     <button
                       className="p-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-5 transition-colors duration-200"
-                      onClick={() => onDelete(qr._id)}
+                      onClick={() => {
+                        setSelectedQr(qr);
+                        setConfirmDelete(true);
+                      }}
                     >
                       <FaTrash className="w-4 h-4" />
                     </button>
@@ -208,6 +205,43 @@ function AdminQrCode() {
         </div>
       ) : (
         <p className="text-center text-gray-500">No menu items found.</p>
+      )}
+
+      {/* ✅ Delete Confirm Modal */}
+      {confirmDelete && selectedQr && (
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+            <h2 className="text-2xl font-semibold text-center text-emerald-700 mb-4 font-poppins">
+              Confirm Deletion
+            </h2>
+            <p className="text-gray-700 mb-6 text-center">
+              Are you sure you want to delete{" "}
+              <span className="font-semibold">{selectedQr.name}</span>? This
+              action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => {
+                  setConfirmDelete(false);
+                  setSelectedQr(null);
+                }}
+                className="px-4 py-2 bg-gray-200 rounded-3 hover:bg-gray-300 transition-all duration-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  await onDelete(selectedQr);
+                  setConfirmDelete(false);
+                  setSelectedQr(null);
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded-3 hover:bg-red-700 transition-all duration-300"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

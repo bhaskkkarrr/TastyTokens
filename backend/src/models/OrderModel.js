@@ -24,7 +24,7 @@ const OrderItemSchema = new mongoose.Schema({
 const OrderSchema = new mongoose.Schema({
   restaurantId: { type: mongoose.Schema.Types.ObjectId, ref: "Restaurant" },
   table: { type: String, default: null }, // table name or null
-  orderId: { type: String, unique: true, index: true },
+  orderId: { type: String, index: true },
   items: [OrderItemSchema],
   pricing: {
     subtotal: { type: Number, required: true, default: 0 },
