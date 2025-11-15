@@ -1,6 +1,7 @@
 const Table = require("../models/TableModel");
 const MenuItem = require("../models/MenuItemModel");
 const FoodCategory = require("../models/FoodCategoryModel");
+const Restaurant = require("../models/RestaurantModel");
 
 exports.getPublicMenu = async (req, res) => {
   console.log(req.params);
@@ -8,8 +9,8 @@ exports.getPublicMenu = async (req, res) => {
     const { restaurantId, tableCode } = req.params;
 
     // ✅ 1. Validate restaurant
-    const restaurant = await Admin.findById(restaurantId).select("-password");
-    if (!restaurant) {
+    const restaurant = await Restaurant.findById(restaurantId).select("-password");
+    if (!restaurant) {  
       return res
         .status(404)
         .json({ success: false, message: "Restaurant not found" });
