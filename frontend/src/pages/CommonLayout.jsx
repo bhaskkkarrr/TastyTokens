@@ -96,12 +96,13 @@ const CommonLayout = ({ menuItems, role }) => {
                 <div className="hidden sm:block ">
                   <h1 className="text-xl mb-0 me-3 font-bold ">
                     <span className="text-emerald-700">
+                      {console.log(user)}
                       {user
                         ? user.role === "superadmin"
-                          ? user.restaurantName === "NA"
+                          ? user.restaurantId.name === "NA"
                             ? "Owner"
-                            : user.restaurantName || "Owner"
-                          : user.restaurantName || "Restaurant"
+                            : user.restaurantId.name || "Owner"
+                          : user.restaurantId.name || "Restaurant"
                         : "Restaurant"}
                     </span>
                   </h1>
@@ -133,7 +134,7 @@ const CommonLayout = ({ menuItems, role }) => {
               <div className="flex items-center  space-x-3 ml-2 pl-3 border-l border-slate-700/50">
                 <div className="hidden xl:block text-right">
                   <p className="text-sm font-semibold m-0 text-emerald-600">
-                    {(user && user.ownerName) || "Owner"}
+                    {(user && user.name) || "Owner"}
                   </p>
                   <p className="text-xs text-gray-400 m-0 uppercase">
                     {(user && user.role) || "NA"}

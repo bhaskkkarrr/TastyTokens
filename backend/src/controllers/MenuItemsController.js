@@ -37,7 +37,7 @@ exports.postAddMenuItems = async (req, res) => {
     // ✅ Validate category belongs to this restaurant
     const validCategory = await Category.findOne({
       _id: category,
-      restaurantId: req.user.id,
+      restaurantId: req.user.restaurantId,
     });
 
     if (!validCategory) {
@@ -67,7 +67,7 @@ exports.postAddMenuItems = async (req, res) => {
     // ✅ A. If image is uploaded → upload to Cloudinary
     if (req.file) {
       const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: `digithali/${req.user.id}/menu`,
+        folder: `digithali/${req.user.restaurantId}/menu`,
       });
 
       imageUrl = upload.secure_url;
@@ -88,7 +88,7 @@ exports.postAddMenuItems = async (req, res) => {
 
       // upload to Cloudinary
       const upload = await cloudinary.uploader.upload(localPath, {
-        folder: `digithali/${req.user.id}/menu`,
+        folder: `digithali/${req.user.restaurantId}/menu`,
       });
 
       imageUrl = upload.secure_url;
@@ -99,7 +99,7 @@ exports.postAddMenuItems = async (req, res) => {
 
     // ✅ Create menu item
     const newItem = await MenuItem.create({
-      restaurantId: req.user.id,
+      restaurantId: req.user.restaurantId,
       name,
       description: description || "",
       basePrice: basePrice ? Number(basePrice) : null,
@@ -130,7 +130,7 @@ exports.postAddMenuItems = async (req, res) => {
 // ✅ No changes required below — update & delete will continue to work normally
 exports.getAllMenuItems = async (req, res) => {
   try {
-    const items = await MenuItem.find({ restaurantId: req.user.id })
+    const items = await MenuItem.find({ restaurantId: req.user.restaurantId })
       .populate("category")
       .sort({ createdAt: -1 });
 
@@ -154,7 +154,7 @@ exports.deleteMenu = async (req, res) => {
 
     const item = await MenuItem.findOne({
       _id: id,
-      restaurantId: req.user.id,
+      restaurantId: req.user.restaurantId,
     });
 
     if (!item)
@@ -183,7 +183,7 @@ exports.updateMenuItem = async (req, res) => {
 
     let item = await MenuItem.findOne({
       _id: id,
-      restaurantId: req.user.id,
+      restaurantId: req.user.restaurantId,
     });
 
     if (!item)
@@ -233,7 +233,7 @@ exports.updateMenuItem = async (req, res) => {
       }
 
       const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: `digithali/${req.user.id}/menu`,
+        folder: `digithali/${req.user.restaurantId}/menu`,
       });
 
       item.imageUrl = upload.secure_url;

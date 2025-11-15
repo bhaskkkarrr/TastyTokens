@@ -1,5 +1,5 @@
 const Table = require("../models/TableModel");
-const Admin = require("../models/AdminModel");
+const Restaurant = require("../models/RestaurantModel");
 const QRCode = require("qrcode");
 const { nanoid } = require("nanoid");
 
@@ -12,7 +12,8 @@ const BASE_URL = "https://tasty-tokens.vercel.app";
 exports.postAddTable = async (req, res) => {
   console.log("Create Table Request Body:", req.body);
   try {
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
+    console.log(restaurantId)
     const { name } = req.body;
 
     if (!name) {
@@ -23,7 +24,7 @@ exports.postAddTable = async (req, res) => {
     }
 
     // ✅ Check restaurant exists
-    const restaurant = await Admin.findById(restaurantId);
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
       return res.status(404).json({
         success: false,
@@ -83,7 +84,7 @@ exports.postAddTable = async (req, res) => {
 // ===================================================================
 exports.getAllTables = async (req, res) => {
   try {
-    const tables = await Table.find({ restaurantId: req.user.id }).sort({
+    const tables = await Table.find({ restaurantId: req.user.restaurantId }).sort({
       createdAt: -1,
     });
 

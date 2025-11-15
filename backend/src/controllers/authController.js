@@ -1,62 +1,54 @@
-const Admin = require("../models/AdminModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const QRCode = require("qrcode");
+const Restaurant = require("../models/RestaurantModel");
+const User = require("../models/UserModel");
 require("dotenv").config();
 
 exports.postSignup = async (req, res) => {
   console.log("Signup data", req.body);
 
-  const {
-    restaurantName,
-    ownerName,
-    email,
-    password,
-    address,
-    phoneNumber,
-    role,
-  } = req.body;
+  const { restaurantName, ownerName, email, password, address, phoneNumber } =
+    req.body;
 
   try {
-    // Uniqueness checks
-    const existingPhone = await Admin.findOne({ phoneNumber });
-    if (existingPhone)
+    // 🔍 Check if email or phone already registered
+    const existingUser = await User.findOne({
+      $or: [{ email }, { phoneNumber }],
+    });
+    if (existingUser)
       return res
         .status(400)
-        .json({ success: false, message: "Phone number already registered" });
+        .json({
+          success: false,
+          message: "Email or phone number already registered",
+        });
 
-    const existingEmail = await Admin.findOne({ email });
-    if (existingEmail)
-      return res
-        .status(400)
-        .json({ success: false, message: "Email already registered" });
-
+    // 🔑 Hash password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
-    const newRestaurant = new Admin({
-      restaurantName,
-      ownerName,
-      email,
-      password: hashedPassword,
+    // 🏢 Create restaurant entry
+    const restaurant = new Restaurant({
+      name: restaurantName,
       address,
-      phoneNumber,
-      role,
     });
+    await restaurant.save();
 
-    // ✅ Generate QR Code for the restaurant’s public menu
-    const BASE_URL = "tasty-tokens.vercel.app";
-    const menuPageUrl = `${BASE_URL}/${newRestaurant._id}`;
-    const qrCodeUrl = await QRCode.toDataURL(menuPageUrl);
+    // 👤 Create user (admin)
+    const user = new User({
+      restaurantId: restaurant._id,
+      name: ownerName,
+      email,
+      phoneNumber,
+      password: hashedPassword,
+      role: "admin",
+    });
+    await user.save();
 
-    // ✅ Save QR code and menu URL in DB
-    newRestaurant.qrCodeUrl = qrCodeUrl;
-    newRestaurant.menuPageUrl = menuPageUrl;
-    await newRestaurant.save();
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
-      message: "Restaurant registered successfully",
-      restaurant: newRestaurant,
+      message: "Restaurant and admin registered successfully",
+      restaurant,
+      user,
     });
   } catch (error) {
     console.error("Signup error:", error);
@@ -72,38 +64,39 @@ exports.postLogin = async (req, res) => {
   console.log("Login data", req.body);
   try {
     const { email, password } = req.body;
-    // Check if user exists
-    const user = await Admin.findOne({ email });
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email or password" });
-    }
-    // Compare passwords
-    const isMatch = bcrypt.compareSync(password, user.password);
-    if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid email or password" });
-    }
 
-    // Successful login
-    // Generating token
+    const user = await User.findOne({ email }).populate("restaurantId");
+    if (!user)
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+
+    const isMatch = bcrypt.compareSync(password, user.password);
+    if (!isMatch)
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+
+    // 🎟️ JWT Token
     const token = jwt.sign(
       {
         id: user._id,
-        email: user.email,
         role: user.role,
+        restaurantId: user.restaurantId._id,
       },
       process.env.JWT_SECRET,
-      {
-        expiresIn: "1d",
-      }
+      { expiresIn: "1d" }
     );
-    res
-      .status(200)
-      .json({ success: true, message: "Login done :xD", token, user });
+
+    res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user,
+      restaurant: user.restaurantId,
+    });
   } catch (error) {
+    console.error("Login error:", error);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

@@ -235,7 +235,7 @@ const SignUpPage = () => {
                 </div>
 
                 {/* Role Selector */}
-                <div>
+                {/* <div>
                   <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
                     Role
                   </label>
@@ -258,7 +258,7 @@ const SignUpPage = () => {
                       {errors.role.message}
                     </p>
                   )}
-                </div>
+                </div> */}
 
                 {/* Submit Button */}
                 <button

@@ -8,7 +8,7 @@ export default function CategoryList({
 }) {
   return (
     <div className="overflow-x-auto scrollbar-hide">
-      <div className="flex space-x-3 min-w-max pb-2">
+      <div className="flex space-x-3 min-w-max pb-2 ">
         {/* ALL ITEMS BUTTON */}
         <div
           onClick={() => setSelectedCategory("all")}
@@ -22,16 +22,18 @@ export default function CategoryList({
         </div>
 
         {/* CATEGORY CARDS */}
-        {categories?.map((cat) => (
-          <CategoryCard
-            key={cat._id}
-            category={cat}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-          />
-        ))}
+        {categories.length === 0
+          ? <div className="text-gray-600 mt-2">No Categories Added Yet</div>
+          : categories?.map((cat) => (
+              <CategoryCard
+                key={cat._id}
+                category={cat}
+                onEdit={onEdit}
+                onDelete={onDelete}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+              />
+            ))}
       </div>
     </div>
   );

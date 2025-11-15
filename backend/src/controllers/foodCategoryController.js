@@ -8,7 +8,7 @@ const slugify = require("slugify");
 exports.postAddCategory = async (req, res) => {
   try {
     const { name, isActive } = req.body;
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
 
     if (!name) {
       return res.status(400).json({
@@ -55,7 +55,7 @@ exports.postAddCategory = async (req, res) => {
  */
 exports.getAllCategory = async (req, res) => {
   try {
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
 
     const categories = await FoodCategory.find({ restaurantId })
       .sort({ createdAt: 1 })
@@ -82,7 +82,7 @@ exports.updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, isActive } = req.body;
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
 
     const category = await FoodCategory.findOne({
       _id: id,
@@ -161,7 +161,7 @@ exports.updateCategory = async (req, res) => {
 exports.deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
 
     const category = await FoodCategory.findOne({
       _id: id,

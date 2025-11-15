@@ -28,7 +28,7 @@ const LoginPage = () => {
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
-  };
+  }
 
   return (
     <div className="min-h-screen px-3 bg-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">

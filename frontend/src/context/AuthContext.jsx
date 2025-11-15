@@ -101,7 +101,6 @@ export const AuthProvider = ({ children }) => {
         if (user.role === "customer") navigate("/");
         else if (user.role === "admin") navigate("/admin");
         else if (user.role === "superadmin") navigate("/super-admin");
-
         return { success: true };
       } else {
         return { success: false, message: res.message || "Login failed" };

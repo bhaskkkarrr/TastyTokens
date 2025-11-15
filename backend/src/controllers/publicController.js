@@ -1,4 +1,3 @@
-const Admin = require("../models/AdminModel");
 const Table = require("../models/TableModel");
 const MenuItem = require("../models/MenuItemModel");
 const FoodCategory = require("../models/FoodCategoryModel");

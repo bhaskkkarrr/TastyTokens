@@ -120,7 +120,7 @@ exports.updateOrderStatus = async (req, res) => {
 // ✅ Get All Orders of a Restaurant
 exports.getOrdersForRestaurant = async (req, res) => {
   try {
-    const restaurantId = req.user.id;
+    const restaurantId = req.user.restaurantId;
     console.log("Fetching orders for restaurant:", restaurantId);
     const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
 
@@ -176,7 +176,7 @@ exports.getOrderById = async (req, res) => {
 exports.deleteOrder = async (req, res) => {
   try {
     const orderId = req.params.id;
-    const restaurantId = req.user.id; // from token
+    const restaurantId = req.user.restaurantId; // from token
 
     const order = await Order.findOne({ _id: orderId, restaurantId });
 
