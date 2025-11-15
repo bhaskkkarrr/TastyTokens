@@ -35,8 +35,8 @@ export default function CustomerMenu() {
         ...category,
         items: category.items.filter((item) => {
           const matchesFilter =
-            (filter === "veg" && item.foodType === "veg") ||
-            (filter === "nonveg" && item.foodType === "non-veg") ||
+            (filter === "veg" && item.isVeg === true) ||
+            (filter === "nonveg" && item.isVeg === false) ||
             (filter === "bestseller" && item.isBestSeller === true) ||
             filter === null;
 
@@ -91,7 +91,7 @@ export default function CustomerMenu() {
                 <div className="flex items-center gap-2 border-b w-full text-gray-500">
                   <FaUtensils className="text-2xl text-black" />
                   <div className="text-3xl font-semibold text-black tracking-wide">
-                    {restaurant.restaurantName || "Cafe"}
+                    {restaurant.name || "Cafe"}
                   </div>
                 </div>
                 <div className="flex flex-col justify-start items-start">
@@ -224,7 +224,7 @@ export default function CustomerMenu() {
                           )}
 
                           {/* Veg / Non-Veg */}
-                          {item.foodType === "non-veg" ? (
+                          {item.isVeg === false ? (
                             <div className="absolute top-1 left-1 flex items-center justify-center border-2 h-5 w-5 rounded-sm bg-white shadow border-red-600">
                               <Triangle
                                 size={11}
@@ -244,7 +244,7 @@ export default function CustomerMenu() {
                           <div className="d-flex justify-between items-center">
                             <div className="d-flex flex-col">
                               <p className="text-emerald-700 font-medium mb-0">
-                                ₹{item.price || "NA"}
+                                ₹{item.basePrice || "NA"}
                               </p>
                             </div>
                             <div className="flex items-center justify-center">

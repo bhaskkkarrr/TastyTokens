@@ -6,6 +6,7 @@ import {
   FaTimes,
   FaCircle,
   FaRegCircle,
+  FaCheck,
 } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 
@@ -17,8 +18,9 @@ export default function AddToCartModal({
   onAddToCart,
   show,
 }) {
+
   const [quantity, setQuantity] = useState(1);
-  const [portion, setPortion] = useState("full");
+  const [portion, setPortion] = useState(null);
   const [selectedBeverages, setSelectedBeverages] = useState([]);
   const [selectedDesserts, setSelectedDesserts] = useState([]);
   const modalRef = useRef(null);
@@ -26,290 +28,375 @@ export default function AddToCartModal({
   useEffect(() => {
     if (item) {
       setQuantity(1);
-      setPortion("full");
       setSelectedBeverages([]);
       setSelectedDesserts([]);
+      if (item.variants?.length > 0) {
+        setPortion(item.variants[0].name);
+      } else {
+        setPortion(null);
+      }
     }
   }, [item]);
 
-  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (modalRef.current && !modalRef.current.contains(e.target)) {
         onClose && onClose();
       }
     };
-
-    if (show) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
+    if (show) document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [show, onClose]);
-
-  const toggleBeverage = (name) =>
-    setSelectedBeverages((prev) =>
-      prev.includes(name) ? prev.filter((b) => b !== name) : [...prev, name]
-    );
-
-  const toggleDessert = (name) =>
-    setSelectedDesserts((prev) =>
-      prev.includes(name) ? prev.filter((d) => d !== name) : [...prev, name]
-    );
+  }, [show]);
 
   if (!item) return null;
 
-  const beveragesTotal = selectedBeverages.reduce((acc, name) => {
+  const selectedVariant = item.variants?.find((v) => v.name === portion);
+  const basePrice = selectedVariant
+    ? Number(selectedVariant.price ?? 0)
+    : Number(item.discountedPrice ?? item.basePrice ?? 0);
+  const beveragesTotal = selectedBeverages.reduce((total, name) => {
     const b = drinks.find((bev) => bev.name === name);
-    return acc + (b ? Number(b.price) : 0);
+    return total + (b?.basePrice || 0);
   }, 0);
 
-  const dessertsTotal = selectedDesserts.reduce((acc, name) => {
+  const dessertsTotal = selectedDesserts.reduce((total, name) => {
     const d = desserts.find((des) => des.name === name);
-    return acc + (d ? Number(d.price) : 0);
+    return total + (d?.basePrice || 0);
   }, 0);
 
-  const basePrice =
-    portion === "half" ? Number(item.price) / 2 : Number(item.price);
   const totalPrice = (basePrice + beveragesTotal + dessertsTotal) * quantity;
+
+  const buildCartItem = () => {
+    const addons = [
+      ...selectedBeverages.map((bevName) => {
+        const b = drinks.find((bev) => bev.name === bevName);
+        return { name: b?.name, price: Number(b?.basePrice ?? 0) };
+      }),
+      ...selectedDesserts.map((desName) => {
+        const d = desserts.find((des) => des.name === desName);
+        return { name: d?.name, price: Number(d?.basePrice ?? 0) };
+      }),
+    ];
+
+    const unitPrice =
+      basePrice + addons.reduce((s, a) => s + Number(a.price || 0), 0);
+    const computedTotal = unitPrice * Number(quantity || 1);
+
+    return {
+      // compatibility fields (used for matching and UI)
+      _id: item._id,
+      item: item, // original item object (CartPage uses item.item.imageUrl)
+      itemId: item._id,
+      name: item.name,
+      isVeg: item.isVeg,
+      portion: portion, // selected variant name
+      beverages: selectedBeverages,
+      desserts: selectedDesserts,
+
+      // ordering details
+      quantity: Number(quantity || 1),
+      selectedVariant: {
+        name: portion,
+        price: Number(basePrice || 0),
+      },
+      addons,
+      totalPrice: Number(computedTotal),
+    };
+  };
+
+  const OptionItem = ({
+    active,
+    label,
+    price,
+    isVeg,
+    onClick,
+    showPlus = true,
+  }) => (
+    <button
+      onClick={onClick}
+      className={`relative flex items-center mb-1 justify-between px-3 py-2 rounded-4 transition-all duration-150 ${
+        active
+          ? "bg-emerald-100/70 border-2 border-emerald-400 shadow-sm"
+          : "bg-white border-2 border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/30"
+      }`}
+    >
+      <div className="flex items-center gap-3 relative z-10">
+        <div
+          className={`p-1 rounded-lg ${
+            active ? "bg-white shadow-sm" : "bg-gray-50"
+          }`}
+        >
+          {isVeg ? (
+            <FaCircle className="text-emerald-600 text-xs" />
+          ) : (
+            <IoTriangle className="text-red-600 text-sm" />
+          )}
+        </div>
+
+        <span
+          className={`font-medium capitalize ${
+            active ? "text-gray-900" : "text-gray-700"
+          }`}
+        >
+          {label}
+        </span>
+      </div>
+
+      <div className="flex items-center gap-3 relative z-10">
+        <span
+          className={`font-semibold text-sm ${
+            active ? "text-emerald-700" : "text-gray-600"
+          }`}
+        >
+          {showPlus && "+"}₹{price}
+        </span>
+        <div
+          className={`w-4 h-4 rounded-full flex items-center justify-center transition-all ${
+            active
+              ? "bg-emerald-600 shadow-md"
+              : "bg-gray-100 border-2 border-gray-300"
+          }`}
+        >
+          {active && <FaCheck className="text-white text-[10px]" />}
+        </div>
+      </div>
+    </button>
+  );
+
+  const SectionCard = ({ title, children }) => (
+    <>
+      <div className="text-xs text-gray-800 px-1 mb-2">{title}</div>
+      <div className="space-y-2">{children}</div>
+    </>
+  );
 
   return (
     <AnimatePresence>
       {show && (
         <motion.div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end justify-center"
+          className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
         >
-          {/* Close button (floating outside top center) */}
+          {/* Close Button - Desktop/Tablet */}
           <motion.button
             onClick={onClose}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            className="absolute top-[15%] md:top-[20%] flex items-center justify-center bg-black/40 rounded-5 w-10 h-10 shadow-lg text-white z-50"
+            initial={{ scale: 0, rotate: -90 }}
+            animate={{ scale: 1, rotate: 0 }}
+            exit={{ scale: 0, rotate: 90 }}
+            whileHover={{ scale: 1.1, rotate: 90 }}
+            whileTap={{ scale: 0.9 }}
+            className="hidden sm:flex absolute top-4 right-4 items-center justify-center bg-white/95 backdrop-blur-sm hover:bg-red-50 rounded-full w-12 h-12 text-gray-700 hover:text-red-600 shadow-2xl transition-colors z-50"
           >
-            <FaTimes className="text-lg" />
+            <FaTimes className="text-xl" />
           </motion.button>
 
-          {/* Modal container */}
           <motion.div
             ref={modalRef}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 20, stiffness: 150 }}
-            className="relative max-h-[75vh] w-full bg-white rounded-t-3xl shadow-[0_-10px_25px_rgba(0,0,0,0.3)] flex flex-col"
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: "100%", opacity: 0 }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="w-full sm:max-w-2xl max-h-[92vh] sm:max-h-[90vh] bg-white sm:rounded-3xl rounded-t-[2rem] shadow-2xl flex flex-col overflow-hidden"
           >
             {/* Header */}
-            <div className="flex justify-between items-center bg-white px-3 py-2 border-b rounded-t-3xl">
-              <div className="flex items-center">
-                {item.imageUrl && (
-                  <div className="h-10 w-10 mr-3 rounded-lg overflow-hidden shadow-sm border">
-                    <img
-                      src={item.imageUrl}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
+            <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 text-white">
+              {/* Pattern Overlay */}
+              <div className="absolute inset-0 opacity-10">
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
+                    backgroundSize: "32px 32px",
+                  }}
+                />
+              </div>
+
+              <div className="relative p-3 sm:px-6 sm:py-6">
+                {/* Mobile Close Button */}
+                <motion.button
+                  onClick={onClose}
+                  whileTap={{ scale: 0.9 }}
+                  className="sm:hidden absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white"
+                >
+                  <FaTimes className="text-sm" />
+                </motion.button>
+
+                <div className="flex items-start gap-4 pr-10 sm:pr-0">
+                  {item.imageUrl && (
+                    <motion.div
+                      initial={{ scale: 0, rotate: -20 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ type: "spring", stiffness: 200 }}
+                      className="relative flex-shrink-0"
+                    >
+                      <div className="absolute inset-0 bg-white/20 rounded-2xl blur-xl" />
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="relative h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover border-3 border-white/40 shadow-xl"
+                      />
+                    </motion.div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <motion.div
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      className="text-xl sm:text-2xl font-bold mb-1 truncate"
+                    >
+                      {item.name}
+                    </motion.div>
+                    <motion.div
+                      initial={{ x: -20, opacity: 0 }}
+                      animate={{ x: 0, opacity: 1 }}
+                      transition={{ delay: 0.1 }}
+                      className="text-sm text-white/90 font-medium"
+                    >
+                      Customize your order below
+                    </motion.div>
                   </div>
-                )}
-                <div className="text-lg font-semibold">{item.name}</div>
+                </div>
+              </div>
+
+              {/* Wave Bottom */}
+              <div className="absolute bottom-0 left-0 right-0 h-4">
+                <svg viewBox="0 0 1200 20" className="w-full h-full">
+                  <path
+                    d="M0,10 Q300,0 600,10 T1200,10 L1200,20 L0,20 Z"
+                    fill="white"
+                  />
+                </svg>
               </div>
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto px-3 py-3 space-y-4 bg-emerald-50">
-              {/* Portion Selector */}
-              <div className="flex flex-col gap-2">
-                <span className="block font-medium text-gray-800">
-                  Quantity
-                </span>
-                <div className="text-xs text-gray-600">Select one</div>
-                <div className="px-2 w-full">
-                  <div className="flex flex-col bg-white rounded shadow-sm overflow-hidden">
-                    {["half", "full"].map((type) => {
-                      const isActive = portion === type;
-                      return (
-                        <button
-                          key={type}
-                          onClick={() => setPortion(type)}
-                          className="px-3 py-2 text-sm flex justify-between items-center font-medium"
-                        >
-                          <div className="flex items-center gap-2">
-                            {item.foodType === "veg" ? (
-                              <FaCircle className="text-emerald-600 border-1 p-0.5 rounded" />
-                            ) : (
-                              <IoTriangle className="text-red-600 border-1 p-0.5 rounded" />
-                            )}
-                            <span className="capitalize">{type}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="text-sm font-semibold mr-2 text-gray-800">
-                              ₹{type === "half" ? item.price / 2 : item.price}
-                            </div>
-                            {isActive ? (
-                              <FaCircle className="text-emerald-600 text-xs" />
-                            ) : (
-                              <FaRegCircle className="text-gray-400 text-xs" />
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Beverages */}
-              {drinks.length > 0 && (
-                <div>
-                  <div className="font-medium mb-2 text-gray-700">
-                    Add Beverages
-                  </div>
-                  <div className="px-2 w-full">
-                    <div className="flex flex-col bg-white rounded shadow-sm overflow-hidden">
-                      {drinks.map((bev) => {
-                        const isActive = selectedBeverages.includes(bev.name);
-                        return (
-                          <button
-                            key={bev._id}
-                            onClick={() => toggleBeverage(bev.name)}
-                            className="px-3 py-2 text-sm flex justify-between items-center font-medium"
-                          >
-                            <div className="flex items-center gap-2">
-                              {bev.foodType === "veg" ? (
-                                <FaCircle className="text-emerald-600 border-1 p-0.5 rounded" />
-                              ) : (
-                                <IoTriangle className="text-red-600 border-1 p-0.5 rounded" />
-                              )}
-                              <span className="capitalize">{bev.name}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <div className="text-sm font-semibold mr-2 text-gray-800">
-                                (+₹{bev.price})
-                              </div>
-                              {isActive ? (
-                                <FaCircle className="text-emerald-600 text-xs" />
-                              ) : (
-                                <FaRegCircle className="text-gray-400 text-xs" />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+            <div className="flex-1 overflow-y-auto px-3  sm:px-6 py-2 space-y-6 bg-gradient-to-b from-gray-50 to-white">
+              {item.variants?.length > 0 && (
+                <SectionCard title="Choose Portion">
+                  {item.variants.map((v, idx) => (
+                    <OptionItem
+                      key={idx}
+                      active={portion === v.name}
+                      label={v.name}
+                      price={v.price}
+                      isVeg={item.isVeg}
+                      onClick={() => setPortion(v.name)}
+                      showPlus={false}
+                    />
+                  ))}
+                </SectionCard>
               )}
 
-              {/* Desserts */}
+              {drinks.length > 0 && (
+                <SectionCard title="Add Beverages (Optional)">
+                  {drinks.map((bev, idx) => (
+                    <OptionItem
+                      key={idx}
+                      active={selectedBeverages.includes(bev.name)}
+                      label={bev.name}
+                      price={bev.basePrice}
+                      isVeg={bev.isVeg}
+                      onClick={() =>
+                        setSelectedBeverages((prev) =>
+                          prev.includes(bev.name)
+                            ? prev.filter((x) => x !== bev.name)
+                            : [...prev, bev.name]
+                        )
+                      }
+                    />
+                  ))}
+                </SectionCard>
+              )}
+
               {desserts.length > 0 && (
-                <div>
-                  <div className="font-medium mb-2 text-gray-700">
-                    Add Desserts
-                  </div>
-                  <div className="px-2 w-full">
-                    <div className="flex flex-col bg-white rounded shadow-sm overflow-hidden">
-                      {desserts.map((des) => {
-                        const isActive = selectedDesserts.includes(des.name);
-                        return (
-                          <button
-                            key={des._id}
-                            onClick={() => toggleDessert(des.name)}
-                            className="px-3 py-2 text-sm flex justify-between items-center font-medium"
-                          >
-                            <div className="flex items-center gap-2">
-                              {des.foodType === "veg" ? (
-                                <FaCircle className="text-emerald-600 border-1 p-0.5 rounded" />
-                              ) : (
-                                <IoTriangle className="text-red-600 border-1 p-0.5 rounded" />
-                              )}
-                              <span className="capitalize">{des.name}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <div className="text-sm font-semibold mr-2 text-gray-800">
-                                (+₹{des.price})
-                              </div>
-                              {isActive ? (
-                                <FaCircle className="text-emerald-600 text-xs" />
-                              ) : (
-                                <FaRegCircle className="text-gray-400 text-xs" />
-                              )}
-                            </div>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
+                <SectionCard title="Add Desserts (Optional)">
+                  {desserts.map((des, idx) => (
+                    <OptionItem
+                      key={idx}
+                      active={selectedDesserts.includes(des.name)}
+                      label={des.name}
+                      price={des.basePrice}
+                      isVeg={des.isVeg}
+                      onClick={() =>
+                        setSelectedDesserts((prev) =>
+                          prev.includes(des.name)
+                            ? prev.filter((x) => x !== des.name)
+                            : [...prev, des.name]
+                        )
+                      }
+                    />
+                  ))}
+                </SectionCard>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="border-t py-3 px-3 bg-white flex items-center justify-between">
-              <div className="p-1 flex items-center bg-emerald-50 border-2 rounded gap-4">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="p-2 text-emerald-700"
+            {/* Footer - Sticky */}
+            <div className="bg-white border-t-2 border-gray-100 px-3 sm:px-6 py-2 shadow-2xl">
+              {/* Top Gradient Line */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent" />
+
+              <div className="flex items-center justify-between gap-3 sm:gap-4">
+                {/* Quantity Selector */}
+                <motion.div
+                  whileHover={{ scale: 1.03 }}
+                  className="flex items-center bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-300 rounded-4 sm:px-5 px-3 py-1.5 sm:py-3 gap-1 sm:gap-6 shadow-sm"
                 >
-                  <FaMinus className="text-xs" />
-                </button>
-                <span className="text-lg text-emerald-700 font-semibold">
-                  {quantity}
-                </span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="p-2 text-emerald-700"
+                  <motion.button
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="text-emerald-700 hover:text-emerald-800 transition-colors"
+                  >
+                    <FaMinus className="text-xs sm:text-lg" />
+                  </motion.button>
+
+                  <motion.span
+                    key={quantity}
+                    initial={{ scale: 1.3, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="text-xl sm:text-2xl font-bold text-emerald-700 min-w-[1.5rem] sm:min-w-[2rem] text-center"
+                  >
+                    {quantity}
+                  </motion.span>
+
+                  <motion.button
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="text-emerald-700 hover:text-emerald-800 transition-colors"
+                  >
+                    <FaPlus className="text-xs sm:text-lg" />
+                  </motion.button>
+                </motion.div>
+
+                {/* Add to Cart Button */}
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => {
+                    onAddToCart(buildCartItem());
+                    onClose();
+                  }}
+                  className="flex-1 relative overflow-hidden sm:px-8 px-3 py-2.5 sm:py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-4 font-bold shadow-lg text-base sm:text-xl"
                 >
-                  <FaPlus className="text-xs" />
-                </button>
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/25 to-white/0"
+                    animate={{ x: ["-200%", "200%"] }}
+                    transition={{
+                      repeat: Infinity,
+                      duration: 2.5,
+                      ease: "linear",
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <span className="hidden xs:inline">Add</span>
+                    <span>•</span>
+                    <span>₹{totalPrice}</span>
+                  </span>
+                </motion.button>
               </div>
-
-              <button
-                onClick={() => {
-                  // 1️⃣ Add the main food item
-                  const mainItem = {
-                    ...item,
-                    quantity,
-                    portion,
-                    totalPrice:
-                      (portion === "half" ? item.price / 2 : item.price) *
-                      quantity,
-                  };
-                  onAddToCart(mainItem);
-
-                  // 2️⃣ Add selected beverages (each as new item)
-                  selectedBeverages.forEach((bevName) => {
-                    const bev = drinks.find((b) => b.name === bevName);
-                    if (bev) {
-                      onAddToCart({
-                        ...bev,
-                        quantity: 1,
-                        portion: "full",
-                        totalPrice: Number(bev.price),
-                      });
-                    }
-                  });
-
-                  // 3️⃣ Add selected desserts (each as new item)
-                  selectedDesserts.forEach((desName) => {
-                    const des = desserts.find((d) => d.name === desName);
-                    if (des) {
-                      onAddToCart({
-                        ...des,
-                        quantity: 1,
-                        portion: "full",
-                        totalPrice: Number(des.price),
-                      });
-                    }
-                  });
-
-                  onClose();
-                }}
-                className="px-4 bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-semibold text-lg shadow"
-              >
-                Add to Cart · ₹{totalPrice}
-              </button>
             </div>
           </motion.div>
         </motion.div>

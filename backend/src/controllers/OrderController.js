@@ -1,16 +1,26 @@
 const Order = require("../models/OrderModel");
 const MenuItem = require("../models/MenuItemModel");
-
+const Restaurant = require("../models/RestaurantModel");
+const Table = require("../models/TableModel");
 // ✅ Create New Order
 exports.createOrder = async (req, res) => {
   try {
     const { restaurantId, table, items, customer, orderType, pricing } =
       req.body;
-    // console.log(req.body);
+    console.log("Creating order for restaurant:", req.body);
     if (!items || items.length === 0) {
       return res.status(400).json({ message: "Order items are required" });
     }
+    // console.log("table:", tableId);
+    const restaurant = await Restaurant.findById(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({ message: "Restaurant not found" });
+    }
 
+    const occupiedTable = await Table.findOne({ code: table });
+    if (!table) {
+      return res.status(404).json({ message: "Table not found" });
+    }
     // ✅ Fetch actual menu item details to prevent manipulation
     const itemIds = items.map((i) => i.itemId);
     const menuItems = await MenuItem.find({ _id: { $in: itemIds } });
@@ -49,7 +59,7 @@ exports.createOrder = async (req, res) => {
     // ✅ Build Order
     const order = new Order({
       restaurantId,
-      table,
+      table: occupiedTable.name,
       items: formattedItems,
       customer,
       orderType,
