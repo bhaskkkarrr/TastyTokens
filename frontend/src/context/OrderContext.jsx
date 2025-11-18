@@ -160,7 +160,7 @@ export const OrderProvider = ({ children }) => {
       setLoading(true);
       setError(null);
 
-      const res = await fetch(`http://localhost:5176/api/order/${orderId}`);
+      const res = await fetch(`${BASE_API}/api/order/${orderId}`);
       const data = await res.json();
 
       if (!res.ok) {
