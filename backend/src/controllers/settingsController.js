@@ -1,5 +1,6 @@
 const Restaurant = require("../models/RestaurantModel");
 const User = require("../models/UserModel");
+const Counter = require("../models/CounterModel");
 
 // ✅ GET Restaurant + User Settings
 exports.getSettings = async (req, res) => {
@@ -59,5 +60,18 @@ exports.updateSettings = async (req, res) => {
   } catch (error) {
     console.error("Update settings error:", error);
     res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+exports.resetCounter = async (req, res) => {
+  try {
+    await Counter.findOneAndUpdate(
+      { restaurantId: req.params.restaurantId },
+      { orderSeq: 0 }
+    );
+
+    res.json({ success: true, message: "Order counter reset." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

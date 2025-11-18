@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Counter = require("./CounterModel");
 
 const OrderItemSchema = new mongoose.Schema({
   itemId: {
@@ -55,18 +56,22 @@ const OrderSchema = new mongoose.Schema({
 
 // ✅ Auto-generate unique orderId before saving
 OrderSchema.pre("save", async function (next) {
-  if (this.orderId) return next(); // prevent regenerating
+  if (this.orderId) return next();
 
-  // ✅ Count previous orders for restaurant
-  const count = await mongoose.model("Order").countDocuments({
-    restaurantId: this.restaurantId,
-  });
+  try {
+    const result = await Counter.findOneAndUpdate(
+      { restaurantId: this.restaurantId },
+      { $inc: { orderSeq: 1 } },
+      { new: true, upsert: true } // create if not existing
+    );
 
-  // ✅ Format: ORD-00001, ORD-00002, etc.
-  this.orderId = `ORD-${String(count + 1).padStart(5, "0")}`;
-
-  next();
+    this.orderId = `ORD-${String(result.orderSeq).padStart(5, "0")}`;
+    next();
+  } catch (err) {
+    next(err);
+  }
 });
+
 // pre-save hook to calculate totals if not set
 OrderSchema.pre("validate", function (next) {
   // compute each item total as quantity*price + addons

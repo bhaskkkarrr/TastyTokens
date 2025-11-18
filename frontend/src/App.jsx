@@ -35,6 +35,7 @@ import { PublicProvider } from "./context/PublicContext";
 import { OrderProvider } from "./context/OrderContext";
 import { CategoryProvider } from "./context/CategoryContext";
 import { SettingProvider } from "./context/SettingsContext";
+import OrderStatus from "./pages/public/OrderStatus";
 
 function App() {
   return (
@@ -98,7 +99,7 @@ function App() {
                     <Route index element={<CustomerMenu />} />
                     <Route path="cart" element={<CartPage />} />
                     <Route path="checkout" element={<Checkout />} />
-                    {/* <Route path="order/:orderId" element={<OrderStatus />} /> */}
+                    <Route path="order/:orderId" element={<OrderStatus />} />
                   </Route>
 
                   {/* Super Admin Routes */}

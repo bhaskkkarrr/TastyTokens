@@ -24,4 +24,8 @@ orderRoutes.delete(
   authorizeRoles("admin"),
   orderController.deleteOrder
 );
+orderRoutes.get(
+  "/:orderId",
+  orderController.getOrderById
+);
 exports.orderRoutes = orderRoutes;

@@ -75,7 +75,7 @@ export default function Checkout() {
 
       if (data.success) {
         clearCart();
-        navigate(-2);
+        navigate(`/r/${restaurantId}/t/${tableId}/order/${data.order.orderId}`);
       } else {
         console.log("Order failed!");
       }

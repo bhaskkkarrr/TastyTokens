@@ -8,6 +8,12 @@ export const OrderContext = createContext();
 export const OrderProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
+  const [singleOrder, setSingleOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [loadingOrder, setLoadingOrder] = useState(false);
+  const [orderError, setOrderError] = useState(null);
+
   const socketRef = useRef(null);
 
   // ✅ Fetch all orders
@@ -107,6 +113,29 @@ export const OrderProvider = ({ children }) => {
     }
   };
 
+  // ADMIN SIDE CONTEXT
+  // CREATE ORDER
+  const createOrder = async (orderBody) => {
+    try {
+      setLoadingOrder(true);
+      setOrderError(null);
+
+      const res = await fetch(`${BASE_API}/api/order/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderBody),
+      });
+
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      setOrderError(err.message || "Failed to create order");
+      return { success: false };
+    } finally {
+      setLoadingOrder(false);
+    }
+  };
+
   // ✅ Delete order
   const deleteOrder = async (id) => {
     const r = await fetch(`${BASE_API}/api/order/delete/${id}`, {
@@ -124,9 +153,44 @@ export const OrderProvider = ({ children }) => {
     return { res };
   };
 
+  // CUSTOMER SIDE CONTEXT
+  // GET ORDER DETAILS
+  const getOrderDetails = async (orderId) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const res = await fetch(`http://localhost:5176/api/order/${orderId}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch order");
+      }
+
+      setSingleOrder(data.order);
+      localStorage.setItem("order", JSON.stringify(data.order));
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <OrderContext.Provider
-      value={{ orders, getOrders, updateStatus, deleteOrder }}
+      value={{
+        orders,
+        getOrders,
+        updateStatus,
+        deleteOrder,
+        createOrder,
+        getOrderDetails,
+        loading,
+        singleOrder,
+        error,
+        loadingOrder,
+        orderError,
+      }}
     >
       {children}
     </OrderContext.Provider>
