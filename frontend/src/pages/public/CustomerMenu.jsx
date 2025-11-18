@@ -375,7 +375,7 @@ export default function CustomerMenu() {
           )}
 
           {/* Order Status Button - Always visible in top right */}
-          {
+          {order && (
             <button
               className="fixed top-20 sm:top-4 right-3 sm:right-4 z-40 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-2 sm:px-4 py-2 rounded-5 shadow border-2 border-emerald-700  flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
               onClick={() =>
@@ -385,7 +385,7 @@ export default function CustomerMenu() {
               <MdHistory className="text-base sm:text-lg" />
               <span className="hidden sm:inline">Orders</span>
             </button>
-          }
+          )}
 
           {/* ADD TO CART MODAL */}
           <AddToCartModal
