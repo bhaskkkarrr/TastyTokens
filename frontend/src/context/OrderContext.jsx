@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
+import { m } from "framer-motion";
 
 const BASE_API = import.meta.env.VITE_BASE_API;
 export const OrderContext = createContext();
@@ -11,9 +12,7 @@ export const OrderProvider = ({ children }) => {
   const [singleOrder, setSingleOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [loadingOrder, setLoadingOrder] = useState(false);
-  const [orderError, setOrderError] = useState(null);
-
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const socketRef = useRef(null);
 
   // ✅ Fetch all orders
@@ -117,22 +116,20 @@ export const OrderProvider = ({ children }) => {
   // CREATE ORDER
   const createOrder = async (orderBody) => {
     try {
-      setLoadingOrder(true);
-      setOrderError(null);
-
-      const res = await fetch(`${BASE_API}/api/order/create`, {
+      const response = await fetch(`${BASE_API}/api/order/create`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderBody),
       });
 
-      const data = await res.json();
-      return data;
+      const data = await response.json();
+      console.log("Order Response:", data);
+
+      return { success: true, message: "Order created", data };
     } catch (err) {
-      setOrderError(err.message || "Failed to create order");
-      return { success: false };
+      return { success: false, message: "Order creation failed", error: err };
     } finally {
-      setLoadingOrder(false);
+      setIsPlacingOrder(false);
     }
   };
 
@@ -188,8 +185,6 @@ export const OrderProvider = ({ children }) => {
         loading,
         singleOrder,
         error,
-        loadingOrder,
-        orderError,
       }}
     >
       {children}

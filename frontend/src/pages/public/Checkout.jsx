@@ -11,14 +11,14 @@ import {
   CheckCircle2,
   Loader2,
 } from "lucide-react";
+import { OrderContext } from "../../context/OrderContext";
 
 export default function Checkout() {
   const { cartItems, total, clearCart } = useContext(CartContext);
   const { restaurantId, tableId } = useParams();
   const navigate = useNavigate();
-  const BASE_API = import.meta.env.VITE_BASE_API;
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
-
+  const { createOrder } = useContext(OrderContext);
   const {
     register,
     handleSubmit,
@@ -26,61 +26,52 @@ export default function Checkout() {
   } = useForm();
 
   const onSubmit = async (formData) => {
-    setIsPlacingOrder(true);
-
-    // Convert cart items to expected format
-    const formattedItems = cartItems.map((item) => ({
-      itemId: item.itemId || item._id,
-      name: item.name,
-      isVeg: item.isVeg,
-      quantity: item.quantity,
-      portion: item.portion,
-      selectedVariant: item.selectedVariant || {},
-      addons: item.addons || [],
-      beverages: item.beverages || [],
-      desserts: item.desserts || [],
-      notes: item.notes || "",
-      totalPrice: item.totalPrice,
-    }));
-
-    // Pricing object (you can compute dynamically later)
-    const pricing = {
-      tax: 10,
-      serviceCharge: 15,
-      discount: 0,
-      deliveryCharge: 0,
-    };
-
-    const orderBody = {
-      restaurantId,
-      table: tableId,
-      orderType: "DINE_IN",
-      customer: {
-        name: formData.name,
-        phone: formData.phone,
-      },
-      items: formattedItems,
-      pricing,
-    };
-
     try {
-      const response = await fetch(`${BASE_API}/api/order/create`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderBody),
-      });
+      setIsPlacingOrder(true);
+      // Convert cart items to expected format
+      const formattedItems = cartItems.map((item) => ({
+        itemId: item.itemId || item._id,
+        name: item.name,
+        isVeg: item.isVeg,
+        quantity: item.quantity,
+        portion: item.portion,
+        selectedVariant: item.selectedVariant || {},
+        addons: item.addons || [],
+        beverages: item.beverages || [],
+        desserts: item.desserts || [],
+        notes: item.notes || "",
+        totalPrice: item.totalPrice,
+      }));
 
-      const data = await response.json();
-      console.log("Order Response:", data);
+      // Pricing object (you can compute dynamically later)
+      const pricing = {
+        tax: 10,
+        serviceCharge: 15,
+        discount: 0,
+        deliveryCharge: 0,
+      };
 
-      if (data.success) {
+      const orderBody = {
+        restaurantId,
+        table: tableId,
+        orderType: "DINE_IN",
+        customer: {
+          name: formData.name,
+          phone: formData.phone,
+        },
+        items: formattedItems,
+        pricing,
+      };
+
+      const result = await createOrder(orderBody);
+      if (result.success) {
         clearCart();
-        navigate(`/r/${restaurantId}/t/${tableId}/order/${data.order.orderId}`);
+        navigate(`/r/${restaurantId}/t/${tableId}/order/${result.data.order.orderId}`);
       } else {
         console.log("Order failed!");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      console.error("Error placing order:", error);
     } finally {
       setIsPlacingOrder(false);
     }
