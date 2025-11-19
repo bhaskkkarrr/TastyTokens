@@ -357,20 +357,7 @@ export default function CustomerMenu() {
                 <span className="bg-white text-emerald-700 font-bold px-2 sm:px-2.5 py-0.5 rounded-full text-xs sm:text-sm">
                   {totalCartItems}
                 </span>
-              </button>
-
-              {/* Order Status */}
-              {order && (
-                <button
-                  className="bg-white hover:bg-gray-50 text-gray-700 font-bold p-3 sm:p-3.5 rounded-circle shadow-2xl border-2 border-gray-200"
-                  onClick={() =>
-                    navigate(`/r/${restaurantId}/t/${tableId}/order/${orderId}`)
-                  }
-                  title="Order Status"
-                >
-                  <MdHistory className="text-lg sm:text-xl" />
-                </button>
-              )}
+              </button> 
             </div>
           )}
 
