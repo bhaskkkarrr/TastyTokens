@@ -89,11 +89,10 @@ exports.createOrder = async (req, res) => {
 
 // ✅ Update Order Status (ACCEPTED → PREPARING → COMPLETED → CANCELLED)
 exports.updateOrderStatus = async (req, res) => {
-  console.log("Params:", req.params);
   try {
     const { status } = req.body;
     const orderId = req.params.id;
-    console.log("Updating order", orderId, "to status", status);
+
     const valid = [
       "PENDING",
       "ACCEPTED",
@@ -107,19 +106,23 @@ exports.updateOrderStatus = async (req, res) => {
         .json({ success: false, message: "Invalid order status" });
     }
 
-    const order = await Order.findById(orderId);
-
+    const order = await Order.findById(orderId).populate("restaurantId");
     if (!order) return res.status(404).json({ message: "Order not found" });
 
     order.status = status;
     await order.save();
 
-    // ✅ Emit live updates
-    if (req.io) {
-      req.io.to(order.restaurantId.toString()).emit("orderUpdated", order);
-    }
+    const restaurantRoom = order.restaurantId._id.toString();
 
-    res.json({ success: true, order });
+    // 🔥 Normalize the structure (THIS FIXES YOUR UI)
+    const cleanedOrder = {
+      ...order.toObject(),
+      restaurantId: order.restaurantId._id.toString(),
+    };
+
+    req.io.to(restaurantRoom).emit("orderUpdated", cleanedOrder);
+
+    res.json({ success: true, order: cleanedOrder });
   } catch (err) {
     res
       .status(500)

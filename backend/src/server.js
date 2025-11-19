@@ -40,6 +40,12 @@ io.on("connection", (socket) => {
 // ✅ Make io available to all controllers
 app.set("io", io);
 
+// Make io available in all controllers via req.io
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
 // Routes Import
 const { authRoutes } = require("./routes/authRoutes");
 const { categoryRoutes } = require("./routes/foodCategoryRoutes");

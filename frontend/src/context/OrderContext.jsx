@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { m } from "framer-motion";
@@ -9,13 +9,18 @@ export const OrderContext = createContext();
 export const OrderProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
   const [orders, setOrders] = useState([]);
+  const [newOrderCount, setNewOrderCount] = useState(0);
   const [singleOrder, setSingleOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const socketRef = useRef(null);
 
+  const notificationSound = useMemo(() => new Audio("../../public/notification.wav"), []);
+
+  // ------------------------------------------------------
   // ✅ Fetch all orders
+  // ------------------------------------------------------
   const getOrders = async () => {
     if (!token) return;
 
@@ -30,55 +35,16 @@ export const OrderProvider = ({ children }) => {
     console.log("✅ Orders fetched:", res.orders);
     setOrders(res.orders || []);
   };
-
-  // ✅ Initialize socket once
   useEffect(() => {
-    socketRef.current = io(BASE_API, { transports: ["websocket"] });
-
-    return () => {
-      socketRef.current.disconnect();
-    };
-  }, []);
-
-  // ✅ Join restaurant room & load orders
-  useEffect(() => {
-    if (token && socketRef.current) {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const restaurantId = payload.id;
-
-      socketRef.current.emit("joinRestaurantRoom", restaurantId);
+    if (token) {
       getOrders();
     }
   }, [token]);
-
-  // ✅ Listen for live socket events
-  useEffect(() => {
-    if (!socketRef.current) return;
-
-    // 🔹 New order created
-    socketRef.current.on("newOrder", (order) => {
-      console.log("🔥 New order received:", order);
-      setOrders((prev) => [order, ...prev]);
-    });
-
-    // 🔹 Order status updated
-    socketRef.current.on("orderUpdated", (updatedOrder) => {
-      console.log("🔥 Order updated via socket:", updatedOrder);
-      setOrders((prev) =>
-        prev.map((o) => (o._id === updatedOrder._id ? updatedOrder : o))
-      );
-    });
-
-    return () => {
-      socketRef.current.off("newOrder");
-      socketRef.current.off("orderUpdated");
-    };
-  }, []);
-
-  // ✅ Update order status manually (with optimistic UI)
+  // ------------------------------------------------------
+  // ✅ Update status (manual from admin)
+  // ------------------------------------------------------
   const updateStatus = async (id, status) => {
     try {
-      // Optimistically update local state
       setOrders((prev) =>
         prev.map((o) =>
           o._id === id ? { ...o, status: status, updating: true } : o
@@ -101,8 +67,6 @@ export const OrderProvider = ({ children }) => {
         setOrders((prev) =>
           prev.map((o) => (o._id === res.order._id ? res.order : o))
         );
-      } else {
-        console.warn("⚠️ Failed to update order status");
       }
 
       return { success: true, message: "Updated", res };
@@ -111,9 +75,61 @@ export const OrderProvider = ({ children }) => {
       return { success: false, message: "Failed", error: err };
     }
   };
+  // ------------------------------------------------------
+  // SOCKET.IO REAL-TIME SETUP  (ONLY THIS BLOCK IS NEW)
+  // ------------------------------------------------------
+  useEffect(() => {
+    if (!token) return;
 
-  // ADMIN SIDE CONTEXT
-  // CREATE ORDER
+    // Create socket connection
+    socketRef.current = io(BASE_API, {
+      transports: ["websocket"],
+      reconnection: true,
+    });
+
+    const socket = socketRef.current;
+
+    // Get restaurant ID from token payload
+    const storedUser = localStorage.getItem("user");
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    const restaurantId = parsedUser?.restaurantId;
+    if (restaurantId) {
+      socket.emit("joinRestaurantRoom", restaurantId._id);
+      console.log("Joined restaurant room:", restaurantId._id);
+    }
+
+    // 🔥 Listen for NEW ORDER
+    socket.on("newOrder", (order) => {
+      console.log("REALTIME → New order:", order);
+      setOrders((prev) => [order, ...prev]);
+    });
+
+    // 🔥 Listen for ORDER UPDATED
+    socket.on("orderUpdated", (order) => {
+      console.log("REALTIME → Order updated:", order);
+
+      // Update order list for admin
+      setOrders((prev) => prev.map((o) => (o._id === order._id ? order : o)));
+
+      // 🔥 Update single order for customer page
+      setSingleOrder((prev) => {
+        if (!prev) return prev;
+        return prev._id === order._id ? order : prev;
+      });
+    });
+
+    // 🔥 Listen for ORDER DELETED
+    socket.on("orderDeleted", ({ _id }) => {
+      console.log("REALTIME → Order deleted:", _id);
+      setOrders((prev) => prev.filter((o) => o._id !== _id));
+    });
+
+    return () => socket.disconnect();
+  }, [token]);
+
+  // ------------------------------------------------------
+  // ADMIN SIDE — Create order
+  // ------------------------------------------------------
   const createOrder = async (orderBody) => {
     try {
       const response = await fetch(`${BASE_API}/api/order/create`, {
@@ -133,7 +149,9 @@ export const OrderProvider = ({ children }) => {
     }
   };
 
-  // ✅ Delete order
+  // ------------------------------------------------------
+  // Delete order
+  // ------------------------------------------------------
   const deleteOrder = async (id) => {
     const r = await fetch(`${BASE_API}/api/order/delete/${id}`, {
       method: "DELETE",
@@ -150,8 +168,9 @@ export const OrderProvider = ({ children }) => {
     return { res };
   };
 
-  // CUSTOMER SIDE CONTEXT
-  // GET ORDER DETAILS
+  // ------------------------------------------------------
+  // CUSTOMER SIDE — Get order details
+  // ------------------------------------------------------
   const getOrderDetails = async (orderId) => {
     try {
       setLoading(true);
