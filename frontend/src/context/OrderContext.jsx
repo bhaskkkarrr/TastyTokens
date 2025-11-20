@@ -1,8 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
 import { m } from "framer-motion";
-
 const BASE_API = import.meta.env.VITE_BASE_API;
 export const OrderContext = createContext();
 
@@ -16,7 +22,7 @@ export const OrderProvider = ({ children }) => {
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const socketRef = useRef(null);
 
-  const notificationSound = useMemo(() => new Audio("../../public/notification.wav"), []);
+  const notificationSound = useMemo(() => new Audio("/order-alert.mp3"), []);
 
   // ------------------------------------------------------
   // ✅ Fetch all orders
@@ -40,6 +46,7 @@ export const OrderProvider = ({ children }) => {
       getOrders();
     }
   }, [token]);
+
   // ------------------------------------------------------
   // ✅ Update status (manual from admin)
   // ------------------------------------------------------
@@ -75,6 +82,7 @@ export const OrderProvider = ({ children }) => {
       return { success: false, message: "Failed", error: err };
     }
   };
+
   // ------------------------------------------------------
   // SOCKET.IO REAL-TIME SETUP  (ONLY THIS BLOCK IS NEW)
   // ------------------------------------------------------
@@ -102,6 +110,13 @@ export const OrderProvider = ({ children }) => {
     socket.on("newOrder", (order) => {
       console.log("REALTIME → New order:", order);
       setOrders((prev) => [order, ...prev]);
+      // 🔊 Play sound
+      try {
+        notificationSound.volume = 1.0;
+        notificationSound.play();
+      } catch (err) {
+        console.log("Audio blocked by browser:", err);
+      }
     });
 
     // 🔥 Listen for ORDER UPDATED
