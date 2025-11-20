@@ -13,7 +13,7 @@ import {
   LogOut,
   Plus,
 } from "lucide-react";
-import CommonLayout from "../CommonLayout";
+import SideBar from "../../components/SideBar";
 
 function CustomerLayout() {
   const menuItems = [
@@ -41,7 +41,7 @@ function CustomerLayout() {
   ];
   return (
     <div>
-      <CommonLayout menuItems={menuItems}></CommonLayout>
+      <SideBar menuItems={menuItems} />
     </div>
   );
 }

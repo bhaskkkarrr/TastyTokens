@@ -51,7 +51,7 @@ export default function OrdersList({
           return (
             <div
               key={order._id}
-              className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-3 border border-gray-100 rounded-lg"
+              className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-3 border border-gray-100 rounded-lg overflow-hidden overflow-x-auto"
             >
               <div>
                 <div className="text-sm font-medium text-gray-900">
@@ -93,7 +93,7 @@ export default function OrdersList({
                   <button
                     onClick={() => onUpdateStatus(order._id, "COMPLETED")}
                     disabled={order.status !== "PREPARING"}
-                    className={`px-3 py-1 rounded-3 text-xs ${
+                    className={`px-3 py-1 me-2 rounded-3 text-xs ${
                       order.status === "PREPARING"
                         ? "bg-green-600 text-white"
                         : "bg-gray-100 text-gray-400"

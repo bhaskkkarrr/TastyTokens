@@ -46,16 +46,6 @@ function App() {
             <TableProvider>
               <OrderProvider>
                 <Routes>
-                  {/* Signup */}
-                  <Route
-                    path="/signup"
-                    element={
-                      // <ProtectedRoute allowedRoles={["superadmin"]}>
-                      <SignUpPage />
-                      /* </ProtectedRoute> */
-                    }
-                  />
-
                   {/* Login */}
                   <Route path="/" element={<LoginPage />} />
 
@@ -103,6 +93,15 @@ function App() {
                   </Route>
 
                   {/* Super Admin Routes */}
+                  {/* Signup */}
+                  <Route
+                    path="/signup"
+                    element={
+                      <ProtectedRoute allowedRoles={["superadmin"]}>
+                        <SignUpPage />
+                      </ProtectedRoute>
+                    }
+                  />
                   <Route
                     path="super-admin"
                     element={

@@ -1,19 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Home,
   QrCode,
-  Settings,
   Users,
   Bell,
-  Search,
-  UtensilsCrossed,
   ShoppingBag,
-  X,
   BarChart3,
-  LogOut,
-  Plus,
 } from "lucide-react";
-import CommonLayout from "../CommonLayout";
+import SideBar from "../../components/SideBar";
+import Header from "../../components/Header";
+import { Outlet } from "react-router-dom";
 
 function SuperAdminLayout() {
   const menuItems = [
@@ -60,9 +56,26 @@ function SuperAdminLayout() {
       path: "super-admin/notifications",
     },
   ];
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
   return (
-    <div>
-      <CommonLayout menuItems={menuItems}></CommonLayout>
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-gray-50">
+      <Header
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+      />
+      <SideBar
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
+        menuItems={menuItems}
+        role={"superadmin"}
+      />
+      {/* Main Content */}
+      <main className="pt-16 lg:pl-72 min-h-screen bg-emerald-50">
+        <div className="px-3 px-sm-4">
+          <Outlet />
+        </div>
+      </main>
     </div>
   );
 }

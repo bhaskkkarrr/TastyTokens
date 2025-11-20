@@ -5,15 +5,6 @@ import { GoDotFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import OrdersList from "../../components/admin/OrdersList";
 
-/**
- * AdminDashboard.jsx (data-driven)
- * - Layout identical to original
- * - Pulls live data from OrderContext & TableContext
- * - Uses order.pricing.grandTotal for revenue
- *
- * Paste over your existing AdminDashboard.jsx
- */
-
 function Sparkline({ points = [], className = "" }) {
   if (!points.length) return null;
   const w = 60;
@@ -203,17 +194,17 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="p-4 md:p-6 lg:p-8">
+    <div className="p-2 md:p-6 py-lg-4 px-lg-3">
       <div className="max-w-[1280px] mx-auto space-y-6">
         {/* header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            <div className="text-2xl md:text-3xl font-semibold text-emerald-900">
               Dashboard
-            </h1>
-            <p className="text-sm text-gray-500 mt-1">
+            </div>
+            <span className="text-sm text-gray-500 mt-1">
               Real-time view of your restaurant — orders, revenue & top items.
-            </p>
+            </span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -224,7 +215,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* KPI CARDS */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <div className="bg-white rounded-2xl px-4 py-3 shadow border-2 border-emerald-600">
             <div className="flex items-center justify-between">
               <div>
@@ -298,19 +289,19 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Orders + chart */}
           <div className="lg:col-span-2 space-y-4 ">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border-2 border-emerald-600">
+            <div className="bg-white rounded-2xl py-3 px-3 md:p-4 shadow-sm border-2 border-emerald-600">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm w-64"
+                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm w-42 md:w-64"
                     placeholder="Search orders, table or item..."
                   />
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-gray-200 text-sm"
+                    className="px-2 py-2 rounded-lg border border-gray-200 text-sm"
                   >
                     <option value="">All statuses</option>
                     <option value="pending">Pending</option>
@@ -326,7 +317,7 @@ export default function AdminDashboard() {
 
               <div className="mt-4">
                 {/* Revenue area chart */}
-                <div className="mb-4">
+                <div className="mb-4 hidden md:block ">
                   <div className="flex items-center justify-between mb-2">
                     <div>
                       <p className="text-sm text-gray-500">
