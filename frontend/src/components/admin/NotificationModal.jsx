@@ -10,7 +10,7 @@ export default function NotificationModal({ open, onClose }) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-start pt-24 z-50">
+    <div className="fixed inset-0  flex justify-center items-start pt-24 z-50">
       <div className="bg-white w-96 rounded-2xl shadow-xl animate-slideUp p-4">
         {/* Header */}
         <div className="flex items-center justify-between border-b pb-2">
