@@ -21,6 +21,7 @@ export const OrderProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const socketRef = useRef(null);
+  const [notifications, setNotifications] = useState([]);
 
   const notificationSound = useMemo(() => new Audio("/order-alert.mp3"), []);
 
@@ -109,13 +110,40 @@ export const OrderProvider = ({ children }) => {
     // 🔥 Listen for NEW ORDER
     socket.on("newOrder", (order) => {
       console.log("REALTIME → New order:", order);
+
+      // 1️⃣ Add to order list
       setOrders((prev) => [order, ...prev]);
-      // 🔊 Play sound
+
+      // 2️⃣ Increase badge counter
+      setNewOrderCount((prev) => prev + 1);
+
+      // 3️⃣ Play sound
       try {
         notificationSound.volume = 1.0;
         notificationSound.play();
       } catch (err) {
-        console.log("Audio blocked by browser:", err);
+        console.log("Audio blocked:", err);
+      }
+
+      // 4️⃣ Vibrate (mobile only)
+      if (navigator.vibrate) navigator.vibrate(200);
+
+      setNotifications((prev) => [
+        {
+          id: order.orderId,
+          title: `New Order #${order.orderId}`,
+          time: new Date().toLocaleTimeString(),
+          order,
+        },
+        ...prev,
+      ]);
+
+      // 6️⃣ Browser Notification
+      if (Notification.permission === "granted") {
+        new Notification("New Order Received", {
+          body: `Order #${order.orderId} just came in!`,
+          icon: "/logo.png",
+        });
       }
     });
 
@@ -143,7 +171,7 @@ export const OrderProvider = ({ children }) => {
   }, [token]);
 
   // ------------------------------------------------------
-  // ADMIN SIDE — Create order
+  // Create order
   // ------------------------------------------------------
   const createOrder = async (orderBody) => {
     try {
@@ -155,8 +183,7 @@ export const OrderProvider = ({ children }) => {
 
       const data = await response.json();
       console.log("Order Response:", data);
-
-      return { success: true, message: "Order created", data };
+      return { data };
     } catch (err) {
       return { success: false, message: "Order creation failed", error: err };
     } finally {
@@ -219,6 +246,10 @@ export const OrderProvider = ({ children }) => {
         loading,
         singleOrder,
         error,
+        newOrderCount,
+        setNewOrderCount,
+        notifications,
+        setNotifications,
       }}
     >
       {children}

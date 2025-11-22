@@ -1,230 +1,121 @@
-import React, { useState } from "react";
-import { 
-  FaBell, 
-  FaShoppingBag, 
-  FaExclamationTriangle,
+import React from "react";
+import {
+  FaBell,
+  FaShoppingBag,
+  FaEllipsisV,
   FaCheckCircle,
-  FaUserCircle,
-  FaCog,
-  FaTrash,
-  FaEllipsisV
+  FaExclamationTriangle,
 } from "react-icons/fa";
+import { NotificationContext } from "../../context/NotificationContext";
+import { useContext } from "react";
 
-function AdminNotification() {
-  // Sample notifications data
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: "order",
-      title: "New Order Received",
-      message: "Order #12345 has been placed by Rahul Sharma",
-      time: "2 minutes ago",
-      isRead: false,
-      priority: "high",
-      orderDetails: {
-        orderId: "12345",
-        amount: "₹850",
-        items: 4
-      }
-    },
-    {
-      id: 2,
-      type: "system",
-      title: "System Update",
-      message: "System maintenance scheduled for tonight at 2 AM",
-      time: "1 hour ago",
-      isRead: true,
-      priority: "medium"
-    },
-    {
-      id: 3,
-      type: "feedback",
-      title: "New Customer Review",
-      message: "Priya Patel left a 5-star review for their recent order",
-      time: "3 hours ago",
-      isRead: false,
-      priority: "normal",
-      rating: 5
-    },
-    {
-      id: 4,
-      type: "alert",
-      title: "Low Stock Alert",
-      message: "Paneer Butter Masala ingredients are running low",
-      time: "5 hours ago",
-      isRead: true,
-      priority: "high"
-    }
-  ]);
+export default function notifications() {
+  const { notifications, unread, markAsRead, markAllRead } =
+    useContext(NotificationContext);
+  console.log(notifications);
+  // 🔥 Filter only order notifications
+  // const notifications = notifications.filter(
+  //   (n) => n.meta?.type === "order"
+  // );
 
-  const getNotificationStyle = (type, isRead) => {
-    const baseClasses = "border-l-4 p-sm-4 p-2 rounded-r-2xl transition-all duration-300";
-    const readClass = isRead ? "bg-white" : "bg-emerald-50";
-    
-    switch(type) {
-      case "order":
-        return `${baseClasses} ${readClass} border-emerald-500`;
-      case "system":
-        return `${baseClasses} ${readClass} border-blue-500`;
-      case "feedback":
-        return `${baseClasses} ${readClass} border-yellow-500`;
-      case "alert":
-        return `${baseClasses} ${readClass} border-red-500`;
-      default:
-        return `${baseClasses} ${readClass} border-gray-500`;
-    }
-  };
-
-  const getNotificationIcon = (type) => {
-    const iconClass = "w-6 h-6";
-    switch(type) {
-      case "order":
-        return <FaShoppingBag className={`${iconClass} text-emerald-500`} />;
-      case "system":
-        return <FaCog className={`${iconClass} text-blue-500`} />;
-      case "feedback":
-        return <FaUserCircle className={`${iconClass} text-yellow-500`} />;
-      case "alert":
-        return <FaExclamationTriangle className={`${iconClass} text-red-500`} />;
-      default:
-        return <FaBell className={`${iconClass} text-gray-500`} />;
-    }
+  const getNotificationStyle = (isRead) => {
+    return `border-l-4 p-3 rounded-r-2xl transition-all duration-300 ${
+      isRead
+        ? "bg-white border-emerald-300"
+        : "bg-emerald-50 border-emerald-600"
+    }`;
   };
 
   return (
     <div className="container-fluid py-2 px-0 p-sm-3">
-      {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-1 mt-2 mt-sm-3">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-1 mt-2">
         <div className="flex items-center">
-          <FaBell className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
-          <h2 className="text-xl sm:text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
-            Notifications
+          <FaShoppingBag className="text-emerald-600 w-7 h-7" />
+          <h2 className="text-2xl font-semibold ms-2 text-gray-800 font-poppins">
+            Order Notifications
           </h2>
         </div>
-        <div className="flex items-center">
-          <button className="text-sm bg-emerald-600 text-white px-4 py-2 rounded-4 hover:bg-emerald-700 transition-colors duration-300 font-medium">
+
+        {unread > 0 && (
+          <button
+            onClick={markAllRead}
+            className="text-sm bg-emerald-600 text-white px-4 py-2 rounded-4 hover:bg-emerald-700 transition"
+          >
             Mark all as read
           </button>
-        </div>
+        )}
       </div>
 
-      {/* Stats Section */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Unread</p>
-              <h4 className="text-xl font-bold text-emerald-600">12</h4>
-            </div>
-            <div className="bg-emerald-100 p-3 rounded-full">
-              <FaBell className="text-emerald-600 w-5 h-5" />
-            </div>
-          </div>
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-gray-500 mb-1">Total Orders</p>
+          <h4 className="text-2xl font-bold text-emerald-600">
+            {notifications.length}
+          </h4>
         </div>
-        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">High Priority</p>
-              <h4 className="text-xl font-bold text-red-600">5</h4>
-            </div>
-            <div className="bg-red-100 p-3 rounded-full">
-              <FaExclamationTriangle className="text-red-600 w-5 h-5" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Today's</p>
-              <h4 className="text-xl font-bold text-blue-600">24</h4>
-            </div>
-            <div className="bg-blue-100 p-3 rounded-full">
-              <FaCheckCircle className="text-blue-600 w-5 h-5" />
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-2xl px-3 py-2 p-sm-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Total</p>
-              <h4 className="text-xl font-bold text-gray-600">156</h4>
-            </div>
-            <div className="bg-gray-100 p-3 rounded-full">
-              <FaBell className="text-gray-600 w-5 h-5" />
-            </div>
-          </div>
+
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <p className="text-sm text-gray-500 mb-1">Unread</p>
+          <h4 className="text-2xl font-bold text-red-500">{unread}</h4>
         </div>
       </div>
 
-      {/* Filter Section */}
-      <div className="bg-white rounded-2xl p-3 mb-6 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <select className="px-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
-            <option value="">All Types</option>
-            <option value="order">Orders</option>
-            <option value="system">System</option>
-            <option value="feedback">Feedback</option>
-            <option value="alert">Alerts</option>
-          </select>
-          <select className="px-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
-            <option value="">All Priority</option>
-            <option value="high">High</option>
-            <option value="medium">Medium</option>
-            <option value="normal">Normal</option>
-          </select>
-          <select className="px-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
-            <option value="">Time Range</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-          </select>
-          <select className="px-4 py-2 rounded-lg border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none text-sm">
-            <option value="">Status</option>
-            <option value="read">Read</option>
-            <option value="unread">Unread</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Notifications List */}
+      {/* Notification List */}
       <div className="space-y-4">
-        {notifications.map((notification) => (
-          <div 
-            key={notification.id}
-            className={getNotificationStyle(notification.type, notification.isRead)}
-          >
+        {notifications.length === 0 && (
+          <p className="text-center text-gray-500 py-10">
+            No order notifications yet.
+          </p>
+        )}
+
+        {notifications.map((n) => (
+          <div key={n._id} className={getNotificationStyle(n.read)}>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
-                {getNotificationIcon(notification.type)}
+                <FaShoppingBag className="w-6 h-6 text-emerald-600" />
               </div>
+
               <div className="flex-grow">
                 <div className="flex justify-between items-start">
                   <div>
                     <h5 className="text-base font-semibold text-gray-800 mb-1">
-                      {notification.title}
+                      {n.title}
                     </h5>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {notification.message}
-                    </p>
+                    <p className="text-sm text-gray-600 mb-2">{n.body}</p>
                     <span className="text-xs text-gray-500">
-                      {notification.time}
+                      {new Date(n.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors duration-300">
-                      <FaEllipsisV className="w-4 h-4" />
+
+                  {!n.read && (
+                    <button
+                      onClick={() => markAsRead(n._id)}
+                      className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-4 hover:bg-emerald-200"
+                    >
+                      Mark Read
                     </button>
-                  </div>
+                  )}
                 </div>
-                
-                {notification.type === 'order' && (
-                  <div className="mt-3 bg-gray-50 rounded-lg p-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Order #{notification.orderDetails.orderId}</span>
-                      <span className="font-medium text-emerald-600">{notification.orderDetails.amount}</span>
+
+                {/* Order Meta */}
+                {n.meta && (
+                  <div className="mt-3 bg-gray-50 rounded-lg p-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">
+                        Order #{n.meta.orderId}
+                      </span>
+                      <span className="font-medium text-emerald-600">
+                        ₹{n.meta.price}
+                      </span>
                     </div>
                   </div>
                 )}
+              </div>
+
+              <div>
+                <FaEllipsisV className="text-gray-400" />
               </div>
             </div>
           </div>
@@ -233,6 +124,3 @@ function AdminNotification() {
     </div>
   );
 }
-
-export default AdminNotification;
-

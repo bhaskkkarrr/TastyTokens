@@ -2,6 +2,7 @@ const Order = require("../models/OrderModel");
 const MenuItem = require("../models/MenuItemModel");
 const Restaurant = require("../models/RestaurantModel");
 const Table = require("../models/TableModel");
+const { createNotification } = require("./NotificationController");
 // ✅ Create New Order
 exports.createOrder = async (req, res) => {
   try {
@@ -9,23 +10,31 @@ exports.createOrder = async (req, res) => {
       req.body;
     console.log("Creating order for restaurant:", req.body);
     if (!items || items.length === 0) {
-      return res.status(400).json({ message: "Order items are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Order items are required" });
     }
     // console.log("table:", tableId);
     const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
-      return res.status(404).json({ message: "Restaurant not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Restaurant not found" });
     }
 
     const occupiedTable = await Table.findOne({ code: table });
     if (!table) {
-      return res.status(404).json({ message: "Table not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Table not found" });
     }
     // ✅ Fetch actual menu item details to prevent manipulation
     const itemIds = items.map((i) => i.itemId);
     const menuItems = await MenuItem.find({ _id: { $in: itemIds } });
     if (menuItems.length !== items.length) {
-      return res.status(400).json({ message: "One or more items invalid" });
+      return res
+        .status(400)
+        .json({ success: false, message: "One or more items invalid" });
     }
 
     // ✅ Lock item name, price, variants, addons
@@ -70,6 +79,19 @@ exports.createOrder = async (req, res) => {
 
     const savedOrder = await order.save();
 
+    // 🔥 Create Notification
+    const notification = await createNotification({
+      restaurantId: order.restaurantId,
+      title: "New Order Received",
+      body: `Order #${order.orderId} has been placed.`,
+      meta: { orderId: order.orderId, price: order.pricing.grandTotal },
+      io: req.io, // socket instance
+    });
+    if (!notification) {
+      res
+        .status(401)
+        .json({ success: false, notification: "New order placed" });
+    }
     // ✅ Emit to restaurant panel (if using socket.io)
     if (req.io) {
       req.io.to(restaurantId.toString()).emit("newOrder", savedOrder);
@@ -81,9 +103,11 @@ exports.createOrder = async (req, res) => {
     });
   } catch (err) {
     console.log(err);
-    res
-      .status(500)
-      .json({ message: "Error creating order", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Error creating order",
+      error: err.message,
+    });
   }
 };
 
@@ -107,11 +131,26 @@ exports.updateOrderStatus = async (req, res) => {
     }
 
     const order = await Order.findById(orderId).populate("restaurantId");
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
 
     order.status = status;
     await order.save();
-
+    try {
+      // 🔥 Create Notification
+      const notification = await createNotification({
+        restaurantId: order.restaurantId,
+        title: "Order Status Updated",
+        body: `Order #${order.orderId} is now ${order.status}.`,
+        meta: { orderId: order._id },
+        io: req.io, // socket instance
+      });
+      res.status(201).json({ success: true, notification });
+    } catch (error) {
+      res.status(401).json({ success: false, notification: "New order" });
+    }
     const restaurantRoom = order.restaurantId._id.toString();
 
     // 🔥 Normalize the structure (THIS FIXES YOUR UI)
@@ -124,9 +163,11 @@ exports.updateOrderStatus = async (req, res) => {
 
     res.json({ success: true, order: cleanedOrder });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error updating order", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Error updating order",
+      error: err.message,
+    });
   }
 };
 
@@ -139,9 +180,11 @@ exports.getOrdersForRestaurant = async (req, res) => {
 
     res.json({ success: true, orders });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error fetching orders", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching orders",
+      error: err.message,
+    });
   }
 };
 
@@ -150,13 +193,18 @@ exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findOne({ orderId: req.params.orderId });
 
-    if (!order) return res.status(404).json({ message: "Order not found" });
+    if (!order)
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
 
     res.json({ success: true, order });
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error fetching order", error: err.message });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching order",
+      error: err.message,
+    });
   }
 };
 

@@ -1,0 +1,99 @@
+import { createContext, useState, useContext, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
+import { AuthContext } from "./AuthContext";
+const BASE_API = import.meta.env.VITE_BASE_API;
+
+export const NotificationContext = createContext();
+
+export const NotificationProvider = ({ children }) => {
+  const { user, token } = useContext(AuthContext);
+
+  const [notifications, setNotifications] = useState([]);
+  const [unread, setUnread] = useState(0);
+  const socketRef = useRef(null);
+
+  // ----------------------------------------------
+  // Fetch notifications
+  // ----------------------------------------------
+  const fetchNotifications = async () => {
+    if (!user?.restaurantId?._id) return;
+    const r = await fetch(`${BASE_API}/api/notification/notifications`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await r.json();
+
+    if (data.success) {
+      setNotifications(data.notifications);
+      setUnread(data.notifications.filter((n) => !n.read).length);
+    }
+  };
+
+  useEffect(() => {
+    if (token) fetchNotifications();
+  }, [token]);
+
+  // ----------------------------------------------
+  // Socket: real-time notifications
+  // ----------------------------------------------
+  useEffect(() => {
+    if (!token) return;
+
+    socketRef.current = io(BASE_API, { transports: ["websocket"] });
+    const socket = socketRef.current;
+
+    socket.emit("joinRestaurantRoom", user?.restaurantId?._id);
+
+    socket.on("newNotification", (notif) => {
+      setNotifications((prev) => [notif, ...prev]);
+      setUnread((prev) => prev + 1);
+    });
+
+    return () => socket.disconnect();
+  }, [token]);
+
+  // ----------------------------------------------
+  // Mark SINGLE notification as read
+  // ----------------------------------------------
+  const markAsRead = async (id) => {
+    await fetch(`${BASE_API}/api/notification/read/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === id ? { ...n, read: true } : n))
+    );
+
+    setUnread((prev) => Math.max(prev - 1, 0));
+  };
+
+  // ----------------------------------------------
+  // Mark ALL read
+  // ----------------------------------------------
+  const markAllRead = async () => {
+    await fetch(
+      `${BASE_API}/api/notification/readAll/${user.restaurantId._id}`,
+      { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setUnread(0);
+  };
+
+  return (
+    <NotificationContext.Provider
+      value={{
+        notifications,
+        unread,
+        fetchNotifications,
+        markAsRead,
+        markAllRead,
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
+};

@@ -1,11 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Bell, Search, X, Menu, ChevronDown } from "lucide-react";
+import { OrderContext } from "../context/OrderContext";
+import NotificationModal from "./admin/NotificationModal";
+import { NotificationContext } from "../context/NotificationContext";
 
 function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
   const { user } = useContext(AuthContext);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const { newOrderCount, setNewOrderCount } = useContext(OrderContext);
+  const [open, setOpen] = useState(false);
+  const { unread } = useContext(NotificationContext);
+  const [openNotif, setOpenNotif] = useState(false);
 
+  useEffect(() => {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }, []);
   return (
     <>
       {/* HEADER */}
@@ -61,10 +73,20 @@ function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
             </button>
 
             {/* Notifications */}
-            <button className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-600 active:scale-95">
+            <button
+              className="relative p-2 rounded-lg hover:bg-gray-100 text-gray-600 active:scale-95"
+              onClick={() => setOpenNotif(true)}
+            >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse ring-2 ring-white"></span>
+
+              {unread > 0 && (
+                <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] flex items-center justify-center rounded-full">
+                  {unread}
+                </span>
+              )}
             </button>
+
+            {/* <NotificationModal open={open} setOpen={setOpen} /> */}
 
             {/* PROFILE */}
             <div className="flex items-center gap-2 pl-2 border-l border-gray-200">
@@ -88,6 +110,10 @@ function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
             </div>
           </div>
         </div>
+        <NotificationModal
+          open={openNotif}
+          onClose={() => setOpenNotif(false)}
+        />
       </header>
 
       {/* MOBILE SEARCH DROPDOWN */}

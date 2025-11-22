@@ -54,6 +54,7 @@ const { tableRoutes } = require("./routes/TableRoutes");
 const { publicRoutes } = require("./routes/publicRoutes");
 const { orderRoutes } = require("./routes/OrderRoutes");
 const { settingsRoutes } = require("./routes/settingsRoutes");
+const { notificationRoutes } = require("./routes/notificationRoutes");
 // app.use(
 //   cors({
 //     origin: "tasty-tokens.vercel.app",
@@ -72,6 +73,7 @@ app.use("/api/menu", menuItemRoutes);
 app.use("/api/table", tableRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/notification", notificationRoutes);
 
 // Server Port
 server.listen(PORT, () => {

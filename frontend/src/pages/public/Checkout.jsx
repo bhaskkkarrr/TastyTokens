@@ -12,6 +12,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { OrderContext } from "../../context/OrderContext";
+import { space } from "postcss/lib/list";
+import { span } from "framer-motion/client";
 
 export default function Checkout() {
   const { cartItems, total, clearCart } = useContext(CartContext);
@@ -24,7 +26,7 @@ export default function Checkout() {
     handleSubmit,
     formState: { errors },
   } = useForm();
-
+  const [error, setError] = useState([]);
   const onSubmit = async (formData) => {
     try {
       setIsPlacingOrder(true);
@@ -64,11 +66,14 @@ export default function Checkout() {
       };
 
       const result = await createOrder(orderBody);
-      if (result.success) {
+      console.log("result", result);
+      if (result.data.success) {
         clearCart();
-        navigate(`/r/${restaurantId}/t/${tableId}/order/${result.data.order.orderId}`);
+        navigate(
+          `/r/${restaurantId}/t/${tableId}/order/${result.data.order.orderId}`
+        );
       } else {
-        console.log("Order failed!");
+        setError(result.data.message);
       }
     } catch (error) {
       console.error("Error placing order:", error);
@@ -284,7 +289,11 @@ export default function Checkout() {
                   </motion.p>
                 )}
               </div>
-
+              {error && (
+                <div className="px-3 mb-0">
+                  <div className="text-sm text-red-500">{error}</div>
+                </div>
+              )}
               {/* Submit Button */}
               <motion.button
                 whileHover={{ scale: isPlacingOrder ? 1 : 1.02 }}
@@ -308,6 +317,7 @@ export default function Checkout() {
                     }}
                   />
                 )}
+
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   {isPlacingOrder ? (
                     <>
