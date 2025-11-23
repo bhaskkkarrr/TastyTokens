@@ -144,7 +144,7 @@ exports.updateOrderStatus = async (req, res) => {
         restaurantId: order.restaurantId,
         title: "Order Status Updated",
         body: `Order #${order.orderId} is now ${order.status}.`,
-        meta: { orderId: order._id },
+        meta: { orderId: order.orderId, price: order.pricing.grandTotal },
         io: req.io, // socket instance
       });
       res.status(201).json({ success: true, notification });

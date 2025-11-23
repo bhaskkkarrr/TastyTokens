@@ -8,15 +8,13 @@ import {
 } from "react-icons/fa";
 import { NotificationContext } from "../../context/NotificationContext";
 import { useContext } from "react";
+import { MdDelete } from "react-icons/md";
+import { CiRead } from "react-icons/ci";
 
 export default function notifications() {
-  const { notifications, unread, markAsRead, markAllRead } =
+  const { notifications, unread, markAsRead, markAllRead, deleteSingle } =
     useContext(NotificationContext);
   console.log(notifications);
-  // 🔥 Filter only order notifications
-  // const notifications = notifications.filter(
-  //   (n) => n.meta?.type === "order"
-  // );
 
   const getNotificationStyle = (isRead) => {
     return `border-l-4 p-3 rounded-r-2xl transition-all duration-300 ${
@@ -88,15 +86,23 @@ export default function notifications() {
                       {new Date(n.createdAt).toLocaleString()}
                     </span>
                   </div>
+                  <div className="flex gap-2">
+                    {!n.read && (
+                      <button
+                        onClick={() => markAsRead(n._id)}
+                        className="p-1 bg-emerald-100 rounded-4 hover:bg-emerald-200"
+                      >
+                        <CiRead className="text-emerald-700 w-5 h-5 text-xs " />
+                      </button>
+                    )}
 
-                  {!n.read && (
-                    <button
-                      onClick={() => markAsRead(n._id)}
-                      className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-4 hover:bg-emerald-200"
+                    <div
+                      className="bg-red-100 p-1 rounded-5 hover:bg-red-200"
+                      onClick={() => deleteSingle(n._id)}
                     >
-                      Mark Read
-                    </button>
-                  )}
+                      <MdDelete className="text-red-600 w-5 h-5 text-xs " />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Order Meta */}
@@ -112,10 +118,6 @@ export default function notifications() {
                     </div>
                   </div>
                 )}
-              </div>
-
-              <div>
-                <FaEllipsisV className="text-gray-400" />
               </div>
             </div>
           </div>

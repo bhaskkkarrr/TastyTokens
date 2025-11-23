@@ -21,9 +21,33 @@ export const OrderProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const socketRef = useRef(null);
-  const [notifications, setNotifications] = useState([]);
+  // --- AUDIO FIX ---
+  const notificationSoundRef = useRef(null);
 
-  const notificationSound = useMemo(() => new Audio("/order-alert.mp3"), []);
+  useEffect(() => {
+    notificationSoundRef.current = new Audio("/order-alert.mp3");
+
+    // Unlock audio on first user interaction
+    const unlock = () => {
+      const audio = notificationSoundRef.current;
+      audio.volume = 0;
+
+      audio
+        .play()
+        .then(() => {
+          audio.pause();
+          audio.currentTime = 0;
+          audio.volume = 1;
+        })
+        .catch(() => {});
+
+      document.removeEventListener("click", unlock);
+      document.removeEventListener("keydown", unlock);
+    };
+
+    document.addEventListener("click", unlock, { once: true });
+    document.addEventListener("keydown", unlock, { once: true });
+  }, []);
 
   // ------------------------------------------------------
   // ✅ Fetch all orders
@@ -118,25 +142,14 @@ export const OrderProvider = ({ children }) => {
       setNewOrderCount((prev) => prev + 1);
 
       // 3️⃣ Play sound
-      try {
-        notificationSound.volume = 1.0;
-        notificationSound.play();
-      } catch (err) {
-        console.log("Audio blocked:", err);
+      const snd = notificationSoundRef.current;
+      if (snd) {
+        snd.currentTime = 0;
+        snd.play().catch((err) => console.log("Audio play failed:", err));
       }
 
       // 4️⃣ Vibrate (mobile only)
       if (navigator.vibrate) navigator.vibrate(200);
-
-      setNotifications((prev) => [
-        {
-          id: order.orderId,
-          title: `New Order #${order.orderId}`,
-          time: new Date().toLocaleTimeString(),
-          order,
-        },
-        ...prev,
-      ]);
 
       // 6️⃣ Browser Notification
       if (Notification.permission === "granted") {
@@ -237,19 +250,18 @@ export const OrderProvider = ({ children }) => {
   return (
     <OrderContext.Provider
       value={{
-        orders,
         getOrders,
         updateStatus,
         deleteOrder,
         createOrder,
         getOrderDetails,
+        setNewOrderCount,
+        orders,
+        isPlacingOrder,
         loading,
         singleOrder,
         error,
         newOrderCount,
-        setNewOrderCount,
-        notifications,
-        setNotifications,
       }}
     >
       {children}

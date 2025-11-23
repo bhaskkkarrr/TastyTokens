@@ -41,16 +41,33 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (!token) return;
 
-    socketRef.current = io(BASE_API, { transports: ["websocket"] });
+    socketRef.current = io(BASE_API, {
+      transports: ["websocket"],
+      reconnection: true,
+    });
+
     const socket = socketRef.current;
 
-    socket.emit("joinRestaurantRoom", user?.restaurantId?._id);
+    const storedUser = localStorage.getItem("user");
+    const parsedUser = storedUser ? JSON.parse(storedUser) : null;
+    const restaurantId = parsedUser?.restaurantId?._id;
 
+    if (restaurantId) {
+      socket.emit("joinRestaurantRoom", restaurantId);
+    }
+
+    // 🔥 NEW NOTIFICATION
     socket.on("newNotification", (notif) => {
       setNotifications((prev) => [notif, ...prev]);
       setUnread((prev) => prev + 1);
     });
 
+    // 🔥 UPDATED READ STATUS
+    socket.on("notificationRead", (notif) => {
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === notif._id ? notif : n))
+      );
+    });
     return () => socket.disconnect();
   }, [token]);
 
@@ -78,9 +95,29 @@ export const NotificationProvider = ({ children }) => {
       `${BASE_API}/api/notification/readAll/${user.restaurantId._id}`,
       { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
     );
-
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnread(0);
+  };
+  const deleteSingle = async (id) => {
+    try {
+      const r = await fetch(`${BASE_API}/api/notification/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const res = await r.json();
+
+      if (res.success) {
+        // FIX: MongoDB uses _id, not id
+        setNotifications((prev) => prev.filter((n) => n._id !== id));
+      }
+
+      return { res };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   };
 
   return (
@@ -91,6 +128,7 @@ export const NotificationProvider = ({ children }) => {
         fetchNotifications,
         markAsRead,
         markAllRead,
+        deleteSingle,
       }}
     >
       {children}

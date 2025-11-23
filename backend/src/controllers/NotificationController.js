@@ -71,8 +71,31 @@ exports.markAllRead = async (req, res) => {
 
     await Notification.updateMany({ restaurantId }, { read: true });
 
-    return res.json({ success: true });
+    return res.status(201).json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.deleteSingle = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1️⃣ Find notification by ID
+    const notification = await Notification.findById(id);
+    if (!notification) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Notification not found" });
+    }
+
+    // 2️⃣ Delete notification
+    await Notification.findByIdAndDelete(id);
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Notification Deleted" });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };

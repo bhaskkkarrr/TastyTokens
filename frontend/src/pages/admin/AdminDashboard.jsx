@@ -89,12 +89,11 @@ export default function AdminDashboard() {
   const [filterStatus, setFilterStatus] = useState("");
 
   const { orders = [], getOrders, updateStatus } = useContext(OrderContext);
-  const { tables = [], getAllTables } = useContext(TableContext);
+  const { tables = [] } = useContext(TableContext);
 
   // ensure initial fetch if context exposes getters (non-invasive)
   useEffect(() => {
     if (typeof getOrders === "function") getOrders();
-    if (typeof getAllTables === "function") getAllTables();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

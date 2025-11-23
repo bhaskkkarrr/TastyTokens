@@ -24,4 +24,10 @@ notificationRoutes.put(
   authorizeRoles("admin"),
   notificationController.markAllRead
 );
+notificationRoutes.delete(
+  "/:id",
+  verifyToken,
+  authorizeRoles("admin"),
+  notificationController.deleteSingle
+);
 exports.notificationRoutes = notificationRoutes;
