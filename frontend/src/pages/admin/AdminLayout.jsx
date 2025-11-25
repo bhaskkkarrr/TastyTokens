@@ -3,6 +3,7 @@ import SideBar from "../../components/SideBar";
 import Header from "../../components/Header";
 import { Outlet } from "react-router-dom";
 import { useState } from "react";
+import { MdLocalOffer } from "react-icons/md";
 
 function AdminLayout() {
   const menuItems = [
@@ -33,6 +34,13 @@ function AdminLayout() {
       label: "Orders",
       badge: "12",
       path: "admin/orders",
+    },
+    {
+      id: "offers",
+      icon: MdLocalOffer,
+      label: "Offers",
+      badge: "3",
+      path: "admin/offers",
     },
     {
       id: "notifications",

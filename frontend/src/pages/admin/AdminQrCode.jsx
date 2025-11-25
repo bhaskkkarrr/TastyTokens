@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { TableContext } from "../../context/TableAndQrContext";
 import Loader from "../../components/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader";
+import QrCardSkeleton from "../../components/OrSkeleton";
 
 function AdminQrCode() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -148,7 +149,7 @@ function AdminQrCode() {
 
       {/* QR Grid */}
       {isLoading ? (
-        <SkeletonLoader count={4} />
+        <QrCardSkeleton count={3} />
       ) : tables.length > 0 ? (
         <div className="row g-4">
           {tables.map((qr) => (
@@ -204,7 +205,7 @@ function AdminQrCode() {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500">No menu items found.</p>
+        <p className="text-center text-gray-500">No QRs found</p>
       )}
 
       {/* ✅ Delete Confirm Modal */}

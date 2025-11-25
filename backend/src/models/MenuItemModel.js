@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const VariantSchema = new mongoose.Schema({
   name: { type: String, required: true }, // Half / Full / Medium
   price: { type: Number, required: true },
-  discountedPrice: { type: Number },
   isAvailable: { type: Boolean, default: true },
 });
 
@@ -22,7 +21,6 @@ const menuItemSchema = new mongoose.Schema({
   },
   description: { type: String },
   basePrice: { type: Number },
-  discountedPrice: { type: Number },
   category: { type: mongoose.Schema.Types.ObjectId, ref: "FoodCategory", index:true },
   variants: [VariantSchema],
   isVeg: {

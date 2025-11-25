@@ -20,6 +20,7 @@ export const OrderProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [isLoadingOrder, setIsLoadingOrder] = useState(false);
   const socketRef = useRef(null);
   // --- AUDIO FIX ---
   const notificationSoundRef = useRef(null);
@@ -53,18 +54,24 @@ export const OrderProvider = ({ children }) => {
   // ✅ Fetch all orders
   // ------------------------------------------------------
   const getOrders = async () => {
-    if (!token) return;
+    try {
+      setIsLoadingOrder(true);
+      if (!token) return;
 
-    const r = await fetch(`${BASE_API}/api/order/orders`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const r = await fetch(`${BASE_API}/api/order/orders`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const res = await r.json();
-    console.log("✅ Orders fetched:", res.orders);
-    setOrders(res.orders || []);
+      const res = await r.json();
+      console.log("✅ Orders fetched:", res.orders);
+      setOrders(res.orders || []);
+    } catch (error) {
+    } finally {
+      setIsLoadingOrder(false);
+    }
   };
   useEffect(() => {
     if (token) {
@@ -257,6 +264,7 @@ export const OrderProvider = ({ children }) => {
         getOrderDetails,
         setNewOrderCount,
         orders,
+        isLoadingOrder,
         isPlacingOrder,
         loading,
         singleOrder,

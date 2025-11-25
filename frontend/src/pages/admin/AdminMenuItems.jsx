@@ -10,6 +10,7 @@ import { FaUtensils, FaPlus } from "react-icons/fa";
 import { GiMeal } from "react-icons/gi";
 import { MdRestaurantMenu } from "react-icons/md";
 import { CategoryContext } from "../../context/CategoryContext";
+import FoodCatSkeleton from "../../components/FoodCatSkeleton";
 
 export default function AdminMenuItems() {
   const { token } = useContext(AuthContext);
@@ -113,7 +114,7 @@ export default function AdminMenuItems() {
 
       {/* Category List */}
       {isCatLoading ? (
-        <SkeletonLoader count={5} />
+        <FoodCatSkeleton count={5} />
       ) : (
         <CategoryList
           categories={categories}
@@ -123,7 +124,6 @@ export default function AdminMenuItems() {
           setSelectedCategory={setSelectedCategory}
         />
       )}
-
       {/* Add Menu Items */}
       <div className="d-flex justify-content-md-between justify-content-center items-center my-sm-4 my-3  flex-wrap">
         <div className="flex items-center mb-0 me-3 me-md-0">
@@ -146,7 +146,7 @@ export default function AdminMenuItems() {
 
       {/* Menu Item List */}
       {isMenuLoading ? (
-        <SkeletonLoader count={5} />
+        <SkeletonLoader count={7} />
       ) : (
         <MenuItemList
           menuItems={

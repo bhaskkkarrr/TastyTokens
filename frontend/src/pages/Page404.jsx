@@ -39,14 +39,14 @@ function Page404() {
               logout();
               navigate("/");
             }}
-            className="px-6 py-3 me-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 inline-flex items-center"
+            className="px-6 py-3 me-3 bg-emerald-600 text-white rounded-4 shadow-lg hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 inline-flex items-center"
           >
             <span className="mr-2">🏠</span>
             Go to Home
           </button>
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-white text-emerald-600 border-2 border-emerald-600 rounded-lg shadow-lg hover:bg-emerald-50 transition-all duration-300 transform hover:scale-105 inline-flex items-center sm:ml-4"
+            className="px-6 py-3 bg-white text-emerald-600 border-2 border-emerald-600 rounded-4 shadow-lg hover:bg-emerald-50 transition-all duration-300 transform hover:scale-105 inline-flex items-center sm:ml-4"
           >
             <span className="mr-2">👈</span>
             Go Back

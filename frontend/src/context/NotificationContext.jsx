@@ -7,7 +7,7 @@ export const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const { user, token } = useContext(AuthContext);
-
+  const [isLoading, setIsLoading] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unread, setUnread] = useState(0);
   const socketRef = useRef(null);
@@ -16,18 +16,24 @@ export const NotificationProvider = ({ children }) => {
   // Fetch notifications
   // ----------------------------------------------
   const fetchNotifications = async () => {
-    if (!user?.restaurantId?._id) return;
-    const r = await fetch(`${BASE_API}/api/notification/notifications`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    try {
+      setIsLoading(true);
+      if (!user?.restaurantId?._id) return;
+      const r = await fetch(`${BASE_API}/api/notification/notifications`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const data = await r.json();
+      const data = await r.json();
 
-    if (data.success) {
-      setNotifications(data.notifications);
-      setUnread(data.notifications.filter((n) => !n.read).length);
+      if (data.success) {
+        setNotifications(data.notifications);
+        setUnread(data.notifications.filter((n) => !n.read).length);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -125,6 +131,7 @@ export const NotificationProvider = ({ children }) => {
       value={{
         notifications,
         unread,
+        isLoading,
         fetchNotifications,
         markAsRead,
         markAllRead,

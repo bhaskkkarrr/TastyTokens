@@ -10,10 +10,17 @@ import { NotificationContext } from "../../context/NotificationContext";
 import { useContext } from "react";
 import { MdDelete } from "react-icons/md";
 import { CiRead } from "react-icons/ci";
+import CircleLoader from "../../components/Loader";
 
 export default function notifications() {
-  const { notifications, unread, markAsRead, markAllRead, deleteSingle } =
-    useContext(NotificationContext);
+  const {
+    notifications,
+    isLoading,
+    unread,
+    markAsRead,
+    markAllRead,
+    deleteSingle,
+  } = useContext(NotificationContext);
   console.log(notifications);
 
   const getNotificationStyle = (isRead) => {
@@ -49,26 +56,26 @@ export default function notifications() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <p className="text-sm text-gray-500 mb-1">Total Orders</p>
-          <h4 className="text-2xl font-bold text-emerald-600">
+          <span className="text-2xl font-bold text-emerald-600">
             {notifications.length}
-          </h4>
+          </span>
         </div>
 
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <p className="text-sm text-gray-500 mb-1">Unread</p>
-          <h4 className="text-2xl font-bold text-red-500">{unread}</h4>
+          <span className="text-2xl font-bold text-red-500">{unread}</span>
         </div>
       </div>
 
-      {/* Notification List */}
-      <div className="space-y-4">
-        {notifications.length === 0 && (
-          <p className="text-center text-gray-500 py-10">
-            No order notifications yet.
-          </p>
-        )}
 
-        {notifications.map((n) => (
+      {isLoading ? (
+        <CircleLoader />
+      ) : notifications.length === 0 ? (
+        <p className="text-center text-gray-500 py-10">
+          No order notifications yet.
+        </p>
+      ) : (
+        notifications.map((n) => (
           <div key={n._id} className={getNotificationStyle(n.read)}>
             <div className="flex items-start gap-3">
               <div className="flex-shrink-0">
@@ -121,8 +128,8 @@ export default function notifications() {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        ))
+      )}
     </div>
   );
 }

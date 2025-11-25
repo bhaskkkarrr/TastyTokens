@@ -3,6 +3,10 @@ const Category = require("../models/FoodCategoryModel");
 const fs = require("fs");
 const cloudinary = require("../config/cloudinaryConfig");
 const generateInitialsImage = require("../utils/generateInitialsImage");
+const applyDiscountsToMenu = require("../utils/applyDiscount");
+const DiscountModel = require("../models/DiscountModel");
+const calculateDiscountedPrice = require("../utils/calculateDiscountedPrice");
+const getActiveDiscountsForRestaurant = require("../utils/getActiveDiscounts");
 
 // ✅ Helper: Get initials
 function getInitials(name = "") {
@@ -20,7 +24,6 @@ exports.postAddMenuItems = async (req, res) => {
       name,
       description,
       basePrice,
-      discountedPrice,
       category,
       variants,
       isVeg,
@@ -103,7 +106,6 @@ exports.postAddMenuItems = async (req, res) => {
       name,
       description: description || "",
       basePrice: basePrice ? Number(basePrice) : null,
-      discountedPrice: discountedPrice ? Number(discountedPrice) : null,
       category,
       variants,
       isVeg: isVeg === "false" ? false : true,
@@ -112,7 +114,7 @@ exports.postAddMenuItems = async (req, res) => {
       imageUrl,
       imagePublicId,
     });
-
+    await applyDiscountsToMenu(req.user.restaurantId);
     return res.status(201).json({
       success: true,
       menuItem: newItem,
@@ -130,21 +132,37 @@ exports.postAddMenuItems = async (req, res) => {
 // ✅ No changes required below — update & delete will continue to work normally
 exports.getAllMenuItems = async (req, res) => {
   try {
-    const items = await MenuItem.find({ restaurantId: req.user.restaurantId })
+    const restaurantId = req.user.restaurantId; // MUST be correct
+    const items = await MenuItem.find({ restaurantId })
       .populate("category")
-      .sort({ createdAt: -1 });
+      .lean();
 
-    return res.status(200).json({
-      success: true,
-      menuItems: items,
+    const discounts = await getActiveDiscountsForRestaurant(restaurantId);
+    console.log("discount", discounts);
+    const finalItems = items.map((item) => {
+      const discountedPrice = calculateDiscountedPrice(item, discounts);
+
+      // Also compute discounted prices for variants if present
+      const variants = Array.isArray(item.variants)
+        ? item.variants.map((v) => ({
+            ...v,
+            discountedPrice: calculateDiscountedPrice(
+              { basePrice: v.price, category: item.category, _id: item._id },
+              discounts
+            ),
+          }))
+        : [];
+      return {
+        ...item,
+        discountedPrice, // integer or null
+        variants,
+      };
     });
+
+    return res.json({ success: true, menuItems: finalItems });
   } catch (err) {
-    console.error("Fetch Menu Error:", err);
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: err.message,
-    });
+    console.error("getAllMenuItems error:", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -195,7 +213,6 @@ exports.updateMenuItem = async (req, res) => {
       name,
       description,
       basePrice,
-      discountedPrice,
       category,
       variants,
       isVeg,
@@ -218,7 +235,6 @@ exports.updateMenuItem = async (req, res) => {
     if (name) item.name = name;
     if (description) item.description = description;
     if (basePrice) item.basePrice = Number(basePrice);
-    if (discountedPrice) item.discountedPrice = Number(discountedPrice);
     if (variants) item.variants = variants;
     if (category) item.category = category;
 

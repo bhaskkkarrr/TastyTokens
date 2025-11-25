@@ -55,6 +55,7 @@ const { publicRoutes } = require("./routes/publicRoutes");
 const { orderRoutes } = require("./routes/OrderRoutes");
 const { settingsRoutes } = require("./routes/settingsRoutes");
 const { notificationRoutes } = require("./routes/notificationRoutes");
+const { discountRoutes } = require("./routes/discountRoutes");
 // app.use(
 //   cors({
 //     origin: "tasty-tokens.vercel.app",
@@ -74,7 +75,7 @@ app.use("/api/table", tableRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notification", notificationRoutes);
-
+app.use("/api/discount", discountRoutes);
 // Server Port
 server.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);

@@ -4,6 +4,11 @@ import { TableContext } from "../../context/TableAndQrContext";
 import { GoDotFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import OrdersList from "../../components/admin/OrdersList";
+import PrettyCircleLoader from "../../components/PrettyCircleLoader";
+import { space } from "postcss/lib/list";
+import { span } from "framer-motion/client";
+import SpoonLoader from "../../components/MainFoodLoader";
+import MainFoodLoader from "../../components/MainFoodLoader";
 
 function Sparkline({ points = [], className = "" }) {
   if (!points.length) return null;
@@ -88,7 +93,12 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
 
-  const { orders = [], getOrders, updateStatus } = useContext(OrderContext);
+  const {
+    orders = [],
+    getOrders,
+    updateStatus,
+    isLoadingOrder,
+  } = useContext(OrderContext);
   const { tables = [] } = useContext(TableContext);
 
   // ensure initial fetch if context exposes getters (non-invasive)
@@ -191,7 +201,7 @@ export default function AdminDashboard() {
     { day: "Sat", value: 11000 },
     { day: "Sun", value: 9800 },
   ];
-
+  const [showAddModal, setShowAddModal] = useState(false);
   return (
     <div className="p-2 md:p-6 py-lg-4 px-lg-3">
       <div className="max-w-[1280px] mx-auto space-y-6">
@@ -207,7 +217,10 @@ export default function AdminDashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-4 text-sm hover:bg-emerald-700">
+            <button
+              className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-4 text-sm hover:bg-emerald-700"
+              onClick={() => navigate("/admin/offers")}
+            >
               New Discount
             </button>
           </div>
@@ -220,7 +233,13 @@ export default function AdminDashboard() {
               <div>
                 <div className="text-sm text-gray-400">New Orders</div>
                 <div className="text-2xl font-semibold text-gray-900">
-                  {stats.newCount}
+                  {isLoadingOrder ? (
+                    <div className="flex py-2">
+                      <PrettyCircleLoader size={20} />
+                    </div>
+                  ) : (
+                    stats.newCount
+                  )}
                 </div>
               </div>
               <div className="text-green-500">
@@ -237,7 +256,13 @@ export default function AdminDashboard() {
               <div>
                 <div className="text-sm text-gray-400">Preparing</div>
                 <div className="text-2xl font-semibold text-gray-900">
-                  {stats.preparing}
+                  {isLoadingOrder ? (
+                    <div className="flex py-2">
+                      <PrettyCircleLoader size={20} />
+                    </div>
+                  ) : (
+                    stats.preparing
+                  )}
                 </div>
               </div>
               <div className="text-yellow-500">
@@ -254,7 +279,13 @@ export default function AdminDashboard() {
               <div>
                 <div className="text-sm text-gray-400">Completed</div>
                 <div className="text-2xl font-semibold text-gray-900">
-                  {stats.completed}
+                  {isLoadingOrder ? (
+                    <div className="flex py-2">
+                      <PrettyCircleLoader size={20} />
+                    </div>
+                  ) : (
+                    stats.completed
+                  )}
                 </div>
               </div>
               <div className="text-emerald-500">
@@ -269,7 +300,13 @@ export default function AdminDashboard() {
               <div>
                 <div className="text-sm text-gray-400">Today Revenue</div>
                 <div className="text-2xl font-semibold text-emerald-600">
-                  ₹{stats.revenueToday}
+                  {isLoadingOrder ? (
+                    <div className="flex py-2">
+                      <PrettyCircleLoader size={20} />
+                    </div>
+                  ) : (
+                    <span>₹{stats.revenueToday} </span>
+                  )}
                 </div>
               </div>
               <div className="text-emerald-600">
@@ -283,7 +320,6 @@ export default function AdminDashboard() {
             </div>
           </div>
         </div>
-
         {/* Main grid: left large, right column */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left: Orders + chart */}
@@ -334,13 +370,17 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Orders list */}
-                <div className="space-y-3 overflow-y-auto max-h-[465px]">
-                  <OrdersList
-                    orders={filteredSorted}
-                    variant="dashboard"
-                    onUpdateStatus={handleUpdateStatus}
-                  />
-                </div>
+                {isLoadingOrder ? (
+                  <MainFoodLoader />
+                ) : (
+                  <div className="space-y-3 overflow-y-auto max-h-[465px]">
+                    <OrdersList
+                      orders={filteredSorted}
+                      variant="dashboard"
+                      onUpdateStatus={handleUpdateStatus}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -391,12 +431,6 @@ export default function AdminDashboard() {
                   </>
                 )}
               </div>
-
-              <div className="mt-3">
-                <div className="mt-2 text-xs text-gray-500">
-                  Unoccupied tables: {activeTablesCount}
-                </div>
-              </div>
             </div>
 
             {/* Quick Action Buttons */}
@@ -415,7 +449,10 @@ export default function AdminDashboard() {
                 >
                   Add Item
                 </button>
-                <button className="px-3 py-2 bg-emerald-50 border-2 border-emerald-600 text-black rounded-4 text-sm">
+                <button
+                  className="px-3 py-2 bg-emerald-50 border-2 border-emerald-600 text-black rounded-4 text-sm"
+                  onClick={() => navigate("/admin/offers")}
+                >
                   Set Offer
                 </button>
                 <button
