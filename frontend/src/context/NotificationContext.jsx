@@ -18,7 +18,7 @@ export const NotificationProvider = ({ children }) => {
   const fetchNotifications = async () => {
     try {
       setIsLoading(true);
-      if (!user?.restaurantId?._id) return;
+      if (!user?.restaurantId) return;
       const r = await fetch(`${BASE_API}/api/notification/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`,

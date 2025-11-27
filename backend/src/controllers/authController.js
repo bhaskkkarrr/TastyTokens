@@ -16,12 +16,10 @@ exports.postSignup = async (req, res) => {
       $or: [{ email }, { phoneNumber }],
     });
     if (existingUser)
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Email or phone number already registered",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Email or phone number already registered",
+      });
 
     // 🔑 Hash password
     const hashedPassword = bcrypt.hashSync(password, 10);
@@ -65,7 +63,14 @@ exports.postLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).populate("restaurantId");
+    // Find user but EXCLUDE sensitive fields
+    const user = await User.findOne({ email })
+      .select("+password") // Needed to verify password
+      .populate(
+        "restaurantId",
+        "name address isOpen isActive currency taxRate" // Only include allowed fields
+      );
+
     if (!user)
       return res
         .status(400)
@@ -77,7 +82,7 @@ exports.postLogin = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
 
-    // 🎟️ JWT Token
+    // JWT
     const token = jwt.sign(
       {
         id: user._id,
@@ -88,12 +93,19 @@ exports.postLogin = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({
+    // Remove sensitive fields manually from output
+    const safeUser = {
+      name: user.name,
+      role: user.role,
+      restaurantId: user.restaurantId._id,
+    };
+
+    return res.status(200).json({
       success: true,
       message: "Login successful",
       token,
-      user,
-      restaurant: user.restaurantId,
+      user: safeUser,
+      restaurantDetails: user.restaurantId,
     });
   } catch (error) {
     console.error("Login error:", error);

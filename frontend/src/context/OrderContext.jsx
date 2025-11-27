@@ -134,8 +134,8 @@ export const OrderProvider = ({ children }) => {
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
     const restaurantId = parsedUser?.restaurantId;
     if (restaurantId) {
-      socket.emit("joinRestaurantRoom", restaurantId._id);
-      console.log("Joined restaurant room:", restaurantId._id);
+      socket.emit("joinRestaurantRoom", restaurantId);
+      console.log("Joined restaurant room:", restaurantId);
     }
 
     // 🔥 Listen for NEW ORDER

@@ -1,35 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  FaPlus,
-  FaMinus,
-  FaTimes,
-  FaCircle,
-  FaRegCircle,
-  FaCheck,
-} from "react-icons/fa";
+import { FaPlus, FaMinus, FaTimes, FaCircle, FaCheck } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 
-export default function AddToCartModal({
-  item,
-  onClose,
-  drinks = [],
-  desserts = [],
-  onAddToCart,
-  show,
-}) {
-
+export default function AddToCartModal({ item, onClose, onAddToCart, show }) {
   const [quantity, setQuantity] = useState(1);
   const [portion, setPortion] = useState(null);
-  const [selectedBeverages, setSelectedBeverages] = useState([]);
-  const [selectedDesserts, setSelectedDesserts] = useState([]);
   const modalRef = useRef(null);
 
   useEffect(() => {
     if (item) {
       setQuantity(1);
-      setSelectedBeverages([]);
-      setSelectedDesserts([]);
       if (item.variants?.length > 0) {
         setPortion(item.variants[0].name);
       } else {
@@ -54,32 +35,11 @@ export default function AddToCartModal({
   const basePrice = selectedVariant
     ? Number(selectedVariant.price ?? 0)
     : Number(item.discountedPrice ?? item.basePrice ?? 0);
-  const beveragesTotal = selectedBeverages.reduce((total, name) => {
-    const b = drinks.find((bev) => bev.name === name);
-    return total + (b?.basePrice || 0);
-  }, 0);
 
-  const dessertsTotal = selectedDesserts.reduce((total, name) => {
-    const d = desserts.find((des) => des.name === name);
-    return total + (d?.basePrice || 0);
-  }, 0);
-
-  const totalPrice = (basePrice + beveragesTotal + dessertsTotal) * quantity;
+  const totalPrice = basePrice * quantity;
 
   const buildCartItem = () => {
-    const addons = [
-      ...selectedBeverages.map((bevName) => {
-        const b = drinks.find((bev) => bev.name === bevName);
-        return { name: b?.name, price: Number(b?.basePrice ?? 0) };
-      }),
-      ...selectedDesserts.map((desName) => {
-        const d = desserts.find((des) => des.name === desName);
-        return { name: d?.name, price: Number(d?.basePrice ?? 0) };
-      }),
-    ];
-
-    const unitPrice =
-      basePrice + addons.reduce((s, a) => s + Number(a.price || 0), 0);
+    const unitPrice = Number(basePrice || 0);
     const computedTotal = unitPrice * Number(quantity || 1);
 
     return {
@@ -89,17 +49,11 @@ export default function AddToCartModal({
       itemId: item._id,
       name: item.name,
       isVeg: item.isVeg,
-      portion: portion, // selected variant name
-      beverages: selectedBeverages,
-      desserts: selectedDesserts,
-
-      // ordering details
       quantity: Number(quantity || 1),
       selectedVariant: {
         name: portion,
         price: Number(basePrice || 0),
       },
-      addons,
       totalPrice: Number(computedTotal),
     };
   };
@@ -284,48 +238,6 @@ export default function AddToCartModal({
                       isVeg={item.isVeg}
                       onClick={() => setPortion(v.name)}
                       showPlus={false}
-                    />
-                  ))}
-                </SectionCard>
-              )}
-
-              {drinks.length > 0 && (
-                <SectionCard title="Add Beverages (Optional)">
-                  {drinks.map((bev, idx) => (
-                    <OptionItem
-                      key={idx}
-                      active={selectedBeverages.includes(bev.name)}
-                      label={bev.name}
-                      price={bev.basePrice}
-                      isVeg={bev.isVeg}
-                      onClick={() =>
-                        setSelectedBeverages((prev) =>
-                          prev.includes(bev.name)
-                            ? prev.filter((x) => x !== bev.name)
-                            : [...prev, bev.name]
-                        )
-                      }
-                    />
-                  ))}
-                </SectionCard>
-              )}
-
-              {desserts.length > 0 && (
-                <SectionCard title="Add Desserts (Optional)">
-                  {desserts.map((des, idx) => (
-                    <OptionItem
-                      key={idx}
-                      active={selectedDesserts.includes(des.name)}
-                      label={des.name}
-                      price={des.basePrice}
-                      isVeg={des.isVeg}
-                      onClick={() =>
-                        setSelectedDesserts((prev) =>
-                          prev.includes(des.name)
-                            ? prev.filter((x) => x !== des.name)
-                            : [...prev, des.name]
-                        )
-                      }
                     />
                   ))}
                 </SectionCard>

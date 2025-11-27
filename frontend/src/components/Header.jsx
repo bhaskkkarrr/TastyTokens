@@ -6,7 +6,7 @@ import NotificationModal from "./admin/NotificationModal";
 import { NotificationContext } from "../context/NotificationContext";
 
 function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
-  const { user } = useContext(AuthContext);
+  const { user, restaurant } = useContext(AuthContext);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
   const { newOrderCount, setNewOrderCount } = useContext(OrderContext);
   const [open, setOpen] = useState(false);
@@ -54,13 +54,15 @@ function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
 
           {/* LOGO */}
           <span className="font-bold text-xl sm:text-lg md:text-4xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent truncate max-w-[140px] sm:max-w-[200px] md:max-w-[280px]">
-            {user
+            {/* {user
               ? user?.role === "superadmin"
                 ? user?.restaurantId?.name === "NA"
                   ? "Owner"
                   : user?.restaurantId?.name
                 : user?.restaurantId?.name || "Restaurant"
-              : "Restaurant"}
+              : "Restaurant"} */}
+
+              {restaurant?.name || "Restaurant"}
           </span>
           {/* RIGHT: ICONS */}
           <div className="flex items-center gap-2 flex-shrink-0">

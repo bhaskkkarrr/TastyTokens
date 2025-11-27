@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
+  const [restaurant, setRestaurant] = useState(null);
 
   // ✅ Utility to check if JWT is expired
   const isTokenExpired = (token) => {
@@ -90,12 +91,13 @@ export const AuthProvider = ({ children }) => {
       if (r.ok) {
         const token = res.token;
         const user = res.user;
-
+        const restaurant = res.restaurantDetails;
         localStorage.setItem("authToken", token);
         localStorage.setItem("user", JSON.stringify(user));
-
+        localStorage.setItem("restaurant", JSON.stringify(restaurant));
         setUser(user);
         setToken(token);
+        setRestaurant(restaurant);
         setAuthenticated(true);
 
         if (user.role === "customer") navigate("/");
@@ -119,6 +121,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem("authToken");
     localStorage.removeItem("user");
+    localStorage.removeItem("restaurant");
     console.log("User logged out");
   };
 
@@ -146,6 +149,7 @@ export const AuthProvider = ({ children }) => {
         authenticated,
         user,
         token,
+        restaurant,
       }}
     >
       {children}

@@ -4,8 +4,11 @@ import React, { createContext, useEffect, useState } from "react";
 export const CartContext = createContext();
 
 const calcUnitPrice = (cartItem) => {
-  // selectedVariant.price should be numeric
-  const variantPrice = Number(cartItem.selectedVariant?.price ?? 0);
+  const basePrice = Number(
+    cartItem.item?.discountedPrice ?? cartItem.item?.basePrice ?? 0
+  );
+
+  const variantPrice = Number(cartItem.selectedVariant?.price ?? basePrice);
 
   const addonsSum =
     (cartItem.addons || []).reduce((s, a) => s + Number(a?.price ?? 0), 0) || 0;
@@ -15,7 +18,6 @@ const calcUnitPrice = (cartItem) => {
 
 export const CartProvider = ({ children }) => {
   const [isCartLoaded, setIsCartLoaded] = useState(false);
-
   const [cartItems, setCartItems] = useState([]);
 
   // Load cart from localStorage on mount

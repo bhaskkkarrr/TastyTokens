@@ -278,23 +278,52 @@ export default function CustomerMenu() {
                                 {item.name || "NA"}
                               </div>
                               <div className="flex justify-between">
-                                <div className="text-emerald-700 py-1 font-bold text-sm sm:text-base">
-                                  ₹{item.basePrice || "NA"}
+                                <div className="">
+                                  <div className="text-emerald-700 py-1 font-bold text-sm sm:text-base">
+                                    ₹{item.discountedPrice || "NA"}
+                                  </div>
+                                  <div className="text-[10px] text-decoration-line-through text-gray-400">
+                                    ₹{item.basePrice || "NA"}
+                                  </div>
                                 </div>
                                 {itemQty === 0 ? (
                                   <div
                                     onClick={() => {
-                                      setSelectedItem(item);
-                                      setShowAddToCartModal(true);
+                                      if (
+                                        item.variants &&
+                                        item.variants.length > 0
+                                      ) {
+                                        // Has variants → open modal
+                                        setSelectedItem(item);
+                                        setShowAddToCartModal(true);
+                                      } else {
+                                        // No variants → directly add to cart
+                                        addItem({
+                                          _id: item._id,
+                                          item: item,
+                                          itemId: item._id,
+                                          name: item.name,
+                                          isVeg: item.isVeg,
+                                          quantity: 1,
+                                          selectedVariant: null,
+                                          totalPrice: Number(
+                                            item.discountedPrice ??
+                                              item.basePrice ??
+                                              0
+                                          ),
+                                        });
+                                      }
                                     }}
-                                    className=" bg-emerald-600 hover:bg-emerald-700 text-white font-semibold sm:py-2.5 rounded-4 flex items-center justify-center sm:text-sm"
+                                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold sm:py-2.5 rounded-4 flex items-center justify-center max-h-7 sm:text-sm cursor-pointer"
                                   >
+                                    {console.log("item", item)}
+
                                     <span className="text-xs px-3 py-0.5">
                                       Add
                                     </span>
                                   </div>
                                 ) : (
-                                  <div className="flex items-center justify-between bg-emerald-50 border-2 border-emerald-600 rounded-lg sm:px-3 sm:py-2 px-2 py-0.5 gap-1">
+                                  <div className="flex items-center justify-between bg-emerald-50 border-2 border-emerald-600 rounded-4 sm:px-3 sm:py-2 max-h-7 px-2 py-0.5 gap-1">
                                     <button
                                       onClick={() => {
                                         if (cartIndex !== -1) {
@@ -357,7 +386,7 @@ export default function CustomerMenu() {
                 <span className="bg-white text-emerald-700 font-bold px-2 sm:px-2.5 py-0.5 rounded-full text-xs sm:text-sm">
                   {totalCartItems}
                 </span>
-              </button> 
+              </button>
             </div>
           )}
 

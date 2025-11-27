@@ -6,7 +6,6 @@ export const MenuContext = createContext();
 
 export const MenuProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
-
   const [isMenuLoading, setIsMenuLoading] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
 

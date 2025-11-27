@@ -164,37 +164,13 @@ export default function CartPage() {
 
                   {/* Selected Variant */}
                   {item.selectedVariant?.name && (
-                    <div className="flex items-center mb-0 gap-2 px-1 py-0.5 bg-emerald-50 rounded-lg w-fit">
+                    <div className="flex items-center mb-1 gap-2 px-1 py-0.5 bg-emerald-50 rounded-lg w-fit">
                       <span className="text-[12px] font-medium text-emerald-700">
                         {item.selectedVariant.name}
                       </span>
                       <span className="text-[10px] text-emerald-600">
                         ₹{item.selectedVariant.price}
                       </span>
-                    </div>
-                  )}
-
-                  {/* Addons */}
-                  {item.addons?.length > 0 && (
-                    <div className="space-y-1">
-                      <div className="text-[11px] mb-0 font-semibold text-gray-500 uppercase tracking-wide">
-                        Add-ons:
-                      </div>
-                      <div className="space-y-1">
-                        {item.addons.map((addon, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center justify-between text-xs sm:text-sm bg-gray-50 rounded-lg px-2 py-1"
-                          >
-                            <span className="text-gray-700 font-medium">
-                              • {addon.name}
-                            </span>
-                            <span className="text-emerald-600 font-semibold">
-                              +₹{addon.price}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
                     </div>
                   )}
 
@@ -217,7 +193,7 @@ export default function CartPage() {
                         key={item.quantity}
                         initial={{ scale: 1.3, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="px-3 sm:px-4 text-base sm:text-lg font-bold text-emerald-800 min-w-[32px] sm:min-w-[40px] text-center"
+                        className="px-1 sm:px-4 text-base sm:text-lg font-bold text-emerald-800 min-w-[32px] sm:min-w-[40px] text-center"
                       >
                         {item.quantity}
                       </motion.span>
