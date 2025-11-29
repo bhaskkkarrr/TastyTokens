@@ -11,6 +11,8 @@ import { GiMeal } from "react-icons/gi";
 import { MdRestaurantMenu } from "react-icons/md";
 import { CategoryContext } from "../../context/CategoryContext";
 import FoodCatSkeleton from "../../components/FoodCatSkeleton";
+import ErrorModal from "../../components/ErrorModal";
+import ConfirmModal from "../../components/ConfirmationModal";
 
 export default function AdminMenuItems() {
   const { token } = useContext(AuthContext);
@@ -19,21 +21,16 @@ export default function AdminMenuItems() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCatAddModal, setShowCatAddModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const {
-    isMenuLoading,
-    getAllMenuItems,
-    updateMenuItem,
-    handleDelete,
-    menuItems,
-  } = useContext(MenuContext);
+  const { isMenuLoading, updateMenuItem, handleDelete, menuItems } =
+    useContext(MenuContext);
 
   const { categories, getAllCategories, handleDeleteCategory, isCatLoading } =
     useContext(CategoryContext);
 
   useEffect(() => {
     if (token) {
-      getAllMenuItems();
       getAllCategories();
     }
   }, [token]);
@@ -55,7 +52,7 @@ export default function AdminMenuItems() {
   const onDelete = async (id) => {
     const result = await handleDelete(id);
     if (!result.success) {
-      alert("Error deleting menu item: " + result.message);
+      setErrorMessage(result.message || "Failed to delete item.");
     }
   };
 
@@ -70,7 +67,7 @@ export default function AdminMenuItems() {
   const handleCategoryDelete = async (id) => {
     const result = await handleDeleteCategory(id);
     if (!result.success) {
-      alert("Error deleting category: " + result.message);
+      setErrorMessage(result.message || "Failed to delete category.");
     }
   };
 
@@ -83,6 +80,9 @@ export default function AdminMenuItems() {
           setShowAddModal={setShowAddModal}
         />
       )}
+
+      <ErrorModal message={errorMessage} onClose={() => setErrorMessage("")} />
+
       {showCatAddModal && (
         <AddCategoryModal
           key={editingCategory ? editingCategory._id : "new"}
@@ -96,9 +96,9 @@ export default function AdminMenuItems() {
       <div className="d-flex justify-content-md-between justify-content-center items-center my-sm-4 my-3  flex-wrap">
         <div className="flex items-center mb-0 me-3 me-md-0">
           <GiMeal className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
-          <h2 className="text-2xl font-semibold mb-sm-0 ms-2 text-gray-800 mb-1">
+          <div className="text-2xl font-semibold mb-sm-0 ms-2 text-gray-800 mb-1">
             Food Categories
-          </h2>
+          </div>
         </div>
         <button
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-4 shadow-md transition-all duration-300"
@@ -128,9 +128,9 @@ export default function AdminMenuItems() {
       <div className="d-flex justify-content-md-between justify-content-center items-center my-sm-4 my-3  flex-wrap">
         <div className="flex items-center mb-0 me-3 me-md-0">
           <MdRestaurantMenu className="text-emerald-600 w-6 sm:w-8 h-6 sm:h-8" />
-          <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 ">
+          <div className="text-2xl font-semibold mb-0 ms-2 text-gray-800 ">
             Menu Items
-          </h2>
+          </div>
         </div>
         <button
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-4 shadow-md transition-all duration-300"

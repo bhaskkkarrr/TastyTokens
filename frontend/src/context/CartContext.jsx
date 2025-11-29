@@ -19,14 +19,20 @@ const calcUnitPrice = (cartItem) => {
 export const CartProvider = ({ children }) => {
   const [isCartLoaded, setIsCartLoaded] = useState(false);
   const [cartItems, setCartItems] = useState([]);
-
+  const [restaurantTax, setRestaurantTax] = useState([]);
+  const [error, setError] = useState(null);
   // Load cart from localStorage on mount
   useEffect(() => {
     try {
       const storedCart = localStorage.getItem("cart");
+      const storedRestaurant = localStorage.getItem("restaurant");
       if (storedCart) setCartItems(JSON.parse(storedCart));
+      if (storedRestaurant) {
+        const restaurant = JSON.parse(storedRestaurant);
+        setRestaurantTax(restaurant.taxRate);
+      }
     } catch (err) {
-      console.error("Failed to parse stored cart:", err);
+      setError(err.message);
       setCartItems([]);
     }
     setIsCartLoaded(true); // ✔ important
@@ -37,7 +43,7 @@ export const CartProvider = ({ children }) => {
     try {
       localStorage.setItem("cart", JSON.stringify(cartItems));
     } catch (err) {
-      console.error("Failed to save cart:", err);
+      setError(err.message);
     }
   }, [cartItems]);
 
@@ -145,7 +151,7 @@ export const CartProvider = ({ children }) => {
 
   // Calculate total dynamically
   const total = cartItems.reduce(
-    (sum, item) => sum + Number(item.totalPrice || 0),
+    (sum, item) => restaurantTax + sum + Number(item.totalPrice || 0),
     0
   );
 
@@ -159,6 +165,8 @@ export const CartProvider = ({ children }) => {
         removeItem,
         clearCart,
         total,
+        error,
+        restaurantTax,
         isCartLoaded,
       }}
     >

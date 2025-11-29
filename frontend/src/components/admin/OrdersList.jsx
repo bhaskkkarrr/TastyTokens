@@ -1,4 +1,6 @@
 import { FaTrash } from "react-icons/fa";
+import ConfirmModal from "../ConfirmationModal";
+import { useState } from "react";
 
 export default function OrdersList({
   orders = [],
@@ -11,6 +13,8 @@ export default function OrdersList({
       dateStyle: "medium",
       timeStyle: "short",
     });
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const getStatusBadgeClass = (status) => {
     switch (status?.toUpperCase()) {
@@ -36,6 +40,18 @@ export default function OrdersList({
         variant === "dashboard" ? "overflow-y-auto max-h-[465px]" : ""
       }`}
     >
+      <ConfirmModal
+        message={confirmMessage}
+        onCancel={() => {
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          confirmAction();
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+      />
       {orders.map((order) => {
         const displayOrderId = order.orderId || order._id;
         const displayTable =
@@ -204,7 +220,12 @@ export default function OrdersList({
 
                 {onDelete && (
                   <button
-                    onClick={() => onDelete(order._id)}
+                    onClick={() => {
+                      setConfirmMessage(
+                        "Are you sure you want to delete this order?"
+                      );
+                      setConfirmAction(() => () => onDelete(order._id));
+                    }}
                     className="px-4 py-2 rounded-4 text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 flex items-center gap-2"
                   >
                     <FaTrash /> Delete

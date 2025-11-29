@@ -402,9 +402,9 @@ export default function OrderStatus() {
                   >
                     <div>
                       {/* Main Item */}
-                      <p className="font-semibold text-gray-800">{item.name}</p>
+                      <div className="font-semibold text-gray-800">{item.name}</div>
 
-                      <p className="text-sm text-gray-600 mt-1 flex items-center gap-2">
+                      <div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
                         <span>Qty: {item.quantity}</span>
 
                         {item.selectedVariant?.name && (
@@ -412,32 +412,12 @@ export default function OrderStatus() {
                             • {item.selectedVariant.name}
                           </span>
                         )}
-                      </p>
-
-                      {/* ADDONS */}
-                      {item.addons?.length > 0 && (
-                        <div className="mt-1 space-y-1">
-                          {item.addons.map((addon, idx) => (
-                            <div
-                              key={idx}
-                              className="flex items-center gap-2 text-sm ml-3"
-                            >
-                              <span className="text-emerald-700 font-medium">
-                                +{addon.name}
-                              </span>
-
-                              <span className="text-gray-600">
-                                (₹{addon.price})
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      </div>
                     </div>
 
-                    <p className="text-lg font-bold text-emerald-600">
+                    <div className="text-lg font-bold text-emerald-600">
                       ₹{item.price}
-                    </p>
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -448,30 +428,30 @@ export default function OrderStatus() {
             <div className="bg-gradient-to-br from-emerald-50 mb-2 to-teal-50 p-4 rounded-4">
               <div className="space-y-3">
                 <div className="flex justify-between text-gray-700">
-                  <p>Subtotal</p>
-                  <p className="font-semibold">
+                  <div>Subtotal</div>
+                  <div className="font-semibold">
                     ₹{singleOrder.pricing.subtotal}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
-                  <p>Tax</p>
-                  <p className="font-semibold">₹{singleOrder.pricing.tax}</p>
+                  <div>Tax</div>
+                  <div className="font-semibold">₹{singleOrder.pricing.restaurantTax}</div>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
-                  <p>Service Charge</p>
-                  <p className="font-semibold">
+                  <div>Service Charge</div>
+                  <div className="font-semibold">
                     ₹{singleOrder.pricing.serviceCharge}
-                  </p>
+                  </div>
                 </div>
 
                 <div className="border-t border-emerald-300 pt-3 mt-2 flex justify-between items-center">
-                  <p className="text-lg font-bold text-gray-800">Grand Total</p>
+                  <div className="text-lg font-bold text-gray-800">Grand Total</div>
 
-                  <p className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                  <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     ₹{singleOrder.pricing.grandTotal}
-                  </p>
+                  </div>
                 </div>
               </div>
             </div>

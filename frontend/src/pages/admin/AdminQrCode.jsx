@@ -6,17 +6,18 @@ import { TableContext } from "../../context/TableAndQrContext";
 import Loader from "../../components/Loader";
 import SkeletonLoader from "../../components/SkeletonLoader";
 import QrCardSkeleton from "../../components/OrSkeleton";
+import ConfirmModal from "../../components/ConfirmationModal";
+import ErrorModal from "../../components/ErrorModal";
 
 function AdminQrCode() {
   const [showAddModal, setShowAddModal] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [selectedQr, setSelectedQr] = useState(null);
-
+  const [errorMessage, setErrorMessage] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
   const {
     register,
     handleSubmit,
     reset,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm();
 
@@ -30,16 +31,16 @@ function AdminQrCode() {
       setShowAddModal(false);
       reset();
     } else {
-      setError("root", { message: result.message });
+      setErrorMessage(result.message || "Error creating Qr");
     }
   };
 
   // ✅ Delete QR
-  const onDelete = async (qr) => {
-    if (!qr?._id) return;
-    const result = await handleDelete(qr._id);
+  const onDelete = async (id) => {
+    if (!id) return;
+    const result = await handleDelete(id);
     if (!result.success) {
-      setError("root", { message: result.message });
+      setErrorMessage(result.message || "Error deleting Qr");
     }
   };
 
@@ -47,19 +48,33 @@ function AdminQrCode() {
   const onDownload = async (qr) => {
     const result = await handleDownload(qr);
     if (!result.success) {
-      setError("root", { message: result.message });
+      setErrorMessage(result.message || "Error downloading Qr");
     }
   };
 
   return (
     <div className="container-fluid py-2 px-0 p-sm-3">
+      <ConfirmModal
+        message={confirmMessage}
+        onCancel={() => {
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          confirmAction();
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+      />
+      <ErrorModal message={errorMessage} onClose={() => setErrorMessage("")} />
+
       {/* Header */}
       <div className="d-flex justify-content-md-between justify-content-center items-center mt-3 mb-4 flex-wrap">
         <div className="flex items-center mb-3 mb-md-0">
           <MdQrCodeScanner className="text-emerald-600 w-8 h-8" />
-          <h2 className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
+          <div className="text-2xl font-semibold mb-0 ms-2 text-gray-800 font-poppins">
             QR Code Management
-          </h2>
+          </div>
         </div>
         <button
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-3 shadow-md transition-all duration-300"
@@ -192,8 +207,10 @@ function AdminQrCode() {
                     <button
                       className="p-2.5 bg-red-50 text-red-600 hover:bg-red-100 rounded-5 transition-colors duration-200"
                       onClick={() => {
-                        setSelectedQr(qr);
-                        setConfirmDelete(true);
+                        setConfirmMessage(
+                          "Are you sure you want to delete this Qr?"
+                        );
+                        setConfirmAction(() => () => onDelete(qr._id));
                       }}
                     >
                       <FaTrash className="w-4 h-4" />
@@ -205,44 +222,7 @@ function AdminQrCode() {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500">No QRs found</p>
-      )}
-
-      {/* ✅ Delete Confirm Modal */}
-      {confirmDelete && selectedQr && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
-            <h2 className="text-2xl font-semibold text-center text-emerald-700 mb-4 font-poppins">
-              Confirm Deletion
-            </h2>
-            <p className="text-gray-700 mb-6 text-center">
-              Are you sure you want to delete{" "}
-              <span className="font-semibold">{selectedQr.name}</span>? This
-              action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-4">
-              <button
-                onClick={() => {
-                  setConfirmDelete(false);
-                  setSelectedQr(null);
-                }}
-                className="px-4 py-2 bg-gray-200 rounded-3 hover:bg-gray-300 transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  await onDelete(selectedQr);
-                  setConfirmDelete(false);
-                  setSelectedQr(null);
-                }}
-                className="px-4 py-2 bg-red-600 text-white rounded-3 hover:bg-red-700 transition-all duration-300"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <div className="text-center text-gray-500">No QRs found</div>
       )}
     </div>
   );

@@ -4,7 +4,6 @@ const fs = require("fs");
 const cloudinary = require("../config/cloudinaryConfig");
 const generateInitialsImage = require("../utils/generateInitialsImage");
 const applyDiscountsToMenu = require("../utils/applyDiscount");
-const DiscountModel = require("../models/DiscountModel");
 const calculateDiscountedPrice = require("../utils/calculateDiscountedPrice");
 const getActiveDiscountsForRestaurant = require("../utils/getActiveDiscounts");
 

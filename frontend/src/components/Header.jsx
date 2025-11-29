@@ -4,15 +4,15 @@ import { Bell, Search, X, Menu, ChevronDown } from "lucide-react";
 import { OrderContext } from "../context/OrderContext";
 import NotificationModal from "./admin/NotificationModal";
 import { NotificationContext } from "../context/NotificationContext";
+import { useNavigate } from "react-router-dom";
 
 function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
-  const { user, restaurant } = useContext(AuthContext);
+  const { user, restaurant, token } = useContext(AuthContext);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const { newOrderCount, setNewOrderCount } = useContext(OrderContext);
   const [open, setOpen] = useState(false);
   const { unread } = useContext(NotificationContext);
   const [openNotif, setOpenNotif] = useState(false);
-
+  const navigate = useNavigate();
   useEffect(() => {
     if (Notification.permission !== "granted") {
       Notification.requestPermission();
@@ -54,15 +54,7 @@ function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
 
           {/* LOGO */}
           <span className="font-bold text-xl sm:text-lg md:text-4xl bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent truncate max-w-[140px] sm:max-w-[200px] md:max-w-[280px]">
-            {/* {user
-              ? user?.role === "superadmin"
-                ? user?.restaurantId?.name === "NA"
-                  ? "Owner"
-                  : user?.restaurantId?.name
-                : user?.restaurantId?.name || "Restaurant"
-              : "Restaurant"} */}
-
-              {restaurant?.name || "Restaurant"}
+            {restaurant?.name || "Restaurant"}
           </span>
           {/* RIGHT: ICONS */}
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -90,12 +82,15 @@ function Header({ isMobileSidebarOpen, setIsMobileSidebarOpen }) {
                 </span>
               </div>
 
-              <button className="relative">
+              <button
+                className="relative "
+                onClick={() => navigate(`/${user?.role}/settings`)}
+              >
                 <div
                   className="w-9 h-9 sm:w-9 sm:h-9 rounded-4 bg-gradient-to-br from-emerald-500 to-teal-600
                  flex items-center justify-center text-white font-bold shadow-md"
                 >
-                  {user?.name ? user.name.charAt(0).toUpperCase() : "R"}
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "T"}
                 </div>
               </button>
             </div>

@@ -112,9 +112,9 @@ export default function AdminSettings() {
           <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center mb-4">
               <FaStore className="text-emerald-600 w-5 h-5 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-800">
+              <div className="text-lg font-semibold text-gray-800">
                 Restaurant Information
-              </h3>
+              </div>
             </div>
 
             <div className="space-y-4">
@@ -147,21 +147,6 @@ export default function AdminSettings() {
                   })
                 }
               />
-              <SelectField
-                label="Currency"
-                value={restaurantInfo.currency}
-                onChange={(e) =>
-                  setRestaurantInfo({
-                    ...restaurantInfo,
-                    currency: e.target.value,
-                  })
-                }
-                options={[
-                  { value: "INR", label: "Indian Rupee (₹)" },
-                  { value: "USD", label: "US Dollar ($)" },
-                  { value: "EUR", label: "Euro (€)" },
-                ]}
-              />
             </div>
           </div>
 
@@ -169,9 +154,9 @@ export default function AdminSettings() {
           <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center mb-4">
               <FaUser className="text-emerald-600 w-5 h-5 mr-2" />
-              <h3 className="text-lg font-semibold text-gray-800">
+              <div className="text-lg font-semibold text-gray-800">
                 User Information
-              </h3>
+              </div>
             </div>
 
             <div className="space-y-4">

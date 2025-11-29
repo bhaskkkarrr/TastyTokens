@@ -44,9 +44,9 @@ export default function MenuItemList({
           <div className="flex items-center mb-4">
             <div className="flex-grow h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"></div>
 
-            <h2 className="px-6 text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
+            <div className="px-6 text-2xl md:text-3xl font-bold text-gray-700 tracking-wide">
               {cat.name}
-            </h2>
+            </div>
 
             <span className="text-gray-400 text-sm ml-2">
               ({cat.items.length} {cat.items.length === 1 ? "item" : "items"})

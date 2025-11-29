@@ -32,13 +32,14 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("authToken");
-
-    if (storedUser && storedToken) {
+    const storedRestaurant = localStorage.getItem("restaurant");
+    if (storedRestaurant && storedUser && storedToken) {
       if (isTokenExpired(storedToken)) {
         logout();
         navigate("/");
       } else {
         setUser(JSON.parse(storedUser));
+        setRestaurant(JSON.parse(storedRestaurant));
         setToken(storedToken);
         setAuthenticated(true);
       }
@@ -114,7 +115,6 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
-
   const logout = () => {
     setAuthenticated(false);
     setUser(null);

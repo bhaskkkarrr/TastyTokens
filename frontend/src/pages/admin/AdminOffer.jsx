@@ -4,12 +4,15 @@ import { DiscountContext } from "../../context/DiscountContext";
 import AddDiscountModal from "../../components/admin/AddDiscountModal";
 import CircleLoader from "../../components/Loader";
 import DiscountCardSkeleton from "../../components/DiscountCardSkeleton";
+import ConfirmModal from "../../components/ConfirmationModal";
 export default function AdminDiscounts() {
   const { discounts, getDiscounts, deleteDiscount, toggleDiscount, isLoading } =
     useContext(DiscountContext);
   const [error, setError] = useState(null);
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   const handleToggleActive = async (id) => {
     try {
@@ -61,7 +64,18 @@ export default function AdminDiscounts() {
           </div>
         </div>
       )}
-
+      <ConfirmModal
+        message={confirmMessage}
+        onCancel={() => {
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          confirmAction();
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+      />
       {/* ALL DISCOUNTS LIST */}
       <div className="text-2xl font-bold text-gray-800 my-4">All Discounts</div>
 
@@ -135,7 +149,12 @@ export default function AdminDiscounts() {
 
                 {/* Delete */}
                 <button
-                  onClick={() => handleDelete(d._id)}
+                  onClick={() => {
+                    setConfirmMessage(
+                      "Are you sure you want to delete this offer?"
+                    );
+                    setConfirmAction(() => () => handleDelete(d._id));
+                  }}
                   className="p-1  rounded-5 bg-red-100 text-red-700 hover:bg-red-200"
                 >
                   <MdDelete className="w-5 h-5" />

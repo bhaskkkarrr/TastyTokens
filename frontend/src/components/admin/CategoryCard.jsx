@@ -1,5 +1,7 @@
 import { MdOutlineEdit } from "react-icons/md";
 import { MdDeleteOutline } from "react-icons/md";
+import ConfirmModal from "../ConfirmationModal";
+import { useState } from "react";
 export default function CategoryCard({
   category,
   onEdit,
@@ -7,6 +9,9 @@ export default function CategoryCard({
   selectedCategory,
   setSelectedCategory,
 }) {
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
+
   return (
     <div
       onClick={() => setSelectedCategory(category._id)}
@@ -22,6 +27,18 @@ export default function CategoryCard({
   }
 `}
     >
+      <ConfirmModal
+        message={confirmMessage}
+        onCancel={() => {
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+        onConfirm={() => {
+          confirmAction();
+          setConfirmMessage("");
+          setConfirmAction(null);
+        }}
+      />
       <div className="flex justify-between px-2 pt-2">
         <button
           onClick={(e) => {
@@ -33,11 +50,11 @@ export default function CategoryCard({
         >
           <MdOutlineEdit />
         </button>
-
         <button
           onClick={(e) => {
             e.stopPropagation(); // ✅ Prevent category click filtering
-            onDelete(category._id);
+            setConfirmMessage("Are you sure you want to delete this category?");
+            setConfirmAction(() => () => onDelete(category._id));
           }}
           className="opacity-100 transition-opacity duration-300 bg-red-50 text-red-600 hover:bg-red-100 rounded-5 p-1 shadow-sm"
           title="Delete category"

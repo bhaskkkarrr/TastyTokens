@@ -16,7 +16,8 @@ import { space } from "postcss/lib/list";
 import { span } from "framer-motion/client";
 
 export default function Checkout() {
-  const { cartItems, total, clearCart } = useContext(CartContext);
+  const { cartItems, total, clearCart, restaurantTax } =
+    useContext(CartContext);
   const { restaurantId, tableId } = useParams();
   const navigate = useNavigate();
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
@@ -46,12 +47,7 @@ export default function Checkout() {
       }));
 
       // Pricing object (you can compute dynamically later)
-      const pricing = {
-        tax: 10,
-        serviceCharge: 15,
-        discount: 0,
-        deliveryCharge: 0,
-      };
+      const pricing = { restaurantTax };
 
       const orderBody = {
         restaurantId,
@@ -169,7 +165,13 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
-
+              <div className="flex  items-center justify-between  border-b border-gray-100">
+                <span className="text-gray-600 text-sm">Taxes</span>
+                <span className="text-sm font-bold text-gray-900">
+                  {restaurantTax ? restaurantTax : 0}
+                </span>
+              </div>
+              <div className="space-y-3 max-h-48 overflow-y-auto"></div>
               {/* Total */}
               <div className="border-t-2 border-gray-200">
                 <div className="flex items-center justify-between">
@@ -215,17 +217,7 @@ export default function Checkout() {
                 <input
                   id="name"
                   type="text"
-                  {...register("name", {
-                    required: "Name is required",
-                    minLength: {
-                      value: 2,
-                      message: "Name must be at least 2 characters",
-                    },
-                    pattern: {
-                      value: /^[A-Za-z\s]+$/,
-                      message: "Name can only contain letters",
-                    },
-                  })}
+                  {...register("name")}
                   className={`w-full px-2 py-1 rounded-xl border-2 transition-all duration-200 text-gray-800 font-medium ${
                     errors.name
                       ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-100"
@@ -262,13 +254,7 @@ export default function Checkout() {
                   <input
                     id="phone"
                     type="tel"
-                    {...register("phone", {
-                      required: "Phone number is required",
-                      pattern: {
-                        value: /^[6-9]\d{9}$/,
-                        message: "Enter a valid 10-digit mobile number",
-                      },
-                    })}
+                    {...register("phone")}
                     className={`w-full pl-14 pr-4 py-1 rounded-xl border-2 transition-all duration-200 text-gray-800 font-medium ${
                       errors.phone
                         ? "border-red-400 bg-red-50 focus:border-red-500 focus:ring-4 focus:ring-red-100"

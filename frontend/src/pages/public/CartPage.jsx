@@ -5,6 +5,7 @@ import { Trash2, ArrowLeft, ShoppingCart, ShoppingBag } from "lucide-react";
 import { FaCircle, FaPlus, FaMinus } from "react-icons/fa";
 import { IoTriangle } from "react-icons/io5";
 import { motion, AnimatePresence } from "framer-motion";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function CartPage() {
   const navigate = useNavigate();
@@ -16,7 +17,9 @@ export default function CartPage() {
     decreaseQuantity,
     isCartLoaded,
     total,
+    restaurantTax,
   } = useContext(CartContext);
+  const { restaurant } = useContext(AuthContext);
   if (!isCartLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -61,7 +64,7 @@ export default function CartPage() {
       </div>
     );
   }
-
+  const finalPrice = (total, taxRate) => total + taxRate;
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-emerald-50/30 to-teal-50/50 flex flex-col">
       {/* Header */}
@@ -173,7 +176,7 @@ export default function CartPage() {
                       </span>
                     </div>
                   )}
-
+                  {console.log("rest", restaurant)}
                   {/* Quantity & Price Row */}
                   <div className="flex items-center justify-between ">
                     {/* Quantity Controls */}
@@ -239,7 +242,9 @@ export default function CartPage() {
             </div>
             <div className="flex mb-2 justify-between text-sm text-gray-600">
               <span>Taxes & Fees</span>
-              <span className="font-semibold text-emerald-600">Included</span>
+              <span className="font-semibold text-emerald-600">
+                {restaurantTax}
+              </span>
             </div>
             <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent" />
             <div className="flex justify-between text-lg sm:text-xl font-bold text-gray-900">

@@ -8,7 +8,7 @@ export const MenuProvider = ({ children }) => {
   const { token } = useContext(AuthContext);
   const [isMenuLoading, setIsMenuLoading] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
-
+  const [error, setError] = useState(null);
   // ✅ Capitalize first letter
   const formatName = (name) =>
     name ? name.charAt(0).toUpperCase() + name.slice(1).toLowerCase() : "";
@@ -68,15 +68,17 @@ export const MenuProvider = ({ children }) => {
       if (data.success) {
         setMenuItems(data.menuItems);
       } else {
-        console.error("Failed to fetch menu items", data.message);
+        setError("roots", data.message);
       }
     } catch (err) {
-      console.error("Error fetching menu items:", err);
+      setError("roots", err.message);
     } finally {
       setIsMenuLoading(false);
     }
   };
-
+  useEffect(() => {
+    if (token) getAllMenuItems();
+  }, [token]);
   // ----------------------------------------------------------------------
   // ✅ DELETE MENU ITEM
   // ----------------------------------------------------------------------
@@ -149,6 +151,7 @@ export const MenuProvider = ({ children }) => {
         // states
         isMenuLoading,
         menuItems,
+        error,
       }}
     >
       {children}

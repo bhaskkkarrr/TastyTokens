@@ -1,14 +1,13 @@
-import React, { useContext, useMemo, useState, useEffect } from "react";
+import { useContext, useMemo, useState, useEffect } from "react";
 import { OrderContext } from "../../context/OrderContext";
 import { TableContext } from "../../context/TableAndQrContext";
 import { GoDotFill } from "react-icons/go";
 import { useNavigate } from "react-router-dom";
 import OrdersList from "../../components/admin/OrdersList";
 import PrettyCircleLoader from "../../components/PrettyCircleLoader";
-import { space } from "postcss/lib/list";
-import { span } from "framer-motion/client";
-import SpoonLoader from "../../components/MainFoodLoader";
 import MainFoodLoader from "../../components/MainFoodLoader";
+import { MenuContext } from "../../context/MenuContext";
+import { IoStar } from "react-icons/io5";
 
 function Sparkline({ points = [], className = "" }) {
   if (!points.length) return null;
@@ -100,6 +99,7 @@ export default function AdminDashboard() {
     isLoadingOrder,
   } = useContext(OrderContext);
   const { tables = [] } = useContext(TableContext);
+  const { menuItems } = useContext(MenuContext);
 
   // ensure initial fetch if context exposes getters (non-invasive)
   useEffect(() => {
@@ -187,11 +187,6 @@ export default function AdminDashboard() {
     console.log("updateStatus result:", res);
   };
 
-  // active tables count where isOcuppied === true (explicit)
-  const activeTablesCount = useMemo(() => {
-    return (tables || []).filter((t) => t.isOcuppied !== true).length;
-  }, [tables]);
-
   const dummyRevenueSeries = [
     { day: "Mon", value: 4200 },
     { day: "Tue", value: 5200 },
@@ -201,7 +196,6 @@ export default function AdminDashboard() {
     { day: "Sat", value: 11000 },
     { day: "Sun", value: 9800 },
   ];
-  const [showAddModal, setShowAddModal] = useState(false);
   return (
     <div className="p-2 md:p-6 py-lg-4 px-lg-3">
       <div className="max-w-[1280px] mx-auto space-y-6">
@@ -467,30 +461,27 @@ export default function AdminDashboard() {
             {/* Top Selling Items */}
             <div className="bg-white rounded-2xl p-3 shadow-sm border-2 border-emerald-600">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-gray-500">Top Selling Items</p>
-                <span className="text-xs text-black">This week</span>
+                <div className="bg-amber-600 text-white text-xs p-1 rounded-full flex items-center gap-1 shadow">
+                  <IoStar size={15} />
+                </div>
+                <div className="text-lg font-bold text-gray-400">
+                  Best Sellers
+                </div>
               </div>
 
               <ul className="p-0 divide-y divide-gray-100">
-                {[
-                  { name: "Margherita Pizza", sold: 42 },
-                  { name: "Veg Burger", sold: 37 },
-                  { name: "Pasta Alfredo", sold: 31 },
-                  { name: "Cold Coffee", sold: 28 },
-                  { name: "French Fries", sold: 25 },
-                ].map((item, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center justify-between py-2"
-                  >
-                    <span className="text-base font-medium text-gray-800">
-                      {item.name}
-                    </span>
-                    <span className="text-sm text-emerald-600 font-semibold">
-                      ×{item.sold}
-                    </span>
-                  </li>
-                ))}
+                {menuItems
+                  .filter((item) => item.isBestSeller) // 👉 Keep only bestseller items
+                  .map((item, i) => (
+                    <li
+                      key={i}
+                      className="flex items-center justify-between py-2"
+                    >
+                      <span className="text-base font-medium text-gray-700">
+                        {item.name}
+                      </span>
+                    </li>
+                  ))}
               </ul>
             </div>
           </div>
