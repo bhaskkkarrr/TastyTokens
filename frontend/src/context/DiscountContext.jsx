@@ -22,9 +22,7 @@ export const DiscountProvider = ({ children }) => {
       if (res.success) {
         await getDiscounts();
       }
-      return { success: true, message: res.message };
-    } catch (error) {
-      return { success: false, message: error.message };
+      return { res };
     } finally {
       setIsLoading(false);
     }

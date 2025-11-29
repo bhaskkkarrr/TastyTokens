@@ -146,7 +146,11 @@ exports.getAllMenuItems = async (req, res) => {
         ? item.variants.map((v) => ({
             ...v,
             discountedPrice: calculateDiscountedPrice(
-              { basePrice: v.price, category: item.category, _id: item._id },
+              {
+                basePrice: v.price,
+                category: item.category?._id,
+                _id: item._id,
+              },
               discounts
             ),
           }))

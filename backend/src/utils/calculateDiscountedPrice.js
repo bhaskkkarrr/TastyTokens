@@ -10,7 +10,7 @@ function calculateDiscountedPrice(item, discounts = []) {
     if (d.appliesTo === "all") return true;
     if (
       d.appliesTo === "category" &&
-      String(d.category) === String(item.category)
+      String(d.category) === String(item.category?._id)
     )
       return true;
     if (d.appliesTo === "item" && String(d.item) === String(item._id))

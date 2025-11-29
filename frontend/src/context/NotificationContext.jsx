@@ -97,10 +97,10 @@ export const NotificationProvider = ({ children }) => {
   // Mark ALL read
   // ----------------------------------------------
   const markAllRead = async () => {
-    await fetch(
-      `${BASE_API}/api/notification/readAll/${user.restaurantId._id}`,
-      { method: "PUT", headers: { Authorization: `Bearer ${token}` } }
-    );
+    await fetch(`${BASE_API}/api/notification/readAll/${user.restaurantId}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+    });
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnread(0);
   };

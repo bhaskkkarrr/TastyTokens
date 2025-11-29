@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { DiscountContext } from "../../context/DiscountContext";
 import AddDiscountModal from "../../components/admin/AddDiscountModal";
-import CircleLoader from "../../components/Loader";
 import DiscountCardSkeleton from "../../components/DiscountCardSkeleton";
 import ConfirmModal from "../../components/ConfirmationModal";
 export default function AdminDiscounts() {
@@ -15,11 +14,11 @@ export default function AdminDiscounts() {
   const [confirmAction, setConfirmAction] = useState(null);
 
   const handleToggleActive = async (id) => {
-    try {
-      const res = await toggleDiscount(id);
-      return res;
-    } catch (e) {
-      return { success: false, message: e.message };
+    const res = await toggleDiscount(id);
+    console.log("Res", res);
+    if (!res.success) {
+      setError(res.message);
+      setShowErrorModal(true);
     }
   };
 

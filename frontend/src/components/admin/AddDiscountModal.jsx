@@ -45,11 +45,11 @@ function AddDiscountModal({ setShowAddModal }) {
   const onSubmit = async (data) => {
     const result = await createDiscount(data);
     console.log("result", result);
-    if (result.success) {
+    if (result.res.success) {
       reset();
       setShowAddModal(false);
     } else {
-      setError(result.message);
+      setError(result.res.message);
     }
   };
 
@@ -72,9 +72,9 @@ function AddDiscountModal({ setShowAddModal }) {
         </span>
         {/* Card */}
         <div className=" ">
-          {errors.root && (
+          {error && (
             <p className="text-center text-red-600 bg-red-50 py-2 rounded-lg">
-              {errors.root.message}
+              {error}
             </p>
           )}
           <div className="space-y-6">

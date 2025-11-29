@@ -30,7 +30,6 @@ exports.createDiscount = async (req, res) => {
 
     return res.json({ success: true, message: "Discount created", discount });
   } catch (err) {
-    console.error("createDiscount error:", err);
     return res.status(500).json({ success: false, message: err.message });
   }
 };
