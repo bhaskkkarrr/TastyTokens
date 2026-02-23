@@ -3,16 +3,22 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 function ProtectedRoute({ children, allowedRoles = [] }) {
-  const { user, authenticated } = useContext(AuthContext);
+  const { user, authenticated, withoutLogin } = useContext(AuthContext);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     setChecked(true);
   }, []);
-  if (checked && !authenticated) {
+  if (checked && !authenticated && !withoutLogin) {
     return <Navigate to={"/"} replace />;
   }
-  if (checked && user && allowedRoles && !allowedRoles.includes(user.role)) {
+  if (
+    checked &&
+    user &&
+    allowedRoles &&
+    !withoutLogin &&
+    !allowedRoles.includes(user.role)
+  ) {
     return <Navigate to={"/"} replace />;
   }
   return children;

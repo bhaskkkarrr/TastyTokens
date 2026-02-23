@@ -4,9 +4,11 @@ import { useForm } from "react-hook-form";
 import { AuthContext } from "../context/AuthContext";
 import Loader from "../components/Loader";
 import LoadingDots from "../components/LoadingDots";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-  const { loginUser, isLoading } = useContext(AuthContext);
+  const { loginUser, isLoading, withoutLoginSetup } = useContext(AuthContext);
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -30,7 +32,6 @@ const LoginPage = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
-
   return (
     <div className="min-h-screen px-3 bg-emerald-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
@@ -134,6 +135,13 @@ const LoginPage = () => {
                     <div>Sign in</div>
                   )}
                 </button>
+              </div>
+
+              <div
+                className="text-amber-700 text-sm cursor-pointer -mt-3 text-end "
+                onClick={withoutLoginSetup}
+              >
+                Continue without login
               </div>
             </form>
           </div>

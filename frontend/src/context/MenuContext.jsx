@@ -1,11 +1,12 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import { AuthContext } from "./AuthContext";
+import toast from "react-hot-toast";
 
 const BASE_API = import.meta.env.VITE_BASE_API;
 export const MenuContext = createContext();
 
 export const MenuProvider = ({ children }) => {
-  const { token } = useContext(AuthContext);
+  const { token,withoutLogin } = useContext(AuthContext);
   const [isMenuLoading, setIsMenuLoading] = useState(false);
   const [menuItems, setMenuItems] = useState([]);
   const [error, setError] = useState(null);
@@ -17,6 +18,10 @@ export const MenuProvider = ({ children }) => {
   // ✅ ADD MENU ITEM
   // ----------------------------------------------------------------------
   const addMenuItem = async (data) => {
+    if (withoutLogin) {
+      toast.success("Menu item created");
+      return { success: true };
+    }
     try {
       setIsMenuLoading(true);
 

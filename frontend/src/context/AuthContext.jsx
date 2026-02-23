@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState("");
   const [restaurant, setRestaurant] = useState(null);
-
+  const [withoutLogin, setWithoutLogin] = useState(false);
   // ✅ Utility to check if JWT is expired
   const isTokenExpired = (token) => {
     try {
@@ -115,6 +115,12 @@ export const AuthProvider = ({ children }) => {
       setIsLoading(false);
     }
   };
+
+  const withoutLoginSetup = async () => {
+    setWithoutLogin(true);
+    localStorage.setItem("withoutLogin", true);
+    navigate("/admin");
+  };
   const logout = () => {
     setAuthenticated(false);
     setUser(null);
@@ -145,6 +151,9 @@ export const AuthProvider = ({ children }) => {
         loginUser,
         signUpUser,
         logout,
+        withoutLoginSetup,
+        withoutLogin,
+        setWithoutLogin,
         isLoading,
         authenticated,
         user,

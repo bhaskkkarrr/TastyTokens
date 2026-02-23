@@ -1,18 +1,23 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import toast from "react-hot-toast";
 const BASE_API = import.meta.env.VITE_BASE_API;
 
 export const TableContext = createContext();
 export const TableProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [tables, setTables] = useState([]);
-  const { token } = useContext(AuthContext);
+  const { token, withoutLogin } = useContext(AuthContext);
   const formatName = (name) => {
     if (!name) return "";
     return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
   };
 
   const createTableAndQr = async (data) => {
+    if (withoutLogin) {
+      toast.success("QR created");
+      return { success: true };
+    }
     data.name = formatName(data.name);
     try {
       setIsLoading(true);

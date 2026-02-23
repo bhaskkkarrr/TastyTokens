@@ -13,9 +13,11 @@ import { CategoryContext } from "../../context/CategoryContext";
 import FoodCatSkeleton from "../../components/FoodCatSkeleton";
 import ErrorModal from "../../components/ErrorModal";
 import ConfirmModal from "../../components/ConfirmationModal";
+import { demoMenuItems } from "../../assets/demoObjs/demoMenuItems";
+import { demoCategories } from "../../assets/demoObjs/demoCategories";
 
 export default function AdminMenuItems() {
-  const { token } = useContext(AuthContext);
+  const { token, withoutLogin } = useContext(AuthContext);
   const [editingItem, setEditingItem] = useState(null);
   const [editingCategory, setEditingCategory] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -113,7 +115,15 @@ export default function AdminMenuItems() {
       </div>
 
       {/* Category List */}
-      {isCatLoading ? (
+      {withoutLogin ? (
+        <CategoryList
+          categories={demoCategories}
+          onEdit={console.log("Edit")}
+          onDelete={console.log("Delete")}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+        />
+      ) : isCatLoading ? (
         <FoodCatSkeleton count={5} />
       ) : (
         <CategoryList
@@ -145,7 +155,18 @@ export default function AdminMenuItems() {
       </div>
 
       {/* Menu Item List */}
-      {isMenuLoading ? (
+      {withoutLogin ? (
+        <MenuItemList
+          menuItems={demoMenuItems}
+          categories={demoCategories}
+          onEdit={(item) => console.log("Edit:", item)}
+          onDelete={(id) => console.log("Delete:", id)}
+          toggleAvailability={(id, status) =>
+            console.log("Toggle:", id, status)
+          }
+          selectedCategory="all"
+        />
+      ) : isMenuLoading ? (
         <SkeletonLoader count={7} />
       ) : (
         <MenuItemList
@@ -153,7 +174,7 @@ export default function AdminMenuItems() {
             selectedCategory === "all"
               ? menuItems
               : menuItems.filter(
-                  (item) => item.category?._id === selectedCategory
+                  (item) => item.category?._id === selectedCategory,
                 )
           }
           categories={categories}

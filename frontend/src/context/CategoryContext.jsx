@@ -1,10 +1,12 @@
 import { createContext, useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import toast from "react-hot-toast";
+
 const BASE_API = import.meta.env.VITE_BASE_API;
 
 export const CategoryContext = createContext();
 export const CategoryProvider = ({ children }) => {
-  const { token } = useContext(AuthContext);
+  const { token, withoutLogin } = useContext(AuthContext);
   const [isCatLoading, setIsCatLoading] = useState(false);
   const [categories, setCategories] = useState([]);
 
@@ -16,6 +18,10 @@ export const CategoryProvider = ({ children }) => {
   // ✅ ADD CATEGORY
   // ----------------------------------------------------------------------
   const addCategory = async (data) => {
+    if (withoutLogin) {
+      toast.success("Category created");
+      return { success: true };
+    }
     try {
       setIsCatLoading(true);
 

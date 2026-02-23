@@ -1,13 +1,18 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import toast from "react-hot-toast";
 const BASE_API = import.meta.env.VITE_BASE_API;
 
 export const DiscountContext = createContext();
 export const DiscountProvider = ({ children }) => {
   const [discounts, setDiscounts] = useState([]);
-  const { token } = useContext(AuthContext);
+  const { token,withoutLogin } = useContext(AuthContext);
   const [isLoading, setIsLoading] = useState(false);
   const createDiscount = async (data) => {
+    if (withoutLogin) {
+      toast.success("Discount created");
+      return { success: true };
+    }
     try {
       setIsLoading(true);
       const r = await fetch(`${BASE_API}/api/discount/create`, {
