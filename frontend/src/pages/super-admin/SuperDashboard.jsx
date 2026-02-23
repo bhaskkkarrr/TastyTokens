@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import { useForm } from "react-hook-form";
+import CircleLoader from "../../components/Loader";
 
 function SuperDashboard() {
   const { signUpUser, isLoading } = useContext(AuthContext);
@@ -60,7 +63,7 @@ function SuperDashboard() {
 
             <div className="bg-white rounded-2xl shadow-md p-6 sm:p-8">
               {isLoading ? (
-                <Loader />
+                <CircleLoader />
               ) : (
                 <div>
                   {/* Global Error Message */}
@@ -74,7 +77,7 @@ function SuperDashboard() {
                     {/* Restaurant Name */}
                     <div>
                       <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                        <FaStore className="w-4 h-4 mr-2 text-emerald-600" />
+                        {/* <FaStore className="w-4 h-4 mr-2 text-emerald-600" /> */}
                         Restaurant Name
                       </label>
                       <input
@@ -97,7 +100,7 @@ function SuperDashboard() {
                     {/* Owner Name */}
                     <div>
                       <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                        <FaUser className="w-4 h-4 mr-2 text-emerald-600" />
+                        {/* <FaUser className="w-4 h-4 mr-2 text-emerald-600" /> */}
                         Owner Name
                       </label>
                       <input
@@ -122,7 +125,7 @@ function SuperDashboard() {
                       {/* Email */}
                       <div>
                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                          <FaEnvelope className="w-4 h-4 mr-2 text-emerald-600" />
+                          {/* <FaEnvelope className="w-4 h-4 mr-2 text-emerald-600" /> */}
                           Email Address
                         </label>
                         <input
@@ -149,7 +152,7 @@ function SuperDashboard() {
                       {/* Phone */}
                       <div>
                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                          <FaPhone className="w-4 h-4 mr-2 text-emerald-600" />
+                          {/* <FaPhone className="w-4 h-4 mr-2 text-emerald-600" /> */}
                           Phone Number
                         </label>
                         <input
@@ -181,7 +184,7 @@ function SuperDashboard() {
                       {/* Password */}
                       <div>
                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                          <FaLock className="w-4 h-4 mr-2 text-emerald-600" />
+                          {/* <FaLock className="w-4 h-4 mr-2 text-emerald-600" /> */}
                           Password
                         </label>
                         <input
@@ -210,7 +213,7 @@ function SuperDashboard() {
                       {/* Confirm Password */}
                       <div>
                         <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                          <FaLock className="w-4 h-4 mr-2 text-emerald-600" />
+                          {/* <FaLock className="w-4 h-4 mr-2 text-emerald-600" /> */}
                           Confirm Password
                         </label>
                         <input
@@ -239,7 +242,7 @@ function SuperDashboard() {
                     {/* Address */}
                     <div>
                       <label className="flex items-center text-sm font-medium text-gray-700 mb-1">
-                        <FaMapMarkerAlt className="w-4 h-4 mr-2 text-emerald-600" />
+                        {/* <FaMapMarkerAlt className="w-4 h-4 mr-2 text-emerald-600" /> */}
                         Restaurant Address
                       </label>
                       <textarea

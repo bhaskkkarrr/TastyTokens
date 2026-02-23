@@ -7,15 +7,6 @@ const applyDiscountsToMenu = require("../utils/applyDiscount");
 const calculateDiscountedPrice = require("../utils/calculateDiscountedPrice");
 const getActiveDiscountsForRestaurant = require("../utils/getActiveDiscounts");
 
-// ✅ Helper: Get initials
-function getInitials(name = "") {
-  return name
-    .split(" ")
-    .map((w) => w[0]?.toUpperCase())
-    .join("")
-    .slice(0, 2);
-}
-
 exports.postAddMenuItems = async (req, res) => {
   console.log(req.body);
   try {
@@ -126,7 +117,7 @@ exports.postAddMenuItems = async (req, res) => {
       error: err.message,
     });
   }
-};
+}
 
 // ✅ No changes required below — update & delete will continue to work normally
 exports.getAllMenuItems = async (req, res) => {

@@ -56,7 +56,7 @@ export const NotificationProvider = ({ children }) => {
 
     const storedUser = localStorage.getItem("user");
     const parsedUser = storedUser ? JSON.parse(storedUser) : null;
-    const restaurantId = parsedUser?.restaurantId?._id;
+    const restaurantId = parsedUser?.restaurantId;
 
     if (restaurantId) {
       socket.emit("joinRestaurantRoom", restaurantId);
@@ -68,6 +68,7 @@ export const NotificationProvider = ({ children }) => {
       setUnread((prev) => prev + 1);
     });
 
+    console.log("Unread", unread);
     // 🔥 UPDATED READ STATUS
     socket.on("notificationRead", (notif) => {
       setNotifications((prev) =>
@@ -75,7 +76,8 @@ export const NotificationProvider = ({ children }) => {
       );
     });
     return () => socket.disconnect();
-  }, [token]);
+  }, []);
+
 
   // ----------------------------------------------
   // Mark SINGLE notification as read
@@ -93,6 +95,7 @@ export const NotificationProvider = ({ children }) => {
     setUnread((prev) => Math.max(prev - 1, 0));
   };
 
+  
   // ----------------------------------------------
   // Mark ALL read
   // ----------------------------------------------
@@ -104,6 +107,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     setUnread(0);
   };
+
   const deleteSingle = async (id) => {
     try {
       const r = await fetch(`${BASE_API}/api/notification/${id}`, {

@@ -78,7 +78,7 @@ exports.createOrder = async (req, res) => {
     await order.validate(); // triggers subtotal + grandTotal
 
     const savedOrder = await order.save();
-
+    console.log("io", req.io);
     // 🔥 Create Notification
     const notification = await createNotification({
       restaurantId: order.restaurantId,
@@ -151,12 +151,12 @@ exports.updateOrderStatus = async (req, res) => {
     } catch (error) {
       res.status(401).json({ success: false, notification: "New order" });
     }
-    const restaurantRoom = order.restaurantId._id.toString();
+    const restaurantRoom = order.restaurantId.toString();
 
     // 🔥 Normalize the structure (THIS FIXES YOUR UI)
     const cleanedOrder = {
       ...order.toObject(),
-      restaurantId: order.restaurantId._id.toString(),
+      restaurantId: order.restaurantId.toString(),
     };
 
     req.io.to(restaurantRoom).emit("orderUpdated", cleanedOrder);

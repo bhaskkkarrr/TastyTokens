@@ -29,6 +29,7 @@ import CustomerProviders from "./pages/public/CustomerProviders";
 // SUPER-ADMIN
 import SuperAdminLayout from "./pages/super-admin/SuperAdminLayout";
 import AdminOffers from "./pages/admin/AdminOffer";
+import SuperDashboard from "./pages/super-admin/SuperDashboard";
 
 function App() {
   return (
@@ -82,6 +83,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="/signup" element={<SuperDashboard />} />
 
         <Route path="*" element={<Page404 />} />
       </Routes>

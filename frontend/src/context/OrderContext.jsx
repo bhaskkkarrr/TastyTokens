@@ -2,13 +2,11 @@ import {
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { io } from "socket.io-client";
 import { AuthContext } from "./AuthContext";
-import { m } from "framer-motion";
 const BASE_API = import.meta.env.VITE_BASE_API;
 export const OrderContext = createContext();
 
@@ -17,14 +15,14 @@ export const OrderProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [newOrderCount, setNewOrderCount] = useState(0);
   const [singleOrder, setSingleOrder] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [isLoadingOrder, setIsLoadingOrder] = useState(false);
   const socketRef = useRef(null);
+
   // --- AUDIO FIX ---
   const notificationSoundRef = useRef(null);
-
   useEffect(() => {
     notificationSoundRef.current = new Audio("/order-alert.mp3");
 
@@ -49,6 +47,7 @@ export const OrderProvider = ({ children }) => {
     document.addEventListener("click", unlock, { once: true });
     document.addEventListener("keydown", unlock, { once: true });
   }, []);
+
 
   // ------------------------------------------------------
   // ✅ Fetch all orders
@@ -230,6 +229,7 @@ export const OrderProvider = ({ children }) => {
     return { res };
   };
 
+  
   // ------------------------------------------------------
   // CUSTOMER SIDE — Get order details
   // ------------------------------------------------------

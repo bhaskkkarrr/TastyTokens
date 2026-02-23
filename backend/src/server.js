@@ -18,9 +18,11 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server, {
   cors: {
-    origin: "*", // in production, put your domain
+    origin: ["https://tasty-tokens.vercel.app", "http://localhost:5174"],
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 io.on("connection", (socket) => {
@@ -56,12 +58,6 @@ const { orderRoutes } = require("./routes/OrderRoutes");
 const { settingsRoutes } = require("./routes/settingsRoutes");
 const { notificationRoutes } = require("./routes/notificationRoutes");
 const { discountRoutes } = require("./routes/discountRoutes");
-// app.use(
-//   cors({
-//     origin: "tasty-tokens.vercel.app",
-//     credentials: true,
-//   })
-// );
 
 app.use(cors());
 
@@ -76,6 +72,7 @@ app.use("/api/order", orderRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/discount", discountRoutes);
+
 // Server Port
 server.listen(PORT, () => {
   console.log(`Server is running on port http://localhost:${PORT}`);

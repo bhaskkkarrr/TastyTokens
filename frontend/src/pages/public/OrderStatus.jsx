@@ -10,7 +10,6 @@ import {
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { OrderContext } from "../../context/OrderContext";
-import { div } from "framer-motion/client";
 
 export default function OrderStatus() {
   const { restaurantId, tableId, orderId } = useParams();
@@ -402,7 +401,9 @@ export default function OrderStatus() {
                   >
                     <div>
                       {/* Main Item */}
-                      <div className="font-semibold text-gray-800">{item.name}</div>
+                      <div className="font-semibold text-gray-800">
+                        {item.name}
+                      </div>
 
                       <div className="text-sm text-gray-600 mt-1 flex items-center gap-2">
                         <span>Qty: {item.quantity}</span>
@@ -436,7 +437,9 @@ export default function OrderStatus() {
 
                 <div className="flex justify-between text-gray-700">
                   <div>Tax</div>
-                  <div className="font-semibold">₹{singleOrder.pricing.restaurantTax}</div>
+                  <div className="font-semibold">
+                    ₹{singleOrder.pricing.restaurantTax}
+                  </div>
                 </div>
 
                 <div className="flex justify-between text-gray-700">
@@ -447,7 +450,9 @@ export default function OrderStatus() {
                 </div>
 
                 <div className="border-t border-emerald-300 pt-3 mt-2 flex justify-between items-center">
-                  <div className="text-lg font-bold text-gray-800">Grand Total</div>
+                  <div className="text-lg font-bold text-gray-800">
+                    Grand Total
+                  </div>
 
                   <div className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     ₹{singleOrder.pricing.grandTotal}
